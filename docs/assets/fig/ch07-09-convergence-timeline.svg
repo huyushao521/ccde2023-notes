@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 352" width="100%" role="img" aria-labelledby="t9 d9">
+  <title id="t9">802.1D 与 RSTP 的收敛差异：等计时器 vs 问邻居</title>
+  <desc id="d9">上半轴是 802.1D 的收敛过程：阻塞端口先等 Max Age 20 秒超时，再经 Listening 15 秒不转发不学 MAC，再经 Learning 15 秒学 MAC 不转发，合计 30 至 50 秒。下半轴是 RSTP：相邻交换机通过 Proposal 与 Agreement 握手，逐跳把指定端口推到 Forwarding，合计 1 至 3 秒；边缘端口完全跳过，直连故障靠链路检测可达毫秒级。结论是 RSTP 的收敛不随拓扑规模线性变差，这才是它支持大规模部署的真实原因。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .wn{font:600 9px "Microsoft YaHei",sans-serif;fill:#fff}
+    .n{font:9px "Segoe UI",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="352" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">收敛 = 业务中断时长：802.1D 是"死等"，RSTP 是"协商"</text>
+  <text class="s" x="24" y="48">两条轴的时间刻度不同（上轴 0–50 秒，下轴 0–3 秒），但都画满整幅宽度 —— 直观体现两个数量级</text>
+
+  <!-- 802.1D -->
+  <text class="lb" x="24" y="86">802.1D（计时器驱动）≈ 30–50 秒</text>
+  <line x1="24" y1="136" x2="936" y2="136" stroke="#c9d3e3"/>
+  <!-- segments -->
+  <rect x="60" y="104" width="300" height="30" fill="#f6d9d9" stroke="#a32020"/>
+  <text class="wn" x="210" y="123" text-anchor="middle">Max Age 20 秒（等超时）</text>
+  <rect x="360" y="104" width="225" height="30" fill="#f0c2c2" stroke="#a32020"/>
+  <text class="wn" x="472" y="123" text-anchor="middle">Listening 15 秒</text>
+  <rect x="585" y="104" width="225" height="30" fill="#e8a8a8" stroke="#a32020"/>
+  <text class="wn" x="697" y="123" text-anchor="middle">Learning 15 秒</text>
+  <rect x="810" y="104" width="120" height="30" fill="#eef7f4" stroke="#0f7f73"/>
+  <text class="c" x="870" y="123" text-anchor="middle">Forwarding</text>
+  <text class="b" x="60" y="154">0 s</text><text class="b" x="440" y="154" text-anchor="middle">20 s</text>
+  <text class="b" x="700" y="154" text-anchor="middle">35 s</text><text class="b" x="900" y="154" text-anchor="middle">50 s</text>
+  <text class="b" x="24" y="176">每一段都在"不做任何有用的事"：Listening 不转发也不学 MAC，Learning 学 MAC 但不转发</text>
+  <text class="r" x="24" y="194">所以 802.1D 的收敛时间与优化无关，只与"你愿意等多久"有关</text>
+
+  <!-- RSTP -->
+  <text class="lb" x="24" y="232">RSTP（协商驱动）≈ 1–3 秒（轴放大）</text>
+  <line x1="24" y1="284" x2="936" y2="284" stroke="#c9d3e3"/>
+  <rect x="60" y="252" width="150" height="30" fill="#dcefeb" stroke="#0f7f73"/>
+  <text class="c" x="135" y="271" text-anchor="middle">检测 + Proposal</text>
+  <rect x="210" y="252" width="330" height="30" fill="#c9e7e1" stroke="#0f7f73"/>
+  <text class="c" x="375" y="271" text-anchor="middle">Agreement 逐跳推进（每跳亚秒级）</text>
+  <rect x="540" y="252" width="240" height="30" fill="#eef7f4" stroke="#0f7f73"/>
+  <text class="c" x="660" y="271" text-anchor="middle">Forwarding</text>
+  <rect x="780" y="252" width="150" height="30" fill="#fff8e8" stroke="#b45309"/>
+  <text class="m" x="855" y="271" text-anchor="middle">边缘端口：0 秒</text>
+  <text class="b" x="60" y="302">0 s</text><text class="b" x="500" y="302" text-anchor="middle">1–2 跳</text>
+  <text class="b" x="900" y="302" text-anchor="middle">3 s</text>
+
+  <rect x="24" y="314" width="912" height="30" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="333">关键区别：802.1D 的收敛随跳数累加（每跳都要等），RSTP 的收敛不随拓扑规模线性变差 —— 这才是"支持大规模部署"的真实原因</text>
+</svg>

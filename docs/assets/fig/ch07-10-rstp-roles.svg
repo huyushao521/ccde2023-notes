@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 402" width="100%" role="img" aria-labelledby="t10 d10">
+  <title id="t10">RSTP 的端口角色、状态与边缘端口</title>
+  <desc id="d10">拓扑上标注四种端口角色：指向根桥的根端口、向下转发数据的指定端口、被阻塞作为备份的替代端口、连主机的边缘端口。右侧表格说明各角色的判定依据与设计含义，并指出替代端口意味着一条被浪费的上行链路。底部说明 RSTP 把 802.1D 的五种状态压缩成丢弃、学习、转发三种，边缘端口立即转发但入向收到 BPDU 必须立刻关闭，这就是 BPDU Guard 存在的理由。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .th{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="402" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">端口角色不是配置出来的，是选出来的 —— 而"被选掉"的那个角色会浪费一条链路</text>
+  <text class="s" x="24" y="48">看懂这张图就能看懂任何一个二层故障现场：哪条线上有流量，哪条线在空转</text>
+
+  <!-- 拓扑 -->
+  <rect x="24" y="66" width="520" height="252" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="236" y="82" width="96" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="284" y="105" text-anchor="middle">核心（根桥）</text>
+  <rect x="60" y="176" width="96" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="108" y="199" text-anchor="middle">DSW1</text>
+  <rect x="412" y="176" width="96" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="460" y="199" text-anchor="middle">DSW2</text>
+  <rect x="236" y="256" width="96" height="34" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="284" y="277" text-anchor="middle">ASW</text>
+
+  <line x1="200" y1="118" x2="112" y2="176" stroke="#0f7f73" stroke-width="1.8"/>
+  <line x1="368" y1="118" x2="456" y2="176" stroke="#8494a8" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <line x1="108" y1="212" x2="252" y2="256" stroke="#0f7f73" stroke-width="1.8"/>
+  <line x1="460" y1="212" x2="316" y2="256" stroke="#8494a8" stroke-width="1.6" stroke-dasharray="5 4"/>
+
+  <text class="c" x="120" y="140">根端口（RP）</text>
+  <text class="r" x="372" y="152">替代端口 ALTN</text>
+  <text class="c" x="126" y="240">指定端口 DP</text>
+  <text class="r" x="352" y="240">替代端口 ALTN</text>
+
+  <rect x="236" y="312" width="96" height="28" rx="4" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="284" y="331" text-anchor="middle">接入主机</text>
+  <line x1="284" y1="290" x2="284" y2="312" stroke="#b45309" stroke-width="1.6"/>
+  <text class="m" x="292" y="306">边缘端口（立即转发）</text>
+
+  <text class="r" x="36" y="160">两条上行只有一条在用</text>
+
+  <!-- 右表 -->
+  <rect x="556" y="66" width="380" height="20" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="564" y="80">角色 / 状态</text><text class="th" x="664" y="80">怎么来的</text><text class="th" x="800" y="80">设计含义</text>
+
+  <text class="k" x="564" y="104">根端口 RP</text><text class="b" x="664" y="104">到根桥开销最小</text><text class="b" x="800" y="104">唯一，必有</text>
+  <text class="k" x="564" y="124">指定端口 DP</text><text class="b" x="664" y="124">本段到根更优</text><text class="b" x="800" y="124">转发数据</text>
+  <text class="k" x="564" y="144">替代端口 ALTN</text><text class="b" x="664" y="144">备份路径</text><text class="r" x="800" y="144">链路被浪费</text>
+  <text class="k" x="564" y="164">禁用/备份</text><text class="b" x="664" y="164">自环等异常</text><text class="b" x="800" y="164">应告警</text>
+  <text class="k" x="564" y="184">边缘端口 Edge</text><text class="b" x="664" y="184">手工指定</text><text class="c" x="800" y="184">接主机，0 秒转发</text>
+
+  <rect x="556" y="200" width="380" height="60" rx="4" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="568" y="220">RSTP 状态只有三种：</text>
+  <text class="b" x="568" y="236">Discarding（不转发不学 MAC）→ Learning（学 MAC）</text>
+  <text class="b" x="568" y="252">→ Forwarding（转发）。802.1D 的 Blocking/Listening 合并了</text>
+
+  <rect x="556" y="272" width="380" height="76" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="r" x="568" y="292">边缘端口的危险：如果那个口其实接的是交换机</text>
+  <text class="r" x="568" y="308">→ 它立即转发，而你刚制造了一个无保护的二层环</text>
+  <text class="c" x="568" y="328">所以 PortFast 必须搭配 BPDU Guard：入向收到 BPDU 就 err-disable</text>
+  <text class="b" x="568" y="344">这条规则没有例外 —— 忘了它，就是一次全网广播风暴</text>
+
+  <rect x="24" y="330" width="520" height="60" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="350">看到 ALTN / BLK 端口，先别急着"优化 STP"</text>
+  <text class="b" x="36" y="368">那个端口意味着：你付了 2×10G 的钱，只买到 10G 的转发能力。</text>
+  <text class="b" x="36" y="384">要把它用起来，只有两条路：链路聚合（同设备）或 mLAG（跨设备）。</text>
+</svg>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 404" width="100%" role="img" aria-labelledby="t17 d17">
+  <title id="t17">VTP 的四种模式与一次 revision 覆盖事故</title>
+  <desc id="d17">左侧四种模式对照：Server 可增删 VLAN 并广播、Client 只能接收、Transparent 本地独立转发但透传、Off 完全不参与。右侧演示事故路径：一台在仓库里放了半年的交换机带着 revision 42 接入，而现网是 revision 12，VTP 以高 revision 为准，现网 VLAN 数据库被旧配置覆盖，部分 VLAN 从交换机上消失导致整片区断网。底部结论是现代园区直接使用 VTP Off 或 Transparent，VLAN 由自动化下发。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="404" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">VTP：一个设计于 1990 年代的"省事"机制，代价是全网 VLAN 库只有一个写权限</text>
+  <text class="s" x="24" y="48">它让配置变简单的方式是：让任何人都能一次改掉所有交换机 —— 包括那台从仓库里搬出来的旧机</text>
+
+  <!-- 四模式 -->
+  <text class="lb" x="24" y="76">四种模式：只记"谁有权改"和"会不会被改"</text>
+  <rect x="24" y="84" width="140" height="96" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="36" y="104">Server</text>
+  <text class="b" x="36" y="122">可增删 VLAN</text><text class="b" x="36" y="138">广播并同步他人</text>
+  <text class="r" x="36" y="160">风险最高</text>
+
+  <rect x="176" y="84" width="140" height="96" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="188" y="104">Client</text>
+  <text class="b" x="188" y="122">不能本地改</text><text class="b" x="188" y="138">只能被动接收</text>
+  <text class="m" x="188" y="160">被覆盖的一方</text>
+
+  <rect x="328" y="84" width="140" height="96" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="340" y="104">Transparent</text>
+  <text class="b" x="340" y="122">本地独立</text><text class="b" x="340" y="138">但仍透传报文</text>
+  <text class="c" x="340" y="160">推荐</text>
+
+  <rect x="480" y="84" width="140" height="96" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="k" x="492" y="104">Off</text>
+  <text class="b" x="492" y="122">完全不参与</text><text class="b" x="492" y="138">VLAN 全靠本地</text>
+  <text class="c" x="492" y="160">现代首选</text>
+
+  <rect x="24" y="192" width="596" height="26" rx="4" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="36" y="210">VTP 的"版本号"叫 revision（配置修订号）：<tspan class="k">revision 大的会覆盖 revision 小的</tspan>，与时间、与谁更新无关</text>
+
+  <!-- 事故 -->
+  <text class="lb" x="24" y="252">一次真实的覆盖事故</text>
+  <rect x="24" y="260" width="596" height="110" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <rect x="44" y="276" width="110" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="99" y="297" text-anchor="middle">现网 DSW1</text>
+  <text class="c" x="60" y="326">revision 12</text>
+  <text class="b" x="44" y="342">VLAN 10/20/1050 正常</text>
+
+  <rect x="300" y="276" width="110" height="34" rx="4" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="355" y="297" text-anchor="middle">仓库旧机</text>
+  <text class="m" x="316" y="326">revision 42</text>
+  <text class="b" x="300" y="342">只有 VLAN 1/2</text>
+
+  <line x1="250" y1="293" x2="300" y2="293" stroke="#a32020" stroke-width="1.6" marker-end="url(#a4)"/>
+  <text class="r" x="262" y="286">接入</text>
+  <line x1="470" y1="293" x2="560" y2="293" stroke="#a32020" stroke-width="1.6" marker-end="url(#a4)"/>
+  <text class="r" x="500" y="286">revision 42 &gt; 12</text>
+  <text class="r" x="474" y="326">现网 VLAN 库被覆盖</text>
+  <text class="r" x="474" y="342">1050 消失 → 整层话机掉线</text>
+
+  <!-- 右：结论 -->
+  <rect x="644" y="66" width="292" height="180" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="lb" x="658" y="88" fill="#0f7f73">现代做法</text>
+  <text class="b" x="658" y="110">VTP 全局关闭（Off 或 Transparent）</text>
+  <text class="b" x="658" y="128">VLAN 由配置模板 / 自动化平台下发</text>
+  <text class="b" x="658" y="146">若必须保留 VTP：全部设为 Transparent，</text>
+  <text class="b" x="658" y="164">并给旧设备"上线前清配置"的硬性流程</text>
+  <text class="c" x="658" y="188">自动化下发比 VTP 可靠的地方：</text>
+  <text class="c" x="658" y="206">有审计、有回滚、有 diff</text>
+  <text class="b" x="658" y="230">VTP 三者都没有，只有一个 revision 数字</text>
+
+  <rect x="644" y="256" width="292" height="114" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="658" y="276">如果一定要用：三条硬约束</text>
+  <text class="b" x="658" y="296">① 两侧都必须有明确域名（domain），空域名</text>
+  <text class="b" x="658" y="312">　 会在收到通告后自动加入</text>
+  <text class="b" x="658" y="330">② 密码必须配置，防止误接入</text>
+  <text class="b" x="658" y="348">③ 新设备上线前 <tspan class="mono">delete vlan.dat</tspan></text>
+
+  <rect x="24" y="378" width="912" height="18" rx="4" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="36" y="392">一句话：VTP 省下的是"敲 VLAN 命令"的时间，付出的是"一次覆盖就全网断"的风险 —— 这个交换不划算。</text>
+</svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 366" width="100%" role="img" aria-labelledby="t8 d8">
+  <title id="t8">STP 五个版本对比与选型速查</title>
+  <desc id="d8">表格对比 802.1D 收敛 30 至 50 秒、802.1W RSTP 收敛 1 至 3 秒、802.1S MST 用实例聚合 VLAN、PVST+ 与 Rapid PVST+ 每 VLAN 一个实例、802.1aq SPB 用 ISIS 做二层路由但已被 EVPN 取代，并给出各自的实例数量与设计含义。底部三条选型速查：全 Cisco 且 VLAN 小于 100 用 Rapid PVST+；多厂商或 VLAN 大于 200 用 MST；新建园区直接上 mLAG 或 EVPN 让 STP 只做兜底。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .th{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="366" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">STP 版本：选型看三件事 —— 收敛、实例数、厂商互通</text>
+  <text class="s" x="24" y="48">版本不决定"能不能防环"，决定的是"故障时中断多久"和"1000 个 VLAN 时 CPU 扛不扛得住"</text>
+
+  <rect x="24" y="66" width="912" height="24" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="34" y="82">版本</text><text class="th" x="176" y="82">标准</text><text class="th" x="330" y="82">收敛时间</text>
+  <text class="th" x="446" y="82">实例数</text><text class="th" x="556" y="82">设计含义</text>
+
+  <rect x="24" y="90" width="912" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="108">802.1D</text><text class="b" x="176" y="108">传统 STP</text>
+  <text class="r" x="330" y="108">30–50 秒</text><text class="b" x="446" y="108">1（全 VLAN 共用）</text>
+  <text class="b" x="556" y="108">等计时器，现代网络基本不用</text>
+  <text class="b" x="556" y="124">一次拓扑变化 = 一次分钟级中断</text>
+
+  <rect x="24" y="130" width="912" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="148">802.1W</text><text class="b" x="176" y="148">RSTP（快速生成树）</text>
+  <text class="c" x="330" y="148">1–3 秒</text><text class="b" x="446" y="148">1（全 VLAN 共用）</text>
+  <text class="c" x="556" y="148">现代默认基线；协商驱动而非等计时器</text>
+  <text class="b" x="556" y="164">直连故障可到毫秒级（靠链路检测）</text>
+
+  <rect x="24" y="170" width="912" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="188">802.1S</text><text class="b" x="176" y="188">MST（多生成树）</text>
+  <text class="c" x="330" y="188">1–3 秒</text><text class="k" x="446" y="188">少量（VLAN 映射到实例）</text>
+  <text class="c" x="556" y="188">VLAN 数量大时的必需品；多厂商互通</text>
+  <text class="m" x="556" y="204">代价：name/revision/映射全网必须一致</text>
+
+  <rect x="24" y="210" width="912" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="228">PVST+ / Rapid PVST+</text><text class="b" x="176" y="228">Cisco 专有</text>
+  <text class="c" x="330" y="228">1–3 秒</text><text class="r" x="446" y="228">= VLAN 数（1000 VLAN→1000 份）</text>
+  <text class="b" x="556" y="228">灵活：每 VLAN 可设根桥做流量分担</text>
+  <text class="r" x="556" y="244">规模上限低：BPDU 与状态机线性上升</text>
+
+  <rect x="24" y="250" width="912" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="268">802.1aq</text><text class="b" x="176" y="268">SPB（最短路径桥接）</text>
+  <text class="c" x="330" y="268">收敛快</text><text class="b" x="446" y="268">IS-IS 计算</text>
+  <text class="b" x="556" y="268">用 IS-IS 做二层路由、无阻塞端口</text>
+  <text class="m" x="556" y="284">已被 EVPN 取代，几乎无新部署</text>
+
+  <!-- 选型速查 -->
+  <text class="lb" x="24" y="318">选择速查（把三个问题问完，答案基本唯一）</text>
+  <rect x="24" y="328" width="292" height="30" rx="4" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="b" x="36" y="347">全 Cisco + VLAN &lt; 100 → <tspan class="k">Rapid PVST+</tspan></text>
+  <rect x="334" y="328" width="292" height="30" rx="4" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="b" x="346" y="347">多厂商混合 或 VLAN &gt; 200 → <tspan class="k">MST</tspan></text>
+  <rect x="644" y="328" width="292" height="30" rx="4" fill="#eef7f4" stroke="#0f7f73"/>
+  <text class="b" x="656" y="347">新建园区 → <tspan class="k">mLAG / EVPN</tspan>，STP 只做兜底</text>
+</svg>

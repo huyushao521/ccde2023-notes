@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 428" width="100%" role="img" aria-labelledby="t18 d18">
+  <title id="t18">链路聚合的哈希限制：8×10G 不等于 80G</title>
+  <desc id="d18">左侧拓扑显示服务器与交换机之间 8 条 10G 成员链路，流量按哈希结果分散，结果两条成员接近饱和而其余成员空闲，实测总吞吐只有 12G。右侧用柱状对比理想 80G、默认哈希实测 12G、改用五元组并增加并发流后 45G，并说明三条规律：单流永远不超过单条成员带宽、成员间按流哈希不会动态再平衡、增加成员数不等于增加单流带宽。底部给出设计与验收建议。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .big{font:600 16px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="428" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">8×10G 聚合不等于 80G：哈希是按"流"分配的，不是按"比特"</text>
+  <text class="s" x="24" y="48">同一时刻只有几个大流时，聚合带宽等于<tspan class="k">最快的那个成员</tspan>，其余成员在空转</text>
+
+  <!-- 拓扑 -->
+  <rect x="24" y="66" width="470" height="212" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="60" y="140" width="92" height="60" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="106" y="166" text-anchor="middle">服务器</text><text class="n" x="106" y="184" text-anchor="middle">双网卡</text>
+  <rect x="360" y="140" width="92" height="60" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="406" y="166" text-anchor="middle">ASW</text><text class="n" x="406" y="184" text-anchor="middle">Po10</text>
+
+  <line x1="152" y1="150" x2="360" y2="150" stroke="#0f7f73" stroke-width="2.4"/>
+  <line x1="152" y1="163" x2="360" y2="163" stroke="#a32020" stroke-width="2.4"/>
+  <line x1="152" y1="176" x2="360" y2="176" stroke="#8494a8" stroke-width="1.2"/>
+  <line x1="152" y1="189" x2="360" y2="189" stroke="#8494a8" stroke-width="1.2"/>
+  <line x1="152" y1="196" x2="360" y2="196" stroke="#8494a8" stroke-width="1.2"/>
+
+  <text class="c" x="176" y="146">10G 满载</text>
+  <text class="r" x="176" y="161">10G 满载</text>
+  <text class="b" x="256" y="212">其余 6 条成员：几乎空闲</text>
+  <text class="b" x="36" y="240">哈希输入通常是 源/目的 IP + 端口 的固定字段组合</text>
+  <text class="r" x="36" y="258">两条大流恰好哈希到同一成员 → 那条成员成为瓶颈</text>
+
+  <!-- 柱状数据 -->
+  <text class="lb" x="516" y="76">实测吞吐（同一对设备，同一组 8×10G）</text>
+  <line x1="546" y1="240" x2="936" y2="240" stroke="#c9d3e3"/>
+  <rect x="566" y="96" width="70" height="144" fill="#e8edf5" stroke="#8494a8"/>
+  <text class="big" x="601" y="88" text-anchor="middle">80G</text>
+  <text class="b" x="601" y="256" text-anchor="middle">理论值</text>
+  <text class="b" x="601" y="272" text-anchor="middle">8×10G</text>
+
+  <rect x="686" y="218" width="70" height="22" fill="#f0c2c2" stroke="#a32020"/>
+  <text class="big" x="721" y="210" text-anchor="middle" fill="#a32020">12G</text>
+  <text class="b" x="721" y="256" text-anchor="middle">默认哈希</text>
+  <text class="b" x="721" y="272" text-anchor="middle">两三条大流</text>
+
+  <rect x="806" y="159" width="70" height="81" fill="#c9e7e1" stroke="#0f7f73"/>
+  <text class="big" x="841" y="151" text-anchor="middle" fill="#0f7f73">45G</text>
+  <text class="b" x="841" y="256" text-anchor="middle">五元组 + 多流</text>
+  <text class="b" x="841" y="272" text-anchor="middle">并发流上来了</text>
+
+  <text class="m" x="516" y="300">同样的硬件，12G 与 45G 的差别不在设备，而在"流的数量与哈希字段"</text>
+
+  <!-- 三条规律 -->
+  <rect x="24" y="292" width="470" height="72" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="r" x="36" y="312">① 单流永远跑不过一条成员链路</text>
+  <text class="b" x="36" y="330">备份、大文件同步、数据库复制这类"少数大流"业务，聚合帮不上忙</text>
+  <text class="b" x="36" y="348">要单流更快，只能提高单成员速率（10G→25G/100G），不能靠加成员</text>
+
+  <rect x="516" y="318" width="420" height="46" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="528" y="338">② 哈希结果在会话期间固定，不会动态再平衡</text>
+  <text class="b" x="528" y="356">所以"加上一条成员链路"往往不会带来任何提升</text>
+
+  <rect x="24" y="372" width="470" height="46" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="392">③ 设计验收要测"业务真实流模型"，不是打流器总量</text>
+  <text class="b" x="36" y="410">用 iperf 多并发 + 真实应用各跑一遍，两者的差值才是你该担心的</text>
+
+  <rect x="516" y="372" width="420" height="46" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="b" x="528" y="392">排障入口：</text>
+  <text class="b" x="528" y="410">看每个成员的实时利用率，而不是只看 Po 口总量</text>
+</svg>

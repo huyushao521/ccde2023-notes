@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 444" width="100%" role="img" aria-labelledby="t16 d16">
+  <title id="t16">Trunk 的三条铁律与两类典型事故</title>
+  <desc id="d16">左上拓扑说明 native VLAN 不一致时，两端各自把无标记帧归入不同 VLAN，等于把两个 VLAN 桥接在一起，造成跨 VLAN 串台与 DHCP 拿错地址。左下是 allowed 列表被覆盖的示意：新命令 switchport trunk allowed vlan 10,20 覆盖了原有列表，语音 VLAN 被剔除，三百部话机注册失败。右侧给出三条铁律：native VLAN 改成未使用的专用值且两端一致、allowed 列表用 add 追加并显式列出、关闭 DTP 协商。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="444" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">Trunk 的两类事故：一个是"桥错了"，一个是"剔错了"</text>
+  <text class="s" x="24" y="48">两者都不报警、都不影响 ping 网关，只表现为"某些业务时好时坏"</text>
+
+  <!-- 事故一：native VLAN 不一致 -->
+  <rect x="24" y="66" width="452" height="180" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="38" y="88" fill="#a32020">事故一：native VLAN 不一致 → 两个 VLAN 被打通</text>
+  <rect x="52" y="100" width="88" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="96" y="121" text-anchor="middle">SW-A</text>
+  <rect x="356" y="100" width="88" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="400" y="121" text-anchor="middle">SW-B</text>
+  <line x1="140" y1="117" x2="356" y2="117" stroke="#2f6fed" stroke-width="2"/>
+  <text class="b" x="248" y="110" text-anchor="middle">trunk（无标记帧）</text>
+  <text class="r" x="60" y="152">native = 999</text><text class="r" x="364" y="152">native = 1</text>
+
+  <rect x="52" y="164" width="88" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="96" y="183" text-anchor="middle">VLAN 999</text>
+  <rect x="356" y="164" width="88" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="400" y="183" text-anchor="middle">VLAN 1</text>
+  <line x1="96" y1="134" x2="96" y2="164" stroke="#a32020" stroke-width="1.6"/>
+  <line x1="400" y1="134" x2="400" y2="164" stroke="#a32020" stroke-width="1.6"/>
+  <text class="r" x="180" y="186">同一个无标记帧，两端归属不同 VLAN</text>
+  <text class="m" x="38" y="212">后果：两个 VLAN 被桥接 → 广播互窜、ARP 串台、DHCP 拿错网段</text>
+  <text class="b" x="38" y="232">CDP 会提示 "native VLAN mismatch"，但没人每天看日志</text>
+
+  <!-- 事故二：allowed 被覆盖 -->
+  <rect x="24" y="254" width="452" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="38" y="276" fill="#a32020">事故二：allowed 列表被覆盖 → 语音 VLAN 被剔除</text>
+  <rect x="38" y="286" width="424" height="30" rx="3" fill="#0f172a"/>
+  <text class="mono" x="48" y="306" fill="#8fa3c8">! 原：allowed vlan 10,20,1050（含语音）</text>
+  <rect x="38" y="320" width="424" height="30" rx="3" fill="#0f172a"/>
+  <text class="mono" x="48" y="340" fill="#ffb4b4">SW(config-if)# switchport trunk allowed vlan 10,20</text>
+  <text class="r" x="38" y="366">没有 add → 整条列表被替换，1050 消失，300 部话机注册失败</text>
+
+  <!-- 右：三条铁律 -->
+  <rect x="492" y="66" width="444" height="308" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="506" y="88">三条铁律（写成模板，不靠自觉）</text>
+
+  <text class="k" x="506" y="112">① native VLAN 改成未使用的专用值，且两端一致</text>
+  <rect x="506" y="120" width="416" height="44" rx="3" fill="#0f172a"/>
+  <text class="mono" x="516" y="138" fill="#cfe0ff">switchport trunk native vlan 999</text>
+  <text class="mono" x="516" y="156" fill="#8fa3c8">! 999 上不配置任何地址与业务</text>
+  <text class="b" x="506" y="180">理由：无标记帧必须有唯一归属；未使用值让"误桥接"变成"不通"而不是"串台"</text>
+
+  <text class="k" x="506" y="204">② allowed 列表显式列出，改动一律用 add</text>
+  <rect x="506" y="212" width="416" height="44" rx="3" fill="#0f172a"/>
+  <text class="mono" x="516" y="230" fill="#cfe0ff">switchport trunk allowed vlan add 1050</text>
+  <text class="mono" x="516" y="248" fill="#8fa3c8">! 不用 all，也不用不带 add 的整串覆盖</text>
+  <text class="b" x="506" y="272">理由：默认 all 意味着新增 VLAN 自动泛洪到所有 trunk；覆盖式命令则是一次误删</text>
+
+  <text class="k" x="506" y="296">③ 关闭 DTP，不让链路自己协商</text>
+  <rect x="506" y="304" width="416" height="44" rx="3" fill="#0f172a"/>
+  <text class="mono" x="516" y="322" fill="#cfe0ff">switchport nonegotiate</text>
+  <text class="mono" x="516" y="340" fill="#8fa3c8">! 两端都明确 static trunk</text>
+  <text class="b" x="506" y="362">理由：DTP 可能把一条本该是 access 的口协商成 trunk，把用户的 VLAN 暴露给终端</text>
+
+  <!-- 底部总结 -->
+  <rect x="24" y="388" width="912" height="44" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="408">验收方法：对每一对互联设备执行 <tspan class="mono">show interfaces trunk</tspan>，逐条核对 native VLAN、allowed 列表、协商状态三项是否与设计表一致。</text>
+  <text class="b" x="36" y="426">trunk 是全园区最容易"配一次、改十年"的地方 —— 把它固化成模板 + 巡检项，比任何一次培训都有效。</text>
+</svg>

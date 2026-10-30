@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t26 d26">
+  <title id="t26">四种二层拓扑模型：三角形、倒 U、环形与无环 U 型</title>
+  <desc id="d26">四张迷你拓扑逐一对比。三角形：两台核心加一台接入，必有一条链路被 STP 阻塞，2×10G 只能用 10G。倒 U 型：接入双上行到同一对核心，物理上是三角形，同样要阻塞。环形：多栋楼首尾相连，任一链路故障都会引起大范围重算，且环路风险最高。无环 U 型：VLAN 不跨接入，每台接入只与核心形成点到点关系，没有阻塞端口，全部带宽可用，故障影响面限于单台接入。底部给出选择依据与两种可用带宽的量化对比。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9px "Segoe UI",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">四种拓扑模型：能不能"没有阻塞端口"，取决于 VLAN 跨不跨接入</text>
+  <text class="s" x="24" y="48">同一套硬件，四种画法对应四种可用带宽与四种故障影响面</text>
+
+  <!-- ① 三角形 -->
+  <rect x="24" y="66" width="444" height="168" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <text class="lb" x="38" y="86">① 三角形（经典三层）</text>
+  <rect x="60" y="98" width="76" height="30" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="98" y="118" text-anchor="middle">DSW1</text>
+  <rect x="352" y="98" width="76" height="30" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="390" y="118" text-anchor="middle">DSW2</text>
+  <rect x="206" y="164" width="76" height="30" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="244" y="184" text-anchor="middle">ASW</text>
+  <line x1="136" y1="113" x2="352" y2="113" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="98" y1="128" x2="222" y2="164" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="390" y1="128" x2="266" y2="164" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text class="r" x="276" y="146">ALTN</text>
+  <text class="b" x="38" y="204">2×10G 只能用 10G；任一处故障都要 STP 收敛</text>
+  <text class="m" x="38" y="222">适用：老园区改造、必须跨接入的二层业务</text>
+
+  <!-- ② 倒 U -->
+  <rect x="488" y="66" width="448" height="168" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <text class="lb" x="502" y="86">② 倒 U 型（双上行到同一对核心）</text>
+  <rect x="524" y="98" width="76" height="30" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="562" y="118" text-anchor="middle">DSW1</text>
+  <rect x="820" y="98" width="76" height="30" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="858" y="118" text-anchor="middle">DSW2</text>
+  <rect x="672" y="164" width="76" height="30" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="710" y="184" text-anchor="middle">ASW</text>
+  <line x1="600" y1="113" x2="820" y2="113" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="562" y1="128" x2="688" y2="164" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="858" y1="128" x2="732" y2="164" stroke="#2f6fed" stroke-width="1.6"/>
+  <text class="m" x="502" y="204">物理上是三角形，逻辑上仍要阻塞一条；差别只是"阻塞在哪条"</text>
+  <text class="b" x="502" y="222">优点：上行可做主备不对称（一条 10G + 一条 1G 备份）</text>
+
+  <!-- ③ 环形 -->
+  <rect x="24" y="246" width="444" height="168" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <text class="lb" x="38" y="266">③ 环形（多楼 / 城域）</text>
+  <rect x="60" y="286" width="70" height="28" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="95" y="305" text-anchor="middle">楼 A</text>
+  <rect x="210" y="286" width="70" height="28" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="245" y="305" text-anchor="middle">楼 B</text>
+  <rect x="360" y="286" width="70" height="28" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="395" y="305" text-anchor="middle">楼 C</text>
+  <line x1="130" y1="300" x2="210" y2="300" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="280" y1="300" x2="360" y2="300" stroke="#2f6fed" stroke-width="1.6"/>
+  <path d="M95,314 C95,360 330,360 330,320" fill="none" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <line x1="395" y1="314" x2="395" y2="320" stroke="#2f6fed" stroke-width="1.6"/>
+  <text class="r" x="150" y="352">环回链路必须被阻塞（否则广播风暴绕全园区）</text>
+  <text class="r" x="38" y="376">任一链路断 → 大范围重算；任一处环路 → 全环受影响</text>
+  <text class="b" x="38" y="396">适用：只有跨楼二层业务无法改三层时才用，且必须配环路检测</text>
+
+  <!-- ④ 无环 U -->
+  <rect x="488" y="246" width="448" height="168" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+  <text class="lb" x="502" y="266" fill="#0f7f73">④ 无环 U 型（本地 VLAN / 三层到接入）★</text>
+  <rect x="524" y="286" width="70" height="28" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="559" y="305" text-anchor="middle">DSW1</text>
+  <rect x="820" y="286" width="70" height="28" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="855" y="305" text-anchor="middle">DSW2</text>
+  <rect x="672" y="352" width="76" height="28" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="710" y="371" text-anchor="middle">ASW</text>
+  <line x1="594" y1="300" x2="820" y2="300" stroke="#8494a8" stroke-width="1.4" stroke-dasharray="6 3"/>
+  <text class="m" x="660" y="294" text-anchor="middle">三层互联</text>
+  <line x1="559" y1="314" x2="690" y2="352" stroke="#0f7f73" stroke-width="2.2"/>
+  <line x1="855" y1="314" x2="730" y2="352" stroke="#0f7f73" stroke-width="2.2"/>
+  <text class="c" x="512" y="392">两条上行都转发 = 2×10G 可用 20G，无阻塞端口</text>
+  <text class="c" x="512" y="410">故障影响面 = 单台接入；STP 只做兜底（防误接成环）</text>
+
+  <!-- 量化 -->
+  <rect x="24" y="424" width="912" height="22" rx="4" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="36" y="440">可用带宽：三角形/倒 U <tspan class="k">10G</tspan>（2×10G 只用一半）　环形 <tspan class="k">随环长衰减</tspan>　无环 U 型 <tspan class="k">20G</tspan>　—— 差距不是配置，是拓扑</text>
+</svg>

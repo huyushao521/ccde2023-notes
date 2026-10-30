@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 424" width="100%" role="img" aria-labelledby="t12 d12">
+  <title id="t12">四种 STP 防护特性的部署位置与误配后果</title>
+  <desc id="d12">左侧三层拓扑标注部署位置：根保护配在朝下的端口防止下游设备抢根；环路保护配在根端口与替代端口防止单向链路卡在转发态；BPDU 防护配在接入口，收到 BPDU 就关闭端口；BPDU 过滤只在极少数场景谨慎使用；UDLD 配在光纤互联上检测单向链路。右侧表格说明每项防护解决的问题、配错的位置以及误配后果，底部强调 BPDU 防护与 BPDU 过滤名称相近但作用相反。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .th{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="424" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">四项防护各守一个位置，配错位置比不配更危险</text>
+  <text class="s" x="24" y="48">它们的共同前提：你清楚每个端口"朝上还是朝下"、"该不该出现 BPDU"</text>
+
+  <!-- 拓扑 -->
+  <rect x="24" y="66" width="470" height="290" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="86" y="82" width="94" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="133" y="105" text-anchor="middle">DSW1</text>
+  <rect x="330" y="82" width="94" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="377" y="105" text-anchor="middle">DSW2</text>
+  <line x1="180" y1="100" x2="330" y2="100" stroke="#8494a8" stroke-width="1.4"/>
+  <text class="m" x="255" y="94" text-anchor="middle">光纤互联 · UDLD</text>
+
+  <rect x="86" y="196" width="94" height="36" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="133" y="219" text-anchor="middle">ASW-A</text>
+  <rect x="330" y="196" width="94" height="36" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="377" y="219" text-anchor="middle">ASW-B</text>
+  <line x1="133" y1="118" x2="133" y2="196" stroke="#0f7f73" stroke-width="1.8"/>
+  <line x1="377" y1="118" x2="377" y2="196" stroke="#8494a8" stroke-width="1.6" stroke-dasharray="5 4"/>
+
+  <text class="c" x="36" y="160">根保护</text><text class="b" x="36" y="176">配在朝下的口</text>
+  <text class="r" x="300" y="160">环路保护</text><text class="b" x="300" y="176">配在根/替代口</text>
+  <text class="r" x="404" y="250">ALTN</text>
+
+  <rect x="86" y="300" width="94" height="30" rx="4" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="133" y="319" text-anchor="middle">员工终端</text>
+  <rect x="330" y="300" width="94" height="30" rx="4" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="377" y="319" text-anchor="middle">会议室小交换机</text>
+  <line x1="133" y1="232" x2="133" y2="300" stroke="#b45309" stroke-width="1.6"/>
+  <line x1="377" y1="232" x2="377" y2="300" stroke="#a32020" stroke-width="1.6"/>
+  <text class="m" x="142" y="272">BPDU 防护</text>
+  <text class="r" x="386" y="286">← 私接交换机：必须被 err-disable</text>
+
+  <rect x="24" y="336" width="470" height="36" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="r" x="36" y="358">没有 BPDU 防护时，这台小交换机可能成为新根桥 → 全网流量改写</text>
+
+  <!-- 右表 -->
+  <rect x="506" y="66" width="430" height="22" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="514" y="81">特性</text><text class="th" x="620" y="81">配在哪</text><text class="th" x="736" y="81">解决什么 / 误配后果</text>
+
+  <rect x="506" y="88" width="430" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="514" y="106">根保护</text><text class="b" x="620" y="106">朝下端口</text>
+  <text class="b" x="736" y="106">下游抢根时进入 root-inconsistent</text>
+  <text class="r" x="736" y="124">误配在朝上口 → 正牌根桥被自己阻断</text>
+
+  <rect x="506" y="140" width="430" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="514" y="158">环路保护</text><text class="b" x="620" y="158">根口 / 替代口</text>
+  <text class="b" x="736" y="158">单向链路收不到 BPDU 时不再误进转发</text>
+  <text class="r" x="736" y="176">与 PortFast 同口配置会互相抵消</text>
+
+  <rect x="506" y="192" width="430" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="514" y="210">BPDU 防护</text><text class="b" x="620" y="210">接入口（全部）</text>
+  <text class="b" x="736" y="210">入向收到 BPDU 即 err-disable</text>
+  <text class="r" x="736" y="228">配在交换机互联口 → 互联全断</text>
+
+  <rect x="506" y="244" width="430" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="514" y="262">BPDU 过滤</text><text class="b" x="620" y="262">极少数场景</text>
+  <text class="b" x="736" y="262">不进不出 BPDU（等同关 STP）</text>
+  <text class="r" x="736" y="280">在互联口启用 = 亲手制造一个无保护的环</text>
+
+  <rect x="506" y="296" width="430" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="514" y="314">UDLD / 单向检测</text><text class="b" x="620" y="314">光纤互联</text>
+  <text class="b" x="736" y="314">收光不收帧（单向）时把链路置错</text>
+  <text class="r" x="736" y="332">现代设备优先用 BFD / 链路事件</text>
+
+  <rect x="506" y="356" width="430" height="56" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="518" y="376">最容易混的一对：BPDU 防护（收到就关）</text>
+  <text class="m" x="518" y="392">vs BPDU 过滤（收也不收、发也不发）</text>
+  <text class="b" x="518" y="406">名字相近、作用相反；装反了，一个断接入，一个造环路。</text>
+</svg>

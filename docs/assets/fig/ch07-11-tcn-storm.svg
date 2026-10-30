@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 408" width="100%" role="img" aria-labelledby="t11 d11">
+  <title id="t11">一次端口抖动如何变成全网泛洪：TCN 的放大路径</title>
+  <desc id="d11">拓扑中 ASW3 的一个接入口每 2 秒抖动一次，产生拓扑变更通知并逐跳上传到核心，核心把 MAC 老化时间从 300 秒压到 15 秒，于是全网每 15 秒重学一次 MAC 表，期间大量单播退化为泛洪。右侧给出量化影响：MAC 表老化 300 秒降到 15 秒、CPU 从 15% 升到 60%、每 15 秒一次全 VLAN 泛洪。底部给出三个正确的止血动作：先定位抖动端口而不是关 STP，补 PortFast 与根保护，最后才考虑限制 TC。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .big{font:600 15px "Microsoft YaHei",sans-serif;fill:#a32020}
+  </style>
+
+  <rect x="0" y="0" width="960" height="408" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">TCN 放大链：一个网线松了的端口，可以让全网每 15 秒泛洪一次</text>
+  <text class="s" x="24" y="48">拓扑变更不是"重新算一棵树"，它还会把全网 MAC 表的老化时间从 300 秒砍到 15 秒</text>
+
+  <!-- 拓扑链 -->
+  <rect x="24" y="66" width="912" height="150" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="44" y="86" width="100" height="38" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="94" y="110" text-anchor="middle">DSW1（根）</text>
+  <rect x="290" y="86" width="100" height="38" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="340" y="110" text-anchor="middle">ASW1</text>
+  <rect x="520" y="86" width="100" height="38" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="570" y="110" text-anchor="middle">ASW2</text>
+  <rect x="750" y="86" width="100" height="38" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="800" y="110" text-anchor="middle">ASW3</text>
+  <line x1="144" y1="105" x2="290" y2="105" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="390" y1="105" x2="520" y2="105" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="620" y1="105" x2="750" y2="105" stroke="#2f6fed" stroke-width="1.6"/>
+
+  <!-- TCN 上行箭头 -->
+  <line x1="790" y1="82" x2="130" y2="82" stroke="#a32020" stroke-width="1.4" marker-end="url(#a3)"/>
+  <text class="r" x="440" y="76" text-anchor="middle">TCN 逐跳上传，每台交换机都更新一次全网表项</text>
+
+  <!-- 抖动端口 -->
+  <rect x="770" y="160" width="60" height="30" rx="4" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="800" y="180" text-anchor="middle">主机口</text>
+  <line x1="800" y1="124" x2="800" y2="160" stroke="#a32020" stroke-width="1.6"/>
+  <text class="r" x="810" y="150">每 2 秒 up/down 一次（网线松 / 非网管小交换机）</text>
+
+  <!-- 影响数据 -->
+  <rect x="24" y="228" width="290" height="96" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="38" y="248" fill="#a32020">MAC 表老化时间</text>
+  <text class="big" x="38" y="278">300 秒 → 15 秒</text>
+  <text class="b" x="38" y="300">表项还来不及学热就被清空，单播退化成泛洪</text>
+  <text class="b" x="38" y="316">泛洪又加剧 CPU，CPU 高又让 BPDU 处理更慢</text>
+
+  <rect x="334" y="228" width="290" height="96" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="348" y="248" fill="#a32020">核心 CPU（实测案例）</text>
+  <text class="big" x="348" y="278">15% → 60%</text>
+  <text class="b" x="348" y="300">没有环路，没有新增流量，只有一个口在抖</text>
+  <text class="b" x="348" y="316">告警里看不到"TC"，只能看到"CPU 高"</text>
+
+  <rect x="644" y="228" width="292" height="96" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="lb" x="658" y="248" fill="#b45309">泛洪节拍</text>
+  <text class="big" x="658" y="278" fill="#b45309">每 15 秒一次全 VLAN 泛洪</text>
+  <text class="b" x="658" y="300">1000 个 MAC 的表被清空再重学</text>
+  <text class="b" x="658" y="316">表现为"整片区域周期性卡顿"</text>
+
+  <!-- 止血顺序 -->
+  <text class="lb" x="24" y="352">止血顺序（顺序错了会从"卡"变成"断"）</text>
+  <rect x="24" y="362" width="292" height="34" rx="4" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="b" x="36" y="376">① 先定位抖动端口：<tspan class="k">show spanning-tree detail</tspan></text>
+  <text class="b" x="36" y="390">看 TC 计数增长与最后变更时间，而不是先动全局参数</text>
+
+  <rect x="334" y="362" width="292" height="34" rx="4" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="b" x="346" y="376">② 补 <tspan class="k">PortFast + BPDU Guard</tspan>，接入口</text>
+  <text class="b" x="346" y="390">不再因为主机插拔产生 TC（这条能解决八成）</text>
+
+  <rect x="644" y="362" width="292" height="34" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="b" x="656" y="376">③ 最后才考虑 <tspan class="r">根保护 / TC 抑制</tspan></text>
+  <text class="b" x="656" y="390">直接关 STP 是禁忌：把"卡顿"升级成"永久环路"</text>
+</svg>

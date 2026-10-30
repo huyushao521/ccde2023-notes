@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t23 d23">
+  <title id="t23">首跳冗余协议对比与虚拟 MAC 的作用</title>
+  <desc id="d23">左侧拓扑说明网关冗余的本质：两台交换机共享一个虚拟 IP 与虚拟 MAC，终端只认虚拟网关，主机无需改配置即可切换。右侧表格对比 HSRP v1、HSRP v2、VRRP v2、GLBP 在标准归属、默认优先级、虚拟 MAC、组播地址、抢占默认值与负载分担能力上的差异。底部强调三个配置要点：抢占必须显式开启、计时器要匹配、必须配置上行链路跟踪否则等于黑洞网关。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .th{font:600 9px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="396" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">网关冗余的本质：终端只认一个虚拟 IP + 虚拟 MAC，谁应答它并不重要</text>
+  <text class="s" x="24" y="48">所以切换快不快，取决于"另一台多久发现自己该应答"</text>
+
+  <!-- 拓扑 -->
+  <rect x="24" y="66" width="404" height="216" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="44" y="84" width="120" height="44" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="104" y="104" text-anchor="middle">DSW1</text><text class="c" x="104" y="120" text-anchor="middle">Active（优先级 120）</text>
+  <rect x="284" y="84" width="120" height="44" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="344" y="104" text-anchor="middle">DSW2</text><text class="b" x="344" y="120" text-anchor="middle">Standby（100）</text>
+  <line x1="164" y1="100" x2="284" y2="100" stroke="#b45309" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="m" x="224" y="94" text-anchor="middle">HSRP hello 3s</text>
+
+  <rect x="118" y="160" width="212" height="46" rx="4" fill="#fdf6ec" stroke="#b45309"/>
+  <text class="k" x="224" y="178" text-anchor="middle">虚拟网关 10.3.10.1</text>
+  <text class="b" x="224" y="196" text-anchor="middle">虚拟 MAC 0000.0c07.ac01（v1）</text>
+
+  <rect x="150" y="236" width="148" height="32" rx="4" fill="#fff" stroke="#8494a8"/>
+  <text class="n" x="224" y="256" text-anchor="middle">终端（网关写死 VIP）</text>
+  <line x1="200" y1="128" x2="200" y2="160" stroke="#2f6fed" stroke-width="1.4"/>
+  <line x1="254" y1="128" x2="254" y2="160" stroke="#8494a8" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <line x1="224" y1="206" x2="224" y2="236" stroke="#8494a8" stroke-width="1.4"/>
+
+  <text class="c" x="36" y="200">终端不需要改配置、不需要换 MAC</text>
+  <text class="b" x="36" y="268">ARP 里看到的永远是那个虚拟 MAC —— 这正是"切换对终端透明"的原因</text>
+
+  <!-- 表格 -->
+  <rect x="448" y="66" width="488" height="22" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="456" y="81">协议</text><text class="th" x="536" y="81">归属</text><text class="th" x="620" y="81">虚拟 MAC</text>
+  <text class="th" x="722" y="81">报文</text><text class="th" x="808" y="81">抢占 / 分担</text>
+
+  <rect x="448" y="88" width="488" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="456" y="106">HSRP v1</text><text class="b" x="536" y="106">Cisco</text>
+  <text class="b" x="620" y="106">0000.0c07.acXX</text><text class="b" x="722" y="106">224.0.0.2 / UDP1985</text>
+  <text class="b" x="808" y="106">默认不抢占 / 不担</text>
+
+  <rect x="448" y="128" width="488" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="456" y="146">HSRP v2</text><text class="b" x="536" y="146">Cisco</text>
+  <text class="b" x="620" y="146">0000.0c9f.fXXX</text><text class="b" x="722" y="146">224.0.0.102 / UDP1985</text>
+  <text class="b" x="808" y="146">支持 IPv6 / 组数更多</text>
+
+  <rect x="448" y="168" width="488" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="456" y="186">VRRP v2</text><text class="c" x="536" y="186">标准</text>
+  <text class="b" x="620" y="186">0000.5e00.01XX</text><text class="b" x="722" y="186">224.0.0.18 / IP 112</text>
+  <text class="b" x="808" y="186">默认抢占开启</text>
+
+  <rect x="448" y="208" width="488" height="40" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="456" y="226">GLBP</text><text class="b" x="536" y="226">Cisco</text>
+  <text class="b" x="620" y="226">0007.b400.XXYY</text><text class="b" x="722" y="226">224.0.0.102 / UDP3222</text>
+  <text class="c" x="808" y="226">多 Active 分担</text>
+
+  <rect x="448" y="256" width="488" height="26" rx="4" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="456" y="274">差异一句话：HSRP/VRRP 是"一主一备"，GLBP 是"一主多转"；跨厂商只能用 VRRP</text>
+
+  <!-- 三个配置要点 -->
+  <text class="lb" x="448" y="306">三个必配项（少一个就等着出事故）</text>
+  <rect x="448" y="314" width="488" height="30" rx="4" fill="#fdf3f3" stroke="#a32020"/>
+  <text class="r" x="460" y="333">① 抢占（preempt）必须显式开启，否则主设备恢复后不会抢回</text>
+
+  <rect x="448" y="348" width="488" height="30" rx="4" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="460" y="367">② 计时器两端一致：hello 3s/hold 10s 是默认，BFD 可压到毫秒级（见 7-25）</text>
+
+  <rect x="448" y="382" width="488" height="26" rx="4" fill="#fdf3f3" stroke="#a32020"/>
+  <text class="r" x="460" y="399">③ 必须做上行链路跟踪，否则"设备活着但上联断了"= 黑洞</text>
+
+  <rect x="24" y="300" width="404" height="94" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="320">为什么虚拟 MAC 比虚拟 IP 更关键</text>
+  <text class="b" x="36" y="340">IP 变了，终端还能靠 ARP 重新学；MAC 变了，交换机的 MAC 表</text>
+  <text class="b" x="36" y="356">需要重新收敛，期间大量单播退化成泛洪（见 7-02）。</text>
+  <text class="b" x="36" y="376">所以：优选"虚拟 MAC 固定不变"的方案（HSRP/VRRP 都满足）。</text>
+</svg>

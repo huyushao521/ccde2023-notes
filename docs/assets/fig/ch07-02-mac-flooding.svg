@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t2 d2">
+  <title id="t2">二层转发只有三个动作：查表、泛洪、再看看泛洪范围有多大</title>
+  <desc id="d2">左侧是交换机的全部转发逻辑：目的 MAC 在表里则按表转发，不在表里则泛洪，广播与组播一律泛洪；MAC 表老化 300 秒，收到拓扑变更后骤降到 15 秒。右侧拓扑显示一台接入交换机把一个未知单播帧复制到全部 4 个端口并上送核心，虚线框即泛洪范围等于整个 VLAN。底部说明二层帧没有 TTL，环路不会自停。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">二层转发只有三个动作：查表 · 泛洪 · 无 TTL 的永久循环</text>
+  <text class="s" x="24" y="48">泛洪是原生行为，不是异常 —— 所以"有环"和"没环"是设计问题，不是配置问题</text>
+
+  <!-- 左：三行逻辑 -->
+  <text class="lb" x="24" y="76">交换机的全部转发逻辑</text>
+  <rect x="24" y="84" width="416" height="126" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <circle cx="42" cy="106" r="8" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="42" y="109" text-anchor="middle">1</text>
+  <text class="b" x="58" y="110">目的 MAC <tspan class="k">在 MAC 表里</tspan> → 只从对应出接口转发</text>
+  <circle cx="42" cy="136" r="8" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="42" y="139" text-anchor="middle">2</text>
+  <text class="b" x="58" y="140">不在表里 → <tspan class="m">泛洪</tspan>到本 VLAN 所有其它端口（未知单播）</text>
+  <circle cx="42" cy="166" r="8" fill="#fdf3f3" stroke="#a32020"/><text class="n" x="42" y="169" text-anchor="middle">3</text>
+  <text class="b" x="58" y="170">广播 FF:FF:… / 组播 → <tspan class="r">一律泛洪</tspan>（除组播 Snooping 优化）</text>
+  <text class="b" x="58" y="196">表项老化：默认 300 秒；收到 TC（拓扑变更）后骤降到 15 秒</text>
+
+  <!-- 左：MAC 表 -->
+  <text class="lb" x="24" y="238">ASW1 的 MAC 表（示例）</text>
+  <rect x="24" y="246" width="416" height="18" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="b" x="34" y="259">MAC 地址</text><text class="b" x="210" y="259">端口</text><text class="b" x="290" y="259">类型</text>
+  <text class="mono" x="34" y="280">0011.2233.4455</text><text class="mono" x="210" y="280">Gi1/0/5</text><text class="c" x="290" y="280">动态（可老化）</text>
+  <text class="mono" x="34" y="297">00aa.bb01.0001</text><text class="mono" x="210" y="297">Po10</text><text class="c" x="290" y="297">上行学到</text>
+  <text class="mono" x="34" y="314">0100.0ccc.cccc</text><text class="mono" x="210" y="314">—</text><text class="m" x="290" y="314">STP/BPDU 组播，不入表</text>
+
+  <text class="r" x="24" y="344">关键：表中没有"目的地"这个概念 —— 只有"这个 MAC 上次从哪个口来"</text>
+  <text class="r" x="24" y="362">所以二层无法回答"去某个网段走哪条最优路径"（那是三层的事）</text>
+  <text class="c" x="24" y="386">→ 二层没有路由收敛，只有"学不到就泛洪"；拓扑一变，唯一下场是泛洪加剧</text>
+
+  <!-- 右：拓扑 -->
+  <text class="lb" x="480" y="76">泛洪范围 = 整个 VLAN（不是整个网络，但也够大）</text>
+  <rect x="480" y="86" width="456" height="278" rx="6" fill="#f7faff" stroke="#c9d8f0" stroke-dasharray="6 4"/>
+  <text class="m" x="492" y="104">虚线框 = 广播域 = 泛洪边界</text>
+
+  <!-- 设备 -->
+  <rect x="662" y="112" width="92" height="38" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="708" y="136" text-anchor="middle">DSW1</text>
+  <rect x="662" y="196" width="92" height="38" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="n" x="708" y="220" text-anchor="middle">ASW1</text>
+  <line x1="708" y1="150" x2="708" y2="196" stroke="#2f6fed" stroke-width="1.4"/>
+  <line x1="700" y1="158" x2="700" y2="188" stroke="#a32020" stroke-width="1.2" marker-end="url(#a1)"/>
+  <line x1="716" y1="188" x2="716" y2="158" stroke="#a32020" stroke-width="1.2" marker-end="url(#a1)"/>
+  <text class="r" x="726" y="176">上行也泛洪</text>
+
+  <!-- 主机 -->
+  <rect x="496" y="278" width="82" height="34" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="537" y="299" text-anchor="middle">PC-A</text>
+  <rect x="600" y="278" width="82" height="34" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="641" y="299" text-anchor="middle">PC-B</text>
+  <rect x="704" y="278" width="82" height="34" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="745" y="299" text-anchor="middle">PC-C</text>
+  <rect x="808" y="278" width="82" height="34" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="849" y="299" text-anchor="middle">PC-D</text>
+
+  <line x1="690" y1="234" x2="537" y2="278" stroke="#b45309" stroke-width="1.2" marker-end="url(#a2)"/>
+  <line x1="700" y1="234" x2="641" y2="278" stroke="#b45309" stroke-width="1.2" marker-end="url(#a2)"/>
+  <line x1="716" y1="234" x2="745" y2="278" stroke="#b45309" stroke-width="1.2" marker-end="url(#a2)"/>
+  <line x1="726" y1="234" x2="849" y2="278" stroke="#b45309" stroke-width="1.2" marker-end="url(#a2)"/>
+  <text class="m" x="500" y="252">1 个未知单播帧 → 复制 4 份</text>
+
+  <text class="r" x="492" y="332">没有 TTL：环路里的帧<b>永不消亡</b></text>
+  <text class="r" x="492" y="348">每绕一圈 → MAC 表翻转一次 → 时通时不通</text>
+  <defs>
+    <marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a32020"/></marker>
+    <marker id="a2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#b45309"/></marker>
+  </defs>
+</svg>

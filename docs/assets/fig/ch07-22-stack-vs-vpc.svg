@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t22 d22">
+  <title id="t22">堆叠、VSS、vPC/mLAG、EVPN 多归属四种"双活"方案对比</title>
+  <desc id="d22">表格对比四种方案：交换机堆叠是单一控制面、故障域合一、升级影响全部成员；VSS 类似但规模更大、故障域也更大；vPC 与标准 M-LAG 是双控制面、故障域分离、可逐台升级，但需要 peer-link 与 keepalive 且有一致性要求；EVPN 多归属把控制面交给 BGP，主机侧多归属、网络侧三层到接入，复杂度最高但故障域最小。底部给出三条取舍：接入层优先堆叠或 vPC、汇聚层优先 vPC、跨楼跨园区优先 EVPN。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .th{font:600 9px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">四种"两台设备当一台用"的方案：控制面是否合一，决定了故障域</text>
+  <text class="s" x="24" y="48">它们都能消掉 STP 阻塞端口，差别只在"一台坏了另一台还能不能独立活"</text>
+
+  <rect x="24" y="66" width="912" height="24" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="34" y="82">方案</text><text class="th" x="150" y="82">控制面</text><text class="th" x="268" y="82">故障域</text>
+  <text class="th" x="404" y="82">升级/重启影响</text><text class="th" x="572" y="82">主要风险</text><text class="th" x="748" y="82">典型位置</text>
+
+  <rect x="24" y="90" width="912" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="108">交换机堆叠</text><text class="b" x="150" y="108">合一（一台主控）</text>
+  <text class="r" x="268" y="108">合一（主控挂了全挂）</text>
+  <text class="r" x="404" y="108">整组重启（分钟级）</text>
+  <text class="b" x="572" y="108">堆叠线缆/环路、分裂检测</text>
+  <text class="b" x="748" y="108">接入层（机房内）</text>
+  <text class="b" x="572" y="126">优点：配置只有一份，运维最简单</text>
+
+  <rect x="24" y="136" width="912" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="154">VSS / 纵向融合</text><text class="b" x="150" y="154">合一（双主控）</text>
+  <text class="m" x="268" y="154">近似合一（规模更大）</text>
+  <text class="m" x="404" y="154">成对重启，影响面更大</text>
+  <text class="b" x="572" y="154">双主检测、跨框链路</text>
+  <text class="b" x="748" y="154">园区汇聚（传统）</text>
+  <text class="b" x="572" y="172">优点：管理面统一；缺点：升级窗口难找</text>
+
+  <rect x="24" y="182" width="912" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="200">vPC / 标准 M-LAG</text><text class="c" x="150" y="200">分离（各自独立控制面）</text>
+  <text class="c" x="268" y="200">分离（一台挂了另一台仍在转发）</text>
+  <text class="c" x="404" y="200">可逐台升级（秒级切换）</text>
+  <text class="m" x="572" y="200">peer-link/keepalive 分离、配置一致性</text>
+  <text class="b" x="748" y="200">汇聚 ↔ 接入</text>
+  <text class="b" x="572" y="218">优点：可用性最好；缺点：运维要求最高</text>
+
+  <rect x="24" y="228" width="912" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="246">EVPN 多归属</text><text class="c" x="150" y="246">分离（BGP 控制面）</text>
+  <text class="c" x="268" y="246">最小（三层到接入）</text>
+  <text class="c" x="404" y="246">逐台升级，影响单台</text>
+  <text class="r" x="572" y="246">设计/排障门槛高、需要控制器或强自动化</text>
+  <text class="b" x="748" y="246">新建园区 / 跨楼</text>
+  <text class="b" x="572" y="264">优点：彻底摆脱二层延伸；缺点：团队能力要先到位</text>
+
+  <!-- 三条取舍 -->
+  <text class="lb" x="24" y="304">三条取舍建议</text>
+  <rect x="24" y="312" width="292" height="72" rx="5" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="k" x="36" y="332">接入层：堆叠或 vPC 都行</text>
+  <text class="b" x="36" y="350">机柜内、距离近、升级窗口好约</text>
+  <text class="b" x="36" y="366">优先选团队更熟的那个，别为了"先进"选</text>
+
+  <rect x="334" y="312" width="292" height="72" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="k" x="346" y="332">汇聚层：优先 vPC / M-LAG</text>
+  <text class="b" x="346" y="350">承载多栋楼流量，不能成对重启</text>
+  <text class="b" x="346" y="366">前提：peer-link 与 keepalive 物理分离</text>
+
+  <rect x="644" y="312" width="292" height="72" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="k" x="656" y="332">跨楼 / 跨园区：EVPN 或三层</text>
+  <text class="b" x="656" y="350">不要让二层域跨楼 —— 环路与广播风暴</text>
+  <text class="b" x="656" y="366">会顺着光纤跑遍全园区</text>
+</svg>

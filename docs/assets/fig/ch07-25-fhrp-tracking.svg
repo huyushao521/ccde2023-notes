@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 404" width="100%" role="img" aria-labelledby="t25 d25">
+  <title id="t25">网关切换的时间构成与上行链路跟踪</title>
+  <desc id="d25">上轴把一次网关切换拆成四段：故障检测默认三个 hello 周期约 9 秒、优先级比较与状态机毫秒级、免费 ARP 与交换机 MAC 表更新百毫秒级、应用重连取决于业务。改用 BFD 后检测可压到 150 毫秒以内，总切换进入亚秒级。下方示意上行链路跟踪：DSW1 优先级 120，跟踪上联，链路失效后减去 30 变为 90，低于 DSW2 的 100，于是主动让位。右侧说明不配跟踪的后果：设备活着、上联断了、仍然是 Active，所有流量被吸到一台没有出口的设备上形成黑洞。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .wn{font:600 9px "Microsoft YaHei",sans-serif;fill:#fff}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="404" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">网关切换 = 检测 + 状态机 + ARP 收敛 + 业务重连，四段里只有第一段可压缩</text>
+  <text class="s" x="24" y="48">把"切换时间"当成一个数字写在文档里而不拆开，是最常见的估算错误</text>
+
+  <!-- 时间轴 -->
+  <rect x="24" y="66" width="588" height="88" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="40" y="88" width="200" height="30" fill="#f0c2c2" stroke="#a32020"/>
+  <text class="wn" x="140" y="107" text-anchor="middle">检测 9 秒（3×hello 3s）</text>
+  <rect x="240" y="88" width="80" height="30" fill="#cfe0ff" stroke="#2f6fed"/>
+  <text class="wn" x="280" y="107" text-anchor="middle" fill="#1a2233">状态机 ~ms</text>
+  <rect x="320" y="88" width="150" height="30" fill="#c9e7e1" stroke="#0f7f73"/>
+  <text class="wn" x="395" y="107" text-anchor="middle">GARP/MAC 收敛 ~100ms</text>
+  <rect x="470" y="88" width="126" height="30" fill="#fdf6ec" stroke="#b45309"/>
+  <text class="m" x="533" y="107" text-anchor="middle">业务重连：不可控</text>
+  <text class="b" x="40" y="136">默认合计 <tspan class="k">9–10 秒</tspan>；改用 BFD（150ms×3）后合计 <tspan class="c">亚秒级</tspan>，但"业务重连"仍然取决于应用是否有重试</text>
+  <text class="b" x="40" y="150">所以：能把业务做成"有重试/有多路径"的系统，比把 hello 调到 1 秒更有效</text>
+
+  <!-- BFD 对比 -->
+  <rect x="632" y="66" width="304" height="88" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="lb" x="644" y="86" fill="#0f7f73">BFD 的两种用法</text>
+  <text class="b" x="644" y="106">① 与 FHRP 联动：hello 仍 3 秒，但靠 BFD 判活</text>
+  <text class="b" x="644" y="124">② 与路由联动：上联断了立刻让路由接管</text>
+  <text class="c" x="644" y="144">代价：BFD 报文量大，对 CPU 与抖动敏感</text>
+
+  <!-- 跟踪 -->
+  <text class="lb" x="24" y="192">上行链路跟踪：让"设备活着但没出口"也能主动让位</text>
+  <rect x="24" y="200" width="588" height="118" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <rect x="52" y="216" width="104" height="40" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="104" y="234" text-anchor="middle">DSW1</text><text class="c" x="104" y="250" text-anchor="middle">优先级 120</text>
+  <rect x="332" y="216" width="104" height="40" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="384" y="234" text-anchor="middle">DSW2</text><text class="b" x="384" y="250" text-anchor="middle">优先级 100</text>
+  <line x1="156" y1="236" x2="332" y2="236" stroke="#b45309" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="m" x="244" y="230" text-anchor="middle">hello 3s</text>
+
+  <rect x="60" y="280" width="88" height="26" rx="4" fill="#fff" stroke="#a32020"/>
+  <text class="n" x="104" y="298" text-anchor="middle">上联（断）</text>
+  <line x1="104" y1="256" x2="104" y2="280" stroke="#a32020" stroke-width="1.8"/>
+  <text class="r" x="116" y="298">×</text>
+
+  <text class="b" x="200" y="284">track 10 interface Gi1/0/49 → 失效后 decrement 30</text>
+  <text class="r" x="200" y="302">120 − 30 = 90 &lt; 100 → 主动放弃 Active，让 DSW2 接管</text>
+  <text class="b" x="200" y="312">前提：dec 值要保证"减完一定低于对端"（常见写成 dec 10 反而没用）</text>
+
+  <!-- 黑洞 -->
+  <rect x="632" y="172" width="304" height="146" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="644" y="192" fill="#a32020">不配跟踪的典型后果：黑洞网关</text>
+  <rect x="660" y="204" width="80" height="30" rx="4" fill="#fff" stroke="#a32020"/><text class="n" x="700" y="223" text-anchor="middle">DSW1</text>
+  <rect x="836" y="204" width="80" height="30" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="876" y="223" text-anchor="middle">DSW2</text>
+  <line x1="740" y1="219" x2="836" y2="219" stroke="#8494a8" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="660" y="272" width="80" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="n" x="700" y="291" text-anchor="middle">ASW</text>
+  <line x1="700" y1="234" x2="700" y2="272" stroke="#a32020" stroke-width="1.8"/>
+  <text class="r" x="708" y="256">出口断</text>
+  <text class="r" x="644" y="326">DSW1 仍是 Active，所有流量被吸到</text>
+  <text class="r" x="644" y="342">一台没有出口的设备上，静默丢包</text>
+  <text class="b" x="644" y="360">用户侧现象：能 ARP 通、能 ping 网关，但出不了网</text>
+
+  <rect x="24" y="332" width="588" height="60" rx="5" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="36" y="352">decrement 的取值方法：<tspan class="k">(本机优先级 − 对端优先级) + 余量</tspan></text>
+  <text class="b" x="36" y="370">120 − 100 = 20，余量取 10 → dec 30 安全；若只减 10，减完 110 仍高于 100，等于没配</text>
+  <text class="r" x="36" y="386">验证：手动 shutdown 上联，看 Active 是否在 10 秒内漂移到对端</text>
+</svg>

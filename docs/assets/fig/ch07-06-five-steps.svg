@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 392" width="100%" role="img" aria-labelledby="t6 d6">
+  <title id="t6">二层设计五步定序：每一步的产出物与错序后果</title>
+  <desc id="d6">五步依次是二层域范围、VLAN 与子网划分、二层机制选择、根桥与网关位置、收敛与验证，每步给出必须定的事、定错的后果与应产出的文档条目。右侧用拓扑说明顺序反了的典型后果：先配 HSRP 再想 STP，会出现网关 Active 在 DSW2 而根桥在 DSW1，接入流量被迫绕行核心间链路。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="392" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">五步定序：二层设计的失败，九成源于顺序错了</text>
+  <text class="s" x="24" y="48">顺序不能反 —— 因为④的"流量该往哪走"同时由 STP 根桥和 FHRP Active 描述，分开决策必然错位</text>
+
+  <rect x="24" y="66" width="596" height="22" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="lb" x="34" y="81">步骤</text><text class="lb" x="88" y="81">要定的事</text><text class="lb" x="288" y="81">定错了的后果</text><text class="lb" x="504" y="81">产出物（写进设计文档）</text>
+
+  <rect x="24" y="88" width="596" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <circle cx="52" cy="111" r="10" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="52" y="115" text-anchor="middle">1</text>
+  <text class="k" x="88" y="106">二层域范围</text><text class="b" x="88" y="122">跨几台接入交换机？必须跨吗？</text>
+  <text class="b" x="288" y="106">定大了 → STP 域巨大</text><text class="b" x="288" y="122">一处环路影响全网</text>
+  <text class="b" x="504" y="106">二层域边界图</text><text class="b" x="504" y="122">+ 跨交换机场合清单</text>
+
+  <rect x="24" y="134" width="596" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <circle cx="52" cy="157" r="10" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="52" y="161" text-anchor="middle">2</text>
+  <text class="k" x="88" y="152">VLAN / 子网划分</text><text class="b" x="88" y="168">每个 VLAN 对应什么？子网多大？</text>
+  <text class="b" x="288" y="152">定错了 → VIP 改不了、网关</text><text class="b" x="288" y="168">无法优化、地址不够</text>
+  <text class="b" x="504" y="152">VLAN 编号表 + 子网规划</text><text class="b" x="504" y="168">（严格 1:1）</text>
+
+  <rect x="24" y="180" width="596" height="46" fill="#fff" stroke="#e0e7f1"/>
+  <circle cx="52" cy="203" r="10" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="52" y="207" text-anchor="middle">3</text>
+  <text class="k" x="88" y="198">二层机制选择</text><text class="b" x="88" y="214">纯 STP / 无环 U / mLAG / 集群？</text>
+  <text class="b" x="288" y="198">定错了 → 后面所有收敛与</text><text class="b" x="288" y="214">冗余设计都在补救</text>
+  <text class="b" x="504" y="198">机制选型结论 + 不选</text><text class="b" x="504" y="214">其它方案的理由</text>
+
+  <rect x="24" y="226" width="596" height="46" fill="#fffbed" stroke="#e5d08a"/>
+  <circle cx="52" cy="249" r="10" fill="#fdf6ec" stroke="#b45309"/><text class="n" x="52" y="253" text-anchor="middle">4</text>
+  <text class="k" x="88" y="244">根桥与网关位置</text><text class="b" x="88" y="260">每个 VLAN 的根桥=哪台？Active=哪台？</text>
+  <text class="m" x="288" y="244">定错了 → 流量绕行</text><text class="m" x="288" y="260">（案例一：核心间 70% 利用率）</text>
+  <text class="b" x="504" y="244">根桥 ↔ Active 对齐表</text><text class="b" x="504" y="260">（逐 VLAN 一行的矩阵）</text>
+
+  <rect x="24" y="272" width="596" height="46" fill="#f4f9f7" stroke="#a8d8ce"/>
+  <circle cx="52" cy="295" r="10" fill="#eef7f4" stroke="#0f7f73"/><text class="n" x="52" y="299" text-anchor="middle">5</text>
+  <text class="k" x="88" y="290">收敛与验证</text><text class="b" x="88" y="306">各段预算多少？怎么测？</text>
+  <text class="c" x="288" y="290">没定 → 验收只能是"能通"</text><text class="c" x="288" y="306">故障时行为不可预测</text>
+  <text class="b" x="504" y="290">分段收敛预算表 + 拔纤</text><text class="b" x="504" y="306">演练记录（丢包数 × 间隔）</text>
+
+  <!-- 右侧：顺序反了的后果 -->
+  <text class="lb" x="644" y="76">顺序反了：先配 HSRP 再想 STP</text>
+  <rect x="644" y="84" width="292" height="200" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <rect x="660" y="98" width="96" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="708" y="119" text-anchor="middle">DSW1</text>
+  <text class="r" x="660" y="146">根桥（STP 选它）</text>
+  <rect x="824" y="98" width="96" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="872" y="119" text-anchor="middle">DSW2</text>
+  <text class="r" x="824" y="146">HSRP Active</text>
+  <line x1="756" y1="115" x2="824" y2="115" stroke="#a32020" stroke-width="2"/>
+  <text class="r" x="786" y="108" text-anchor="middle">70%</text>
+  <rect x="742" y="192" width="70" height="30" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="777" y="212" text-anchor="middle">ASW</text>
+  <line x1="700" y1="132" x2="758" y2="192" stroke="#2f6fed" stroke-width="1.6"/>
+  <line x1="872" y1="132" x2="796" y2="192" stroke="#a32020" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="r" x="880" y="176">阻塞</text>
+  <text class="b" x="656" y="246">上行只能到 DSW1 → 网关 MAC 在 DSW2</text>
+  <text class="b" x="656" y="262">→ 流量被迫经核心间链路 +1 跳</text>
+  <text class="c" x="656" y="278">修正：根桥与 Active 成对配置，上行做 port-channel</text>
+
+  <rect x="644" y="296" width="292" height="76" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="658" y="316">一句话</text>
+  <text class="b" x="658" y="334">HSRP Active 与 STP 根桥描述的是</text>
+  <text class="k" x="658" y="350">同一件事 —— 流量该往哪走。</text>
+  <text class="b" x="658" y="366">所以它们必须由同一步决策产生。</text>
+</svg>

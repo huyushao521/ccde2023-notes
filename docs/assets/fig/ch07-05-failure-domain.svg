@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 436" width="100%" role="img" aria-labelledby="t5 d5">
+  <title id="t5">冗余与失效域：两条路径是不是真的独立</title>
+  <desc id="d5">左侧拓扑里两台分布交换机同处一个机柜、共用一路市电与同一个桥架，双上行看起来是设备加链路冗余，实际上一次施工或一次断电就让两条路径同时失效。右侧拓扑把两台设备分置两个机柜、走不同桥架、接不同市电，两条路径的失效域独立。底部列出电、网、冷、水、火、人、楼七类失效域，以及可用性承诺必须落到失效域清单上的结论。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="436" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">冗余 ≠ 可靠：先画失效域，再谈可用性</text>
+  <text class="s" x="24" y="48">案例二（脑裂两小时）与案例五（同机柜断电）都不是技术失败，是失效域没算清</text>
+
+  <!-- 左：假冗余 -->
+  <rect x="24" y="66" width="448" height="248" rx="6" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="38" y="88" fill="#a32020">① 看起来是冗余（实际单点）</text>
+  <text class="b" x="38" y="106">机柜 A-01：同一 PDU · 同一路市电 · 同一台列头空调</text>
+  <rect x="52" y="118" width="392" height="72" rx="4" fill="#fff" stroke="#a32020" stroke-dasharray="5 4"/>
+  <rect x="76" y="134" width="88" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="120" y="157" text-anchor="middle">DSW1</text>
+  <rect x="332" y="134" width="88" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="376" y="157" text-anchor="middle">DSW2</text>
+  <text class="r" x="196" y="157">同一个机柜</text>
+  <rect x="212" y="206" width="86" height="32" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="255" y="227" text-anchor="middle">ASW</text>
+  <line x1="120" y1="170" x2="232" y2="206" stroke="#2f6fed" stroke-width="1.5"/>
+  <line x1="376" y1="170" x2="278" y2="206" stroke="#2f6fed" stroke-width="1.5"/>
+  <text class="m" x="38" y="258">两根光纤走同一桥架 · 双电源接同一路市电</text>
+  <text class="r" x="38" y="278">一次叉车撞断桥架 → peer-link 与 keepalive 同时断</text>
+  <text class="r" x="38" y="296">一次 PDU/市电故障 → 两台分布交换机同时断电</text>
+
+  <!-- 右：真冗余 -->
+  <rect x="488" y="66" width="448" height="248" rx="6" fill="#f4f9f7" stroke="#a8d8ce"/>
+  <text class="lb" x="502" y="88" fill="#0f7f73">② 失效域独立（真冗余）</text>
+  <text class="b" x="502" y="106">机柜 A-01 / B-01：不同 PDU · A/B 双路市电 · 不同桥架</text>
+  <rect x="510" y="118" width="180" height="72" rx="4" fill="#fff" stroke="#0f7f73" stroke-dasharray="5 4"/>
+  <rect x="534" y="134" width="88" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="578" y="157" text-anchor="middle">DSW1</text>
+  <rect x="738" y="118" width="180" height="72" rx="4" fill="#fff" stroke="#0f7f73" stroke-dasharray="5 4"/>
+  <rect x="762" y="134" width="88" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/><text class="n" x="806" y="157" text-anchor="middle">DSW2</text>
+  <text class="c" x="602" y="176">机柜 A-01</text><text class="c" x="830" y="176">机柜 B-01</text>
+  <rect x="676" y="206" width="86" height="32" rx="4" fill="#fff" stroke="#2f6fed"/><text class="n" x="719" y="227" text-anchor="middle">ASW</text>
+  <line x1="578" y1="170" x2="696" y2="206" stroke="#0f7f73" stroke-width="1.8"/>
+  <line x1="806" y1="170" x2="742" y2="206" stroke="#0f7f73" stroke-width="1.8"/>
+  <text class="c" x="502" y="258">单条路径失效 → 另一条完全不受影响</text>
+  <text class="c" x="502" y="278">这才是"设备 + 链路 + 供电"三重冗余成立的前提</text>
+  <text class="m" x="502" y="296">成本：多布线上架（低）/ 跨楼光纤或波分（高）</text>
+
+  <!-- 底部失效域清单 -->
+  <text class="lb" x="24" y="342">可用性承诺必须逐项落到失效域上（答不上的，就不要写进 SLA）</text>
+  <rect x="24" y="352" width="120" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="84" y="371" text-anchor="middle">电（PDU/市电）</text>
+  <rect x="152" y="352" width="120" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="212" y="371" text-anchor="middle">网（桥架/管道）</text>
+  <rect x="280" y="352" width="120" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="340" y="371" text-anchor="middle">冷（空调）</text>
+  <rect x="408" y="352" width="120" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="468" y="371" text-anchor="middle">水 / 火（喷淋）</text>
+  <rect x="536" y="352" width="120" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="596" y="371" text-anchor="middle">人（误操作）</text>
+  <rect x="664" y="352" width="120" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="724" y="371" text-anchor="middle">楼（承重/倾倒）</text>
+  <rect x="792" y="352" width="144" height="30" rx="4" fill="#fff" stroke="#8494a8"/><text class="b" x="864" y="371" text-anchor="middle">运营商（同一节点）</text>
+  <text class="r" x="24" y="404">评审必问的一句话："这两条路径的失效域是独立的吗？"</text>
+  <text class="b" x="24" y="422">答不上来，就不要在文档里写"高可用" —— 案例五的方案在逻辑上成立、物理上不成立，99.99% 无依据。</text>
+</svg>

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 372" width="100%" role="img" aria-labelledby="t20 d20">
+  <title id="t20">聚合的可用性阶梯：降速、整组切换与检测时间</title>
+  <desc id="d20">阶梯图显示八成员聚合在成员逐个失效时的带宽变化：80G 降到 60G、40G 仍正常转发，降到 30G 时低于 min-links 阈值，整组转为 down，由上层路由在另一个端口通道上接管。右侧给出三种检测手段的时间量级：LACP 慢速 30 秒、快速 1 秒、BFD 毫秒级，并说明为什么不配 min-links 时会带病运行导致部分业务随机劣化。底部是设计建议：min-links 取设计带宽的 50% 左右，并与路由收敛预算对齐。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .big{font:600 11px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="372" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">成员失效不是"断"，是"降速"—— 除非你配了 min-links，它才会变成"切换"</text>
+  <text class="s" x="24" y="48">两种行为都比"随机劣化"好，但只有一种能被验收</text>
+
+  <!-- 阶梯 -->
+  <line x1="80" y1="264" x2="600" y2="264" stroke="#c9d3e3"/>
+  <text class="b" x="40" y="268">带宽</text>
+
+  <rect x="88" y="96" width="88" height="168" fill="#cfe0ff" stroke="#2f6fed"/>
+  <text class="big" x="132" y="88" text-anchor="middle">80G</text>
+  <text class="b" x="132" y="282" text-anchor="middle">8 成员</text>
+
+  <rect x="188" y="130" width="88" height="134" fill="#cfe0ff" stroke="#2f6fed"/>
+  <text class="big" x="232" y="122" text-anchor="middle">60G</text>
+  <text class="b" x="232" y="282" text-anchor="middle">6 成员</text>
+
+  <rect x="288" y="172" width="88" height="92" fill="#cfe0ff" stroke="#2f6fed"/>
+  <text class="big" x="332" y="164" text-anchor="middle">40G</text>
+  <text class="b" x="332" y="282" text-anchor="middle">4 成员（= min）</text>
+
+  <rect x="388" y="216" width="88" height="48" fill="#f6d9d9" stroke="#a32020"/>
+  <text class="big" x="432" y="208" text-anchor="middle" fill="#a32020">30G</text>
+  <text class="b" x="432" y="282" text-anchor="middle">3 成员 &lt; min</text>
+  <text class="r" x="386" y="298">整组 down</text>
+
+  <rect x="488" y="96" width="88" height="168" fill="#eef7f4" stroke="#0f7f73" stroke-dasharray="5 4"/>
+  <text class="big" x="532" y="88" text-anchor="middle" fill="#0f7f73">80G</text>
+  <text class="c" x="532" y="282" text-anchor="middle">另一条 Po 接管</text>
+
+  <line x1="176" y1="180" x2="188" y2="180" stroke="#0f7f73" stroke-width="1.6" marker-end="url(#a5)"/>
+  <line x1="476" y1="240" x2="488" y2="240" stroke="#a32020" stroke-width="1.6" marker-end="url(#a6)"/>
+  <text class="m" x="300" y="256">不配 min-links：一直带病运行</text>
+
+  <rect x="24" y="308" width="552" height="50" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="328">min-links 的取值不是拍脑袋：通常取设计带宽的 50%，且与上层路由的收敛预算一起算</text>
+  <text class="b" x="36" y="346">例：设计 8×10G，min-links 4 → 还能保证 40G；再少下去说明"单点已失效"，交给路由更可控</text>
+
+  <!-- 检测时间 -->
+  <text class="lb" x="608" y="76">检测时间：决定"多久才发现成员没了"</text>
+  <rect x="608" y="84" width="328" height="44" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="620" y="102">LACP slow（默认 30 秒）</text>
+  <text class="b" x="620" y="120">成员静默失效最多 90 秒才判定（3×30s），业务先超时</text>
+
+  <rect x="608" y="136" width="328" height="44" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="620" y="154">LACP fast（1 秒）</text>
+  <text class="b" x="620" y="172">3 秒内判定；代价是协议报文变多（对 CPU 有轻微压力）</text>
+
+  <rect x="608" y="188" width="328" height="44" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="k" x="620" y="206">BFD / 链路事件（毫秒级）</text>
+  <text class="b" x="620" y="224">与路由联动时最快；用于跨设备、跨传输的链路</text>
+
+  <rect x="608" y="240" width="328" height="44" rx="4" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="620" y="258">三者不在同一层：LACP 检测"成员"，BFD 检测"路径"</text>
+  <text class="b" x="620" y="276">只配 LACP 时，中间传输断了可能两边都以为链路还在</text>
+
+  <rect x="608" y="296" width="328" height="62" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="620" y="316">验收怎么写</text>
+  <text class="b" x="620" y="334">"拔一条成员：吞吐 ≥ 60G，丢包 &lt; 1 秒，业务无感知"</text>
+  <text class="b" x="620" y="352">"拔到 3 条：Po 整组 down，流量 3 秒内切到备用路径"</text>
+
+  <defs>
+    <marker id="a5" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#0f7f73"/></marker>
+    <marker id="a6" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#a32020"/></marker>
+  </defs>
+</svg>

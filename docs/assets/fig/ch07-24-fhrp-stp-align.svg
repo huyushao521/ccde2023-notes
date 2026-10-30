@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 448" width="100%" role="img" aria-labelledby="t24 d24">
+  <title id="t24">根桥与网关对齐：本章最关键的一张图</title>
+  <desc id="d24">左侧已对齐：DSW1 既是 STP 根桥又是 HSRP Active，接入交换机的上行流量直接到达网关并从同一台设备上行到核心，路径最短。右侧未对齐：根桥在 DSW1 但 HSRP Active 在 DSW2，接入流量先到 DSW1，再跨核心间链路到 DSW2 才出网，核心间链路利用率实测从 12% 升到 70%。底部给出逐 VLAN 对齐矩阵模板与验收方法：对每个 VLAN 检查根桥与 Active 是否为同一台，并用流量路径验证。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .th{font:600 9px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .big{font:600 12px "Microsoft YaHei",sans-serif;fill:#a32020}
+  </style>
+
+  <rect x="0" y="0" width="960" height="448" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">根桥与网关对齐：同一 VLAN 的"流量出口"只能有一个决策者</text>
+  <text class="s" x="24" y="48">STP 决定"二层从哪条路走"，FHRP 决定"网关在哪台" —— 两者不一致，流量必然多绕一跳</text>
+
+  <!-- 左：对齐 -->
+  <rect x="24" y="66" width="448" height="196" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+  <text class="lb" x="38" y="88" fill="#0f7f73">① 已对齐：根桥 = Active（正确）</text>
+  <rect x="60" y="104" width="104" height="44" rx="4" fill="#eaf1ff" stroke="#0f7f73" stroke-width="2"/>
+  <text class="n" x="112" y="122" text-anchor="middle">DSW1</text>
+  <text class="c" x="112" y="138" text-anchor="middle">根桥 + Active</text>
+  <rect x="332" y="104" width="104" height="44" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="384" y="122" text-anchor="middle">DSW2</text>
+  <text class="b" x="384" y="138" text-anchor="middle">备用根 + Standby</text>
+  <line x1="164" y1="126" x2="332" y2="126" stroke="#8494a8" stroke-width="1.4"/>
+  <text class="c" x="248" y="120" text-anchor="middle">空闲</text>
+
+  <rect x="150" y="192" width="112" height="34" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="n" x="206" y="213" text-anchor="middle">ASW</text>
+  <line x1="118" y1="148" x2="188" y2="192" stroke="#0f7f73" stroke-width="2.2"/>
+  <line x1="380" y1="148" x2="228" y2="192" stroke="#8494a8" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="c" x="132" y="176">①②③ 一步到位</text>
+  <text class="b" x="36" y="188">① 二层上来</text>
+  <text class="b" x="36" y="204">② 就地网关</text>
+  <text class="b" x="36" y="220">③ 同一台出网</text>
+
+  <text class="c" x="38" y="248">核心间链路利用率：<tspan class="k">12%（只跑核心间业务）</tspan></text>
+
+  <!-- 右：未对齐 -->
+  <rect x="488" y="66" width="448" height="196" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="lb" x="502" y="88" fill="#a32020">② 未对齐：根桥在 DSW1，Active 在 DSW2（案例一）</text>
+  <rect x="520" y="104" width="104" height="44" rx="4" fill="#eaf1ff" stroke="#a32020" stroke-width="2"/>
+  <text class="n" x="572" y="122" text-anchor="middle">DSW1</text>
+  <text class="r" x="572" y="138" text-anchor="middle">根桥（但非网关）</text>
+  <rect x="792" y="104" width="104" height="44" rx="4" fill="#eaf1ff" stroke="#a32020" stroke-width="2"/>
+  <text class="n" x="844" y="122" text-anchor="middle">DSW2</text>
+  <text class="r" x="844" y="138" text-anchor="middle">Active（但非根桥）</text>
+  <line x1="624" y1="126" x2="792" y2="126" stroke="#a32020" stroke-width="2.6"/>
+  <text class="big" x="708" y="118" text-anchor="middle">70%</text>
+
+  <rect x="614" y="192" width="112" height="34" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="n" x="670" y="213" text-anchor="middle">ASW</text>
+  <line x1="578" y1="148" x2="652" y2="192" stroke="#0f7f73" stroke-width="2.2"/>
+  <line x1="838" y1="148" x2="686" y2="192" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text class="r" x="700" y="176">阻塞</text>
+  <text class="r" x="502" y="188">先上到 DSW1（二层最优）</text>
+  <text class="r" x="502" y="204">但网关 MAC 只在 DSW2 应答</text>
+  <text class="r" x="502" y="220">→ 只能跨核心间链路再出网</text>
+  <text class="r" x="502" y="248">核心间链路利用率：<tspan class="k">70%（被当成接入链路用）</tspan></text>
+
+  <!-- 对齐矩阵 -->
+  <text class="lb" x="24" y="292">逐 VLAN 对齐矩阵（设计文档里必须是这个形状的表格）</text>
+  <rect x="24" y="300" width="588" height="20" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="34" y="314">VLAN</text><text class="th" x="94" y="314">子网</text>
+  <text class="th" x="252" y="314">根桥</text><text class="th" x="342" y="314">Active</text>
+  <text class="th" x="420" y="314">备用根桥</text><text class="th" x="510" y="314">Standby</text>
+
+  <rect x="24" y="320" width="588" height="22" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="335">210-249</text><text class="b" x="94" y="335">10.3.x.0/24</text>
+  <text class="c" x="252" y="335">DSW1</text><text class="c" x="342" y="335">DSW1</text>
+  <text class="b" x="420" y="335">DSW2</text><text class="b" x="510" y="335">DSW2</text>
+
+  <rect x="24" y="342" width="588" height="22" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="357">250-289</text><text class="b" x="94" y="357">10.3.y.0/24</text>
+  <text class="c" x="252" y="357">DSW2</text><text class="c" x="342" y="357">DSW2</text>
+  <text class="b" x="420" y="357">DSW1</text><text class="b" x="510" y="357">DSW1</text>
+
+  <text class="b" x="24" y="384">两组 VLAN 交叉归属，两台设备互为备份 —— 既避免单台过载，也避免"一主一闲"浪费</text>
+
+  <!-- 验收 -->
+  <rect x="632" y="292" width="304" height="104" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="lb" x="644" y="312" fill="#0f7f73">三步验收（照着做，5 分钟）</text>
+  <text class="b" x="644" y="332">① <tspan class="c">show spanning-tree vlan 210</tspan> 看根桥</text>
+  <text class="b" x="644" y="350">② <tspan class="c">show standby brief</tspan> 看 Active 是否同一台</text>
+  <text class="b" x="644" y="368">③ 从接入侧 traceroute 到核心外，看第 2 跳</text>
+  <text class="r" x="644" y="386">第 2 跳是另一台核心 = 没对齐</text>
+
+  <rect x="24" y="400" width="912" height="40" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="36" y="418">为什么这条最容易错：STP 的根桥默认靠"优先级 + MAC 最小"选出来，HSRP 的 Active 靠"优先级 + 抢占"选出来，</text>
+  <text class="b" x="36" y="434">两套默认规则完全独立 —— 不显式对齐，两台设备各自成为一半 VLAN 的"最优"，结果就是核心间链路被当接入链路用。</text>
+</svg>

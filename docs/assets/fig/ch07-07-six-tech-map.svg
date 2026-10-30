@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 404" width="100%" role="img" aria-labelledby="t7 d7">
+  <title id="t7">二层六项核心技术不是并列关系，而是互相牵制</title>
+  <desc id="d7">六张卡片分别说明 STP 防环、VLAN 分割广播域、Trunk 承载多 VLAN、链路聚合提供带宽与冗余、mLAG 跨设备聚合、FHRP 网关冗余，并给出每项的耦合点：STP 决定阻塞端口从而决定 FHRP 流量路径；VLAN 决定 STP 实例数与子网；Trunk 决定 VLAN 能跨多远与 native VLAN 风险；聚合被 STP 视为一条逻辑链路；mLAG 取代 STP 四拓扑但引入脑裂；FHRP 必须与根桥对齐。底部给出三条最关键的牵制关系。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  </style>
+
+  <rect x="0" y="0" width="960" height="404" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">六项核心技术：每一项都在替另一项"还债"</text>
+  <text class="s" x="24" y="48">先问"它解决了什么"，再问"它把什么风险转嫁给了谁"</text>
+
+  <rect x="24" y="66" width="292" height="106" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="38" y="88">① STP（生成树）</text>
+  <text class="b" x="38" y="108">解决：防环 —— 用阻塞端口换无环</text>
+  <text class="b" x="38" y="126">耦合：决定哪个端口阻塞 → 决定 FHRP</text>
+  <text class="b" x="38" y="142">流量走哪条路（本章最高频事故源）</text>
+  <text class="r" x="38" y="162">代价：阻塞端口 = 被浪费的带宽</text>
+
+  <rect x="334" y="66" width="292" height="106" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="348" y="88">② VLAN（虚拟局域网）</text>
+  <text class="b" x="348" y="108">解决：分割广播域与故障域</text>
+  <text class="b" x="348" y="126">耦合：决定 STP 实例数（PVST 下 1:1）、</text>
+  <text class="b" x="348" y="142">子网范围、安全边界</text>
+  <text class="r" x="348" y="162">代价：VLAN 跨交换机 = 故障域跨交换机</text>
+
+  <rect x="644" y="66" width="292" height="106" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="lb" x="658" y="88">③ Trunk（中继）</text>
+  <text class="b" x="658" y="108">解决：一条链路承载多个 VLAN</text>
+  <text class="b" x="658" y="126">耦合：决定 VLAN 能跨多远；native VLAN</text>
+  <text class="b" x="658" y="142">不一致会把两个 VLAN 桥接在一起</text>
+  <text class="r" x="658" y="162">代价：允许列表默认 all，泛洪范围失控</text>
+
+  <rect x="24" y="184" width="292" height="106" rx="5" fill="#fff" stroke="#0f7f73"/>
+  <text class="lb" x="38" y="206" fill="#0f7f73">④ 链路聚合</text>
+  <text class="b" x="38" y="226">解决：带宽与链路级冗余（不改硬件）</text>
+  <text class="b" x="38" y="244">耦合：STP 把聚合口当<tspan class="k">一条</tspan>逻辑链路，</text>
+  <text class="b" x="38" y="260">成员故障不触发 STP 收敛，只走 LACP 切换</text>
+  <text class="r" x="38" y="280">代价：单流永远跑不满聚合带宽</text>
+
+  <rect x="334" y="184" width="292" height="106" rx="5" fill="#fff" stroke="#0f7f73"/>
+  <text class="lb" x="348" y="206" fill="#0f7f73">⑤ mLAG / 交换机集群</text>
+  <text class="b" x="348" y="226">解决：跨设备聚合，消除 STP 与 FHRP 依赖</text>
+  <text class="b" x="348" y="244">耦合：取代 STP 四拓扑；上行全转发 →</text>
+  <text class="b" x="348" y="260">根桥/Active 对齐问题从根上消失</text>
+  <text class="r" x="348" y="280">代价：引入脑裂 + 配置一致性要求</text>
+
+  <rect x="644" y="184" width="292" height="106" rx="5" fill="#fff" stroke="#0f7f73"/>
+  <text class="lb" x="658" y="206" fill="#0f7f73">⑥ FHRP（首跳冗余）</text>
+  <text class="b" x="658" y="226">解决：网关冗余，一台挂了另一台接管</text>
+  <text class="b" x="658" y="244">耦合：必须与 STP 根桥<tspan class="k">同一台</tspan>，否则</text>
+  <text class="b" x="658" y="260">流量绕行核心间链路（案例一）</text>
+  <text class="r" x="658" y="280">代价：不配 object tracking = 黑洞网关</text>
+
+  <!-- 三条关键牵制 -->
+  <text class="lb" x="24" y="322">三条最关键的牵制关系（设计评审按这三条问，能问出八成问题）</text>
+  <rect x="24" y="332" width="300" height="56" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="36" y="350">① STP × FHRP：同一 VLAN 的根桥</text>
+  <text class="m" x="36" y="366">必须是 HSRP Active 所在设备</text>
+  <text class="b" x="36" y="382">→ 否则每次跨网段访问都多一跳</text>
+
+  <rect x="336" y="332" width="300" height="56" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="348" y="350">② VLAN × STP：VLAN 跨几台交换机，</text>
+  <text class="m" x="348" y="366">STP 域就有多大，环路影响面就有多大</text>
+  <text class="b" x="348" y="382">→ 这是"本地 VLAN"存在的全部理由</text>
+
+  <rect x="648" y="332" width="288" height="56" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="660" y="350">③ 聚合 × STP：成员故障不惊动 STP，</text>
+  <text class="m" x="660" y="366">但聚合口整体 down 会同时惊动 STP 与 FHRP</text>
+  <text class="b" x="660" y="382">→ 所以 min-links 要设，路由要能接住</text>
+</svg>

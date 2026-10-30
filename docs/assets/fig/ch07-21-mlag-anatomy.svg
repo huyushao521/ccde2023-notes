@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t21 d21">
+  <title id="t21">mLAG / vPC 的解剖：三条链路、三种故障、一个脑裂</title>
+  <desc id="d21">拓扑显示两台交换机用 peer-link 互联、用独立的 peer-keepalive 链路（走带外管理网）互探活、向下用跨设备的 port-channel 接接入交换机。表格列出三种故障：peer-link 断但 keepalive 在，备机挂起其 vPC 端口避免环路；keepalive 断但 peer-link 在，靠 peer-link 判定对端存活，不影响转发；两者同时断则脑裂，两端都认为自己是主，可能出现双主网关与 MAC 冲突。底部给出设计要求：peer-link 与 keepalive 必须物理分离，且 keepalive 走不同交换机与不同供电路径。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .th{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">mLAG / vPC：三条链路各有分工，断错一条就从"高可用"变成"双主"</text>
+  <text class="s" x="24" y="48">它用"两台设备假装一台"换掉了 STP 与 FHRP，代价是把风险集中到"两台设备是否还看得见对方"</text>
+
+  <!-- 拓扑 -->
+  <rect x="24" y="66" width="520" height="262" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="56" y="82" width="120" height="44" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="116" y="102" text-anchor="middle">SW1</text><text class="b" x="116" y="118" text-anchor="middle">Primary / vPC 主</text>
+  <rect x="392" y="82" width="120" height="44" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+  <text class="n" x="452" y="102" text-anchor="middle">SW2</text><text class="b" x="452" y="118" text-anchor="middle">Secondary / vPC 备</text>
+
+  <line x1="176" y1="96" x2="392" y2="96" stroke="#2f6fed" stroke-width="3"/>
+  <text class="b" x="284" y="90" text-anchor="middle">peer-link（聚合，承载所有 vPC 流量）</text>
+
+  <line x1="176" y1="120" x2="392" y2="120" stroke="#b45309" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <text class="m" x="284" y="136" text-anchor="middle">peer-keepalive（独立带外路径，只探活）</text>
+
+  <rect x="196" y="196" width="176" height="40" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="n" x="284" y="221" text-anchor="middle">ASW（vPC port-channel）</text>
+  <line x1="116" y1="126" x2="234" y2="196" stroke="#0f7f73" stroke-width="2"/>
+  <line x1="452" y1="126" x2="334" y2="196" stroke="#0f7f73" stroke-width="2"/>
+  <text class="c" x="140" y="176">成员 1（转发）</text>
+  <text class="c" x="356" y="176">成员 2（转发）</text>
+
+  <rect x="56" y="262" width="120" height="34" rx="4" fill="#fdf6ec" stroke="#b45309"/>
+  <text class="n" x="116" y="283" text-anchor="middle">单挂服务器</text>
+  <line x1="116" y1="126" x2="116" y2="262" stroke="#b45309" stroke-width="1.4"/>
+  <text class="m" x="180" y="276">orphan 口：只挂一台上行，孤端口</text>
+
+  <text class="b" x="36" y="230">两条上行都在转发 = 没有再被 STP 浪费的带宽</text>
+  <text class="r" x="36" y="248">但两台设备必须"始终互认"：peer-link 与 keepalive 缺一不可</text>
+
+  <!-- 三故障 -->
+  <text class="lb" x="576" y="76">三种故障，三种行为</text>
+  <rect x="576" y="84" width="360" height="22" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="586" y="99">故障点</text><text class="th" x="706" y="99">系统行为</text><text class="th" x="840" y="99">业务影响</text>
+
+  <rect x="576" y="106" width="360" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="586" y="124">peer-link 断</text>
+  <text class="b" x="706" y="124">备机挂起自己的 vPC 口</text>
+  <text class="b" x="706" y="140">（vPC suspend）</text>
+  <text class="c" x="840" y="124">降为单归</text>
+  <text class="b" x="840" y="140">带宽减半，不断</text>
+
+  <rect x="576" y="158" width="360" height="52" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="586" y="176">keepalive 断</text>
+  <text class="b" x="706" y="176">用 peer-link 判活</text>
+  <text class="b" x="706" y="192">转发不受影响</text>
+  <text class="c" x="840" y="176">几乎无影响</text>
+  <text class="b" x="840" y="192">但已处于"裸奔"</text>
+
+  <rect x="576" y="210" width="360" height="52" fill="#fdf3f3" stroke="#a32020"/>
+  <text class="k" x="586" y="228">两者同时断</text>
+  <text class="b" x="706" y="228">脑裂：两端都认为</text>
+  <text class="b" x="706" y="244">对方已死、自己转正</text>
+  <text class="r" x="840" y="228">双主网关</text>
+  <text class="r" x="840" y="244">MAC 冲突 / 回环</text>
+
+  <rect x="576" y="274" width="360" height="72" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="588" y="294">案例二复盘：peer-link 与 keepalive 走了同一条管道</text>
+  <text class="b" x="588" y="312">一次施工同时切断两者 → 脑裂 → 两台都是网关 → 两小时业务中断</text>
+  <text class="r" x="588" y="332">根因不是 mLAG 不可靠，是"探活路径与数据路径共用了失效域"</text>
+
+  <!-- 设计要求 -->
+  <text class="lb" x="576" y="366">四条设计要求（写进建设规范）</text>
+  <rect x="576" y="374" width="360" height="70" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="588" y="392">① peer-link 至少两条成员，跨板卡</text>
+  <text class="c" x="588" y="408">② keepalive 走带外管理网，独立交换机、独立电源</text>
+  <text class="c" x="588" y="424">③ 配置双主检测（auto-recovery / 双主脚本）并演练</text>
+  <text class="c" x="588" y="440">④ 两端配置必须一致：用模板 + 定期 diff，禁止单边改</text>
+</svg>

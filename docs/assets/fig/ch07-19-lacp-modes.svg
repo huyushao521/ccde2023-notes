@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 392" width="100%" role="img" aria-labelledby="t19 d19">
+  <title id="t19">链路聚合模式矩阵与四条设计约束</title>
+  <desc id="d19">左侧是三乘三模式矩阵：on 对 on 可以起链路但无协商、on 对 active 或 passive 起不来、active 对 active 与 active 对 passive 都能起来、passive 对 passive 起不来。右侧给出四条设计约束：成员必须同速率同双工、优先跨板卡以规避单板故障、成员数不超过平台上限、配置 min-links 保证剩余带宽可用。底部说明 LACP 慢速 30 秒与快速 1 秒定时器的选择对上游路由收敛的影响。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .th{font:600 9px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .cell{font:600 9px "Microsoft YaHei",sans-serif}
+  </style>
+
+  <rect x="0" y="0" width="960" height="392" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">聚合起不来，八成是模式矩阵算错了 —— 只有一对组合会静默失败</text>
+  <text class="s" x="24" y="48">"静默"指的是：链路是 up 的、灯是绿的、也没告警，就是不通</text>
+
+  <!-- 矩阵 -->
+  <text class="lb" x="24" y="76">模式组合矩阵（行 = 本端，列 = 对端）</text>
+  <rect x="130" y="86" width="100" height="28" fill="#eef3fb" stroke="#d7e0ef"/><text class="th" x="180" y="104" text-anchor="middle">对端 on</text>
+  <rect x="230" y="86" width="100" height="28" fill="#eef3fb" stroke="#d7e0ef"/><text class="th" x="280" y="104" text-anchor="middle">对端 active</text>
+  <rect x="330" y="86" width="100" height="28" fill="#eef3fb" stroke="#d7e0ef"/><text class="th" x="380" y="104" text-anchor="middle">对端 passive</text>
+
+  <rect x="24" y="114" width="106" height="40" fill="#eef3fb" stroke="#d7e0ef"/><text class="b" x="77" y="139" text-anchor="middle">本端 on</text>
+  <rect x="130" y="114" width="100" height="40" fill="#eef7f4" stroke="#0f7f73"/><text class="cell" x="180" y="134" text-anchor="middle" fill="#0f7f73">通（无协商）</text>
+  <text class="b" x="180" y="148" text-anchor="middle">对端须也是 on</text>
+  <rect x="230" y="114" width="100" height="40" fill="#fdf3f3" stroke="#a32020"/><text class="cell" x="280" y="134" text-anchor="middle" fill="#a32020">不通</text>
+  <text class="b" x="280" y="148" text-anchor="middle">on 不发 LACPDU</text>
+  <rect x="330" y="114" width="100" height="40" fill="#fdf3f3" stroke="#a32020"/><text class="cell" x="380" y="134" text-anchor="middle" fill="#a32020">不通</text>
+  <text class="b" x="380" y="148" text-anchor="middle">同上</text>
+
+  <rect x="24" y="154" width="106" height="40" fill="#eef3fb" stroke="#d7e0ef"/><text class="b" x="77" y="179" text-anchor="middle">本端 active</text>
+  <rect x="130" y="154" width="100" height="40" fill="#fdf3f3" stroke="#a32020"/><text class="cell" x="180" y="174" text-anchor="middle" fill="#a32020">不通</text>
+  <rect x="230" y="154" width="100" height="40" fill="#eef7f4" stroke="#0f7f73"/><text class="cell" x="280" y="174" text-anchor="middle" fill="#0f7f73">通</text>
+  <rect x="330" y="154" width="100" height="40" fill="#eef7f4" stroke="#0f7f73"/><text class="cell" x="380" y="174" text-anchor="middle" fill="#0f7f73">通</text>
+
+  <rect x="24" y="194" width="106" height="40" fill="#eef3fb" stroke="#d7e0ef"/><text class="b" x="77" y="219" text-anchor="middle">本端 passive</text>
+  <rect x="130" y="194" width="100" height="40" fill="#fdf3f3" stroke="#a32020"/><text class="cell" x="180" y="214" text-anchor="middle" fill="#a32020">不通</text>
+  <rect x="230" y="194" width="100" height="40" fill="#eef7f4" stroke="#0f7f73"/><text class="cell" x="280" y="214" text-anchor="middle" fill="#0f7f73">通</text>
+  <rect x="330" y="194" width="100" height="40" fill="#fdf3f3" stroke="#a32020"/><text class="cell" x="380" y="214" text-anchor="middle" fill="#a32020">不通</text>
+
+  <text class="r" x="24" y="256">唯一"看起来正常但完全不通"的组合：on ↔ active / passive（对端在等 LACPDU，本端从不发）</text>
+  <text class="m" x="24" y="274">最省心的配对：两端都 <tspan class="k">active</tspan> —— 谁先起都能协商成功，不依赖启动顺序</text>
+
+  <rect x="24" y="288" width="446" height="30" rx="4" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="36" y="307">LACP 定时器：slow 30 秒（默认）/ fast 1 秒 —— 只影响成员失效的检出速度</text>
+
+  <!-- 四条约束 -->
+  <text class="lb" x="498" y="76">四条设计约束</text>
+  <rect x="498" y="84" width="438" height="52" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="510" y="102">① 成员必须同速率、同双工、同 MTU</text>
+  <text class="b" x="510" y="120">混插 1G 与 10G 成员：有的平台里 1G 口会成为"最慢公分母"，有的平台直接拒绝</text>
+
+  <rect x="498" y="144" width="438" height="52" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="510" y="162">② 成员尽量跨板卡（跨 ASIC）</text>
+  <text class="b" x="510" y="180">同一块板卡故障 → 整组聚合一起失效；跨板卡才能把单板故障变成"降速"</text>
+
+  <rect x="498" y="204" width="438" height="52" rx="4" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="510" y="222">③ 成员数不超过平台上限，且留余量</text>
+  <text class="b" x="510" y="240">很多平台的硬件聚合表是 8 或 16，超了会回退成"部分成员不转发"</text>
+
+  <rect x="498" y="264" width="438" height="52" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="k" x="510" y="282">④ 配置 min-links，让"降速"可控</text>
+  <text class="b" x="510" y="300">剩余成员低于阈值时整组 down，让上层路由接管 —— 比"带病运行"更可预测</text>
+
+  <rect x="498" y="328" width="438" height="52" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="510" y="348">为什么优先 active ↔ active：启动顺序无关、故障可检测</text>
+  <text class="b" x="510" y="366">on 模式没有协议报文，对端坏了本端不会知道，只能等业务超时</text>
+</svg>

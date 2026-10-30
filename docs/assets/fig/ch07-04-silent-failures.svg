@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 348" width="100%" role="img" aria-labelledby="t4 d4">
+  <title id="t4">二层静默故障：现象、真实原因与取证命令</title>
+  <desc id="d4">四行对照表。变慢对应流量绕行低带宽路径，用 show interface 利用率与 show spanning-tree 根桥判断；部分不通对应 ARP 或 MAC 表污染，用 show mac address-table 与 show ip arp 取证；时通时不通对应 MAC 表翻转，看 MAC 计数与 TC 计数；大面积断对应广播风暴或脑裂，看 CPU、端口利用率与双主状态。底部结论是验收标准必须是故障场景下行为符合预期。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .mono{font:9px "Consolas",monospace;fill:#1a2233}
+    .th{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="348" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">二层不会报错，它只会安静地变慢或安静地环路</text>
+  <text class="s" x="24" y="48">三层给你信号（路由没了 / 邻居 down），二层只给你症状 —— 所以必须靠命令取证</text>
+
+  <rect x="24" y="66" width="912" height="24" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="34" y="82">现象</text>
+  <text class="th" x="140" y="82">用户描述</text>
+  <text class="th" x="330" y="82">二层视角的真实原因</text>
+  <text class="th" x="620" y="82">取证入口（先看这个）</text>
+
+  <rect x="24" y="90" width="912" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="108">变慢</text>
+  <text class="b" x="140" y="108">"网有点卡"</text>
+  <text class="b" x="140" y="122">但 ping 正常、单流测速正常</text>
+  <text class="b" x="330" y="108">流量绕行了一条几乎没带宽的路径</text>
+  <text class="b" x="330" y="122">（根桥与 FHRP Active 不在同一台）</text>
+  <text class="mono" x="620" y="108">show interface | inc rate</text>
+  <text class="mono" x="620" y="122">show spanning-tree root</text>
+
+  <rect x="24" y="132" width="912" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="150">部分不通</text>
+  <text class="b" x="140" y="150">"这层楼有的</text>
+  <text class="b" x="140" y="164">电脑上不了网"</text>
+  <text class="b" x="330" y="150">ARP 或 MAC 表被污染 / 表项学在错误端口</text>
+  <text class="b" x="330" y="164">或 VLAN 未在 trunk 允许列表里</text>
+  <text class="mono" x="620" y="150">show mac address-table | inc xxxx</text>
+  <text class="mono" x="620" y="164">show ip arp  /  show int trunk</text>
+
+  <rect x="24" y="174" width="912" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="192">时通时不通</text>
+  <text class="b" x="140" y="192">"刷新几次</text>
+  <text class="b" x="140" y="206">就好了"</text>
+  <text class="b" x="330" y="192">环路导致 MAC 表在两条路径之间翻转</text>
+  <text class="b" x="330" y="206">（MAC flapping，无告警）</text>
+  <text class="mono" x="620" y="192">show mac address-table count</text>
+  <text class="mono" x="620" y="206">show spanning-tree detail | inc change</text>
+
+  <rect x="24" y="216" width="912" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="234">大面积断</text>
+  <text class="b" x="140" y="234">"整栋楼</text>
+  <text class="b" x="140" y="248">上不了网"</text>
+  <text class="b" x="330" y="234">广播风暴 / 脑裂（两台都是 primary）</text>
+  <text class="b" x="330" y="248">或根桥被下游设备抢走导致全网重算</text>
+  <text class="mono" x="620" y="234">show process cpu | inc CPU</text>
+  <text class="mono" x="620" y="248">show vpc brief  /  show standby brief</text>
+
+  <rect x="24" y="266" width="912" height="62" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="286">设计结论：二层的验收标准不能是"能通"，必须是"在故障场景下行为符合预期"</text>
+  <text class="b" x="36" y="304">因为"能通"在带环的网络上也是通的 —— 直到环路被流量压满的那一天。而那一天，往往没有变更、没有告警、也没有人动过配置。</text>
+  <text class="r" x="36" y="320">可验收的替代写法：给定故障点（拔一条上行 / 断一台 DSW / 拔一芯光纤），记录丢包数与恢复时间，写进验收报告。</text>
+</svg>

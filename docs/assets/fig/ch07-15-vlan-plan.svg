@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 388" width="100%" role="img" aria-labelledby="t15 d15">
+  <title id="t15">VLAN 编号规划条带与子网一一对应</title>
+  <desc id="d15">上方把 1 到 4094 的 VLAN 编号划成五段：1 至 99 系统保留、100 至 199 管理、200 至 999 业务、1000 至 1099 语音、1100 至 1199 访客，其余留作预留，每段给出对应的地址段与用途。下方说明 VLAN 与子网必须严格一一对应，给出三行示例，并强调三类反例：一个 VLAN 多个子网、一个子网跨多个 VLAN、以及未使用的空闲 VLAN 被允许在 trunk 上形成黑洞 VLAN 进而成为攻击面。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+    .wt{font:600 9px "Microsoft YaHei",sans-serif;fill:#fff}
+    .th{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="388" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">VLAN 编号先分段再分配：段与段之间留白，比"按需编号"省十年麻烦</text>
+  <text class="s" x="24" y="48">编号是全局资源（4094 个），一旦下发到几百台设备，改号成本 = 一次全网割接</text>
+
+  <!-- 条带 -->
+  <rect x="24" y="76" width="120" height="34" fill="#e8a8a8" stroke="#a32020"/>
+  <text class="wt" x="84" y="98" text-anchor="middle">1–99 系统保留</text>
+  <rect x="144" y="76" width="120" height="34" fill="#f0c2c2" stroke="#a32020"/>
+  <text class="wt" x="204" y="98" text-anchor="middle">100–199 管理</text>
+  <rect x="264" y="76" width="260" height="34" fill="#2f6fed"/>
+  <text class="wt" x="394" y="98" text-anchor="middle">200–999 业务</text>
+  <rect x="524" y="76" width="120" height="34" fill="#b45309"/>
+  <text class="wt" x="584" y="98" text-anchor="middle">1000–1099 语音</text>
+  <rect x="644" y="76" width="120" height="34" fill="#0f7f73"/>
+  <text class="wt" x="704" y="98" text-anchor="middle">1100–1199 访客</text>
+  <rect x="764" y="76" width="172" height="34" fill="#eef3fb" stroke="#8494a8"/>
+  <text class="b" x="850" y="98" text-anchor="middle">1200–4094 预留（不动）</text>
+
+  <rect x="24" y="116" width="120" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="b" x="34" y="134">VLAN 1 不用</text><text class="b" x="34" y="150">不承载业务</text>
+  <rect x="144" y="116" width="120" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="b" x="154" y="134">10.0.0.0/24</text><text class="b" x="154" y="150">带 ACL 限制</text>
+  <rect x="264" y="116" width="260" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="b" x="274" y="134">10.<tspan class="k">楼栋</tspan>.<tspan class="k">楼层</tspan>.0/24（如 10.3.12.0/24）</text>
+  <text class="b" x="274" y="150">第三段就是 VLAN 序号，便于一眼定位</text>
+  <rect x="524" y="116" width="120" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="b" x="534" y="134">172.16.<tspan class="k">楼</tspan>.0/24</text><text class="b" x="534" y="150">带 DHCP option</text>
+  <rect x="644" y="116" width="120" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="b" x="654" y="134">192.168.x.0/24</text><text class="b" x="654" y="150">只允许上公网</text>
+  <rect x="764" y="116" width="172" height="42" fill="#fff" stroke="#e0e7f1"/>
+  <text class="b" x="774" y="134">不创建、不分配</text><text class="b" x="774" y="150">占位即资产，用掉再申请</text>
+
+  <!-- 1:1 对照表 -->
+  <text class="lb" x="24" y="192">VLAN 与子网必须严格 1:1（三行示例）</text>
+  <rect x="24" y="200" width="588" height="20" fill="#eef3fb" stroke="#d7e0ef"/>
+  <text class="th" x="34" y="214">VLAN</text><text class="th" x="104" y="214">名称</text>
+  <text class="th" x="240" y="214">子网</text><text class="th" x="420" y="214">默认网关</text><text class="th" x="530" y="214">用途</text>
+
+  <rect x="24" y="220" width="588" height="22" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="235">210</text><text class="b" x="104" y="235">OFFICE-3F-A</text>
+  <text class="b" x="240" y="235">10.3.10.0/24</text><text class="b" x="420" y="235">10.3.10.1（HSRP）</text><text class="b" x="530" y="235">办公</text>
+
+  <rect x="24" y="242" width="588" height="22" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="257">1050</text><text class="b" x="104" y="257">VOICE-3F</text>
+  <text class="b" x="240" y="257">172.16.3.0/24</text><text class="b" x="420" y="257">172.16.3.1</text><text class="b" x="530" y="257">IP 电话</text>
+
+  <rect x="24" y="264" width="588" height="22" fill="#fff" stroke="#e0e7f1"/>
+  <text class="k" x="34" y="279">1150</text><text class="b" x="104" y="279">GUEST-3F</text>
+  <text class="b" x="240" y="279">192.168.3.0/24</text><text class="b" x="420" y="279">192.168.3.1</text><text class="b" x="530" y="279">访客</text>
+
+  <!-- 反例 -->
+  <text class="lb" x="632" y="192">三个反例（都会让排障时间翻倍）</text>
+  <rect x="632" y="200" width="304" height="40" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="r" x="644" y="216">① 一个 VLAN 配多个子网</text>
+  <text class="b" x="644" y="232">→ 同一广播域两个网段，ARP 代理与 ACL 全乱</text>
+
+  <rect x="632" y="244" width="304" height="40" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+  <text class="r" x="644" y="260">② 一个子网跨多个 VLAN</text>
+  <text class="b" x="644" y="276">→ 必须靠 VLAN 间桥接，等于自己造了个大二层</text>
+
+  <rect x="632" y="288" width="304" height="40" rx="4" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="644" y="304">③ 空号 VLAN 保留在 trunk 允许列表</text>
+  <text class="b" x="644" y="320">→ 黑洞 VLAN：可被 VTP 学习、可被 Hopping 利用</text>
+
+  <rect x="24" y="300" width="588" height="28" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="36" y="319">下发前先出"编号 + 子网 + 网关 + 用途"四列表，签完字再配置 —— 比事后改号便宜两个数量级</text>
+
+  <rect x="24" y="336" width="912" height="40" rx="5" fill="#f4f7fd" stroke="#d7e0ef"/>
+  <text class="b" x="36" y="354">为什么 VLAN 1 不用：它是所有端口的默认 VLAN、所有 trunk 的默认 native VLAN、也是 STP/VTP/CDP 等控制协议默认的承载 VLAN。</text>
+  <text class="r" x="36" y="370">把业务放在 VLAN 1，等于把管理面与业务面放在同一个广播域里，一次广播风暴会同时打掉管理通道。</text>
+</svg>

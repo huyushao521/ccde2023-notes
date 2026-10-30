@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 468" width="100%" role="img" aria-labelledby="t27 d27">
+  <title id="t27">二层设计决策树与上线前检查清单</title>
+  <desc id="d27">决策树从一个问题开始：业务是否真的需要跨交换机的二层相邻。若不需要，选本地 VLAN 加三层到接入，拓扑天然无环；若需要，再看跨设备规模：同一机房内两台可堆叠或 vPC，跨机房必须 vPC 或 EVPN 并保证 peer-link 与 keepalive 物理分离。之后依次确定 STP 版本、根桥与网关对齐、聚合与哈希、收敛预算与演练。右侧列出入项上线前检查清单，从 VLAN 编号、trunk 允许列表、native VLAN、STP 防护、根桥矩阵、网关跟踪、聚合 min-links 到演练记录。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .q{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  </style>
+
+  <rect x="0" y="0" width="960" height="468" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">决策树：先问"要不要二层相邻"，再问"用什么机制消灭阻塞"</text>
+  <text class="s" x="24" y="48">顺序反了就会变成"先选了 vPC，再去找理由用它"</text>
+
+  <!-- 决策树 -->
+  <rect x="120" y="66" width="330" height="40" rx="5" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="q" x="285" y="91" text-anchor="middle">Q1 业务是否需要跨交换机的二层相邻？</text>
+
+  <line x1="200" y1="106" x2="200" y2="132" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <text class="r" x="146" y="124">否</text>
+  <rect x="70" y="132" width="260" height="52" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="82" y="152">本地 VLAN + 三层到接入</text>
+  <text class="b" x="82" y="170">拓扑天然无环；STP 只做兜底；2×10G 全用</text>
+
+  <line x1="370" y1="106" x2="370" y2="132" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <text class="c" x="382" y="124">是</text>
+  <rect x="300" y="132" width="330" height="40" rx="5" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="q" x="465" y="157" text-anchor="middle">Q2 跨几台设备？在同机房吗？</text>
+
+  <line x1="380" y1="172" x2="380" y2="196" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <rect x="270" y="196" width="220" height="52" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="b" x="282" y="216">同机房、2 台以内</text>
+  <text class="b" x="282" y="234">→ 堆叠 或 vPC/M-LAG 都可</text>
+
+  <line x1="530" y1="172" x2="530" y2="196" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <rect x="516" y="196" width="240" height="52" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="528" y="216">跨机房 / 跨楼</text>
+  <text class="m" x="528" y="234">→ vPC（peer-link 分离）或 EVPN-MH</text>
+
+  <line x1="465" y1="248" x2="465" y2="272" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <rect x="280" y="272" width="370" height="40" rx="5" fill="#eef3fb" stroke="#2f6fed"/>
+  <text class="q" x="465" y="297" text-anchor="middle">Q3 STP 版本：VLAN 数量与厂商？</text>
+
+  <line x1="350" y1="312" x2="290" y2="336" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <rect x="150" y="336" width="200" height="46" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="b" x="162" y="356">VLAN &lt; 100 且单厂商</text>
+  <text class="b" x="162" y="374">→ Rapid PVST+</text>
+
+  <line x1="580" y1="312" x2="640" y2="336" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <rect x="596" y="336" width="200" height="46" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="b" x="608" y="356">VLAN &gt; 200 或多厂商</text>
+  <text class="b" x="608" y="374">→ MST（region 全网一致）</text>
+
+  <line x1="465" y1="382" x2="465" y2="398" stroke="#8494a8" stroke-width="1.4" marker-end="url(#a7)"/>
+  <rect x="240" y="398" width="450" height="40" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="c" x="252" y="418">Q4 根桥 = FHRP Active 逐 VLAN 对齐 → 配跟踪 → 算收敛预算 → 拔纤演练</text>
+  <text class="b" x="252" y="432">任何一步没产出物，就不算设计完成</text>
+
+  <!-- 检查清单 -->
+  <text class="lb" x="700" y="66">上线前 8 项检查</text>
+  <rect x="700" y="76" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="92">① VLAN 编号表 + 子网 1:1</text>
+  <rect x="700" y="100" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="116">② trunk 允许列表显式（无 all）</text>
+  <rect x="700" y="124" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="140">③ native VLAN 专用值且两端一致</text>
+  <rect x="700" y="148" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="164">④ 接入口 PortFast + BPDU 防护</text>
+  <rect x="700" y="172" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="188">⑤ 根桥矩阵（逐 VLAN 一行）</text>
+  <rect x="700" y="196" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="212">⑥ 网关抢占 + 上行跟踪 + BFD</text>
+  <rect x="700" y="220" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="236">⑦ 聚合 active/active + min-links</text>
+  <rect x="700" y="244" width="236" height="24" fill="#fff" stroke="#e0e7f1"/><text class="b" x="710" y="260">⑧ 拔纤/断电演练记录（丢包×时间）</text>
+
+  <rect x="700" y="276" width="236" height="70" rx="5" fill="#fdf6ec" stroke="#e5d08a"/>
+  <text class="m" x="712" y="296">清单的作用不是"打勾"</text>
+  <text class="b" x="712" y="314">而是把这八项变成评审时的</text>
+  <text class="b" x="712" y="332">提问顺序 —— 每项都有产出物，</text>
+  <text class="b" x="712" y="340">设计才算"可交付"</text>
+
+  <defs>
+    <marker id="a7" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8494a8"/></marker>
+  </defs>
+</svg>

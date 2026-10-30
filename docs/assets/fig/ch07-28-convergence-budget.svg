@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t28 d28">
+  <title id="t28">收敛时间预算的五段构成与压缩手段</title>
+  <desc id="d28">上半部分把一次二层故障的恢复时间拆成五段：链路或协议检测、STP 或路由重算、网关切换、ARP 与 MAC 表重学、应用重连，并给出传统方案与现代方案两套取值。传统 802.1D 加默认 HSRP 合计约 50 秒，现代 RSTP 加 BFD 加链路聚合合计 1 至 3 秒，应用重连两套方案都不可控。下半部分列出五种压缩手段：聚合替代 STP、BFD 替代 hello 计时器、PortFast 消除接入口等待、mLAG 消除 STP 参与、以及应用侧重试与多路径。</desc>
+  <style>
+    .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+    .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+    .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+    .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+    .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+    .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+    .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+    .wn{font:600 8.5px "Microsoft YaHei",sans-serif;fill:#fff}
+    .big{font:600 11px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  </style>
+
+  <rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+  <text class="h" x="24" y="30">收敛预算是加出来的，不是猜出来的：五段各自有主，别把总和算成一段</text>
+  <text class="s" x="24" y="48">写"切换时间小于 1 秒"之前，先确认这五段里哪几段你控制得住</text>
+
+  <!-- 传统 -->
+  <text class="lb" x="24" y="76">传统方案：802.1D + 默认 HSRP + 无聚合 ≈ 50 秒</text>
+  <rect x="24" y="86" width="912" height="70" rx="5" fill="#fff" stroke="#e0e7f1"/>
+  <rect x="40" y="100" width="380" height="28" fill="#e8a8a8" stroke="#a32020"/>
+  <text class="wn" x="230" y="119" text-anchor="middle">检测 9s（HSRP hello）+ STP 30–50s</text>
+  <rect x="420" y="100" width="120" height="28" fill="#f0c2c2" stroke="#a32020"/>
+  <text class="wn" x="480" y="119" text-anchor="middle">ARP/MAC 重学</text>
+  <rect x="540" y="100" width="380" height="28" fill="#fdf6ec" stroke="#b45309"/>
+  <text class="m" x="730" y="119" text-anchor="middle">应用重连（不可控，可能 30s+）</text>
+  <text class="b" x="40" y="146">会计入"分钟级"的是应用重连，不是 STP —— 这就是为什么"技术上都秒级了，用户还是觉得断了一分钟"</text>
+
+  <!-- 现代 -->
+  <text class="lb" x="24" y="196">现代方案：聚合 + RSTP + BFD + mLAG ≈ 1–3 秒</text>
+  <rect x="24" y="206" width="912" height="70" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+  <rect x="40" y="220" width="150" height="28" fill="#9fd3c8" stroke="#0f7f73"/>
+  <text class="wn" x="115" y="239" text-anchor="middle">检测 0.15–1s（BFD/LACP fast）</text>
+  <rect x="190" y="220" width="120" height="28" fill="#c9e7e1" stroke="#0f7f73"/>
+  <text class="wn" x="250" y="239" text-anchor="middle" fill="#1a2233">切换 / 重算 ~1s</text>
+  <rect x="310" y="220" width="110" height="28" fill="#eef7f4" stroke="#0f7f73"/>
+  <text class="wn" x="365" y="239" text-anchor="middle" fill="#1a2233">ARP ~0.1s</text>
+  <rect x="420" y="220" width="500" height="28" fill="#fdf6ec" stroke="#b45309"/>
+  <text class="m" x="670" y="239" text-anchor="middle">应用重连：仍然不可控（需应用改造才有上限）</text>
+  <text class="c" x="40" y="266">控制得住的部分已经压到 1–3 秒；剩下的必须靠应用侧重试/多路径来兜</text>
+
+  <!-- 压缩手段 -->
+  <text class="lb" x="24" y="304">五种压缩手段（按性价比排序）</text>
+  <rect x="24" y="312" width="176" height="82" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="36" y="332">① 聚合替代 STP</text>
+  <text class="b" x="36" y="350">成员故障不惊动 STP</text>
+  <text class="b" x="36" y="366">收益：30s → 3s</text>
+  <text class="c" x="36" y="384">成本：低</text>
+
+  <rect x="212" y="312" width="176" height="82" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="224" y="332">② BFD 替代 hello</text>
+  <text class="b" x="224" y="350">检测 9s → 0.5s</text>
+  <text class="b" x="224" y="366">需两端支持、注意 CPU</text>
+  <text class="c" x="224" y="384">成本：低</text>
+
+  <rect x="400" y="312" width="176" height="82" rx="5" fill="#fff" stroke="#2f6fed"/>
+  <text class="k" x="412" y="332">③ PortFast</text>
+  <text class="b" x="412" y="350">接入口 0 秒转发</text>
+  <text class="b" x="412" y="366">必须配 BPDU 防护</text>
+  <text class="c" x="412" y="384">成本：极低</text>
+
+  <rect x="588" y="312" width="176" height="82" rx="5" fill="#fff" stroke="#0f7f73"/>
+  <text class="k" x="600" y="332">④ mLAG / vPC</text>
+  <text class="b" x="600" y="350">STP 完全不参与</text>
+  <text class="b" x="600" y="366">收益：最大；风险最高</text>
+  <text class="m" x="600" y="384">成本：高</text>
+
+  <rect x="776" y="312" width="160" height="82" rx="5" fill="#f4f9f7" stroke="#0f7f73"/>
+  <text class="k" x="788" y="332">⑤ 应用侧</text>
+  <text class="b" x="788" y="350">重试 / 多路径 / 会话</text>
+  <text class="b" x="788" y="366">免重连</text>
+  <text class="c" x="788" y="384">唯一能压"最后一段"</text>
+</svg>
