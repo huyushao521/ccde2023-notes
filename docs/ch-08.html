@@ -33,7 +33,7 @@
   <div class="scrim" id="scrim"></div>
 
   <main class="main">
-    <article class="article markdown-body"><div class="ch-meta"><span class="badge" data-s="精讲">精讲</span><span class="ch-words">约 18145 字</span></div><h1 id="8-layer-3-technologies">第 8 章：三层技术 (Layer 3 Technologies)<a class="anchor" href="#8-layer-3-technologies" title="Permanent link"></a></h1>
+    <article class="article markdown-body"><div class="ch-meta"><span class="badge" data-s="精讲">精讲</span><span class="ch-words">约 19840 字</span></div><h1 id="8-layer-3-technologies">第 8 章：三层技术 (Layer 3 Technologies)<a class="anchor" href="#8-layer-3-technologies" title="Permanent link"></a></h1>
 <blockquote>
 <p>《CCDE 400-007 Official Cert Guide》中文翻译 | 原书第 322-433 页</p>
 </blockquote>
@@ -46,7 +46,17 @@
 </ul>
 <hr />
 <h2 id="_2">本章导读：三层设计的五条反直觉认知<a class="anchor" href="#_2" title="Permanent link"></a></h2>
+<figure class="fig">
+<img src="assets/fig/ch08-01-five-truths.svg" alt="五条反直觉认知总览：没有目的地、STP 只是补救、故障静默、冗余需独立、协议数量乘二" loading="lazy">
+<figcaption><b>图 8-1</b>　五条反直觉认知：每条都配了证据与判断标准，评审时可以直接照着追问</figcaption>
+</figure>
+
 <h3 id="bgp-igp">反直觉一：你精心设计的 BGP 策略，会被 IGP 度量悄悄推翻<a class="anchor" href="#bgp-igp" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-02-igp-hijack.svg" alt="拓扑：BGP 选出的次优路径被 IGP 度量推翻，AS_PATH 更短的路由因 FIB 递归指向低速链路而输掉" loading="lazy">
+<figcaption><b>图 8-2</b>　BGP 只决定“下一跳是谁”，IGP 决定“到下一跳怎么走” —— 后者能把前者推翻</figcaption>
+</figure>
+
 <p>BGP 选路有 13 条判据，前 6 条看起来已经足够精细——Weight、Local Preference、本地起源、AS_PATH、Origin、MED。工程师通常在这六条上做完整设计，然后在验收时发现"<strong>改了什么都没用</strong>"。</p>
 <p>原因往往在第 8 条：</p>
 <pre><code>第 8 条：到 NEXT_HOP 的 IGP metric 最小
@@ -78,6 +88,11 @@
 <p>💡 <strong>本章第一条工作原则</strong>：<strong>做三层路径设计时，必须同时看 BGP 属性和 IGP 度量。</strong> 只看其中一个，你永远解释不了"为什么改不动"。</p>
 </blockquote>
 <h3 id="_3">反直觉二：路由协议的选择不是技术问题，是"运维模型"问题<a class="anchor" href="#_3" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-03-ops-model.svg" alt="协议选择的运维模型视角：同一需求下网络、系统、安全三个团队给出三种答案，附运维成本对比" loading="lazy">
+<figcaption><b>图 8-3</b>　同一个需求，三个团队会选出三个答案 —— 协议选择的本质是运维模型之争</figcaption>
+</figure>
+
 <p>CCDE 最爱问"这个场景该选 OSPF 还是 IS-IS 还是 EIGRP"。新手按"哪个更快/更好"回答。真实项目的答案取决于<strong>你能维护什么</strong>：</p>
 <table>
 <thead>
@@ -114,6 +129,11 @@
 <p>⚠️ <strong>设计文档里必须写明"为什么选这个协议"，且理由要包含运维能力</strong>。只写"因为 OSPF 是标准协议"，等于没写。</p>
 </blockquote>
 <h3 id="_4">反直觉三：汇总的本质是"信息隐藏"，代价是"失去可见性"<a class="anchor" href="#_4" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-04-summary-blackhole.svg" alt="汇总黑洞拓扑：明细路由存在时汇总正常转发，某一明细网段失效后汇总条目仍存在，流量被吸进 Null0 黑洞" loading="lazy">
+<figcaption><b>图 8-4</b>　汇总 = 信息隐藏：明细在时一切正常，明细消失后汇总条目把流量吸进黑洞</figcaption>
+</figure>
+
 <p>汇总被列为"最佳实践"，被讲成五个好处：省内存、少泛洪、隔离不稳定、加快收敛、提高安全性。但所有这些好处来自<strong>同一个动作</strong>：<strong>把细节丢掉</strong>。</p>
 <pre><code>不汇总：核心知道每个区域的每一条 /24 → 某条断了，核心立刻知道，流量绕行
 汇总：  核心只知道 10.1.0.0/16 → 某条 /24 断了，核心完全不知道
@@ -150,6 +170,11 @@
 <p>⚠️ <strong>汇总的黄金搭配是 null0</strong>：汇总路由器上同时生成一条指向 null0 的汇总路由，这样"明细全部消失"时汇总路由也随之消失，不留下黑洞。<strong>没有 null0 的汇总，是设计缺陷。</strong></p>
 </blockquote>
 <h3 id="_5">反直觉四：收敛不是"越快越好"<a class="anchor" href="#_5" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-05-convergence-grades.svg" alt="收敛分级：语音、交易、办公、备份四类业务对中断时长的容忍度，以及对应的检测与收敛手段" loading="lazy">
+<figcaption><b>图 8-5</b>　收敛要分级：不同业务对中断的容忍度差三个数量级，越快不等于越好</figcaption>
+</figure>
+
 <p>把 BFD 调到 50ms、Hello 调到 1s、SPF 节流全关掉，会得到一个<strong>收敛极快但极不稳定</strong>的网络：</p>
 <table>
 <thead>
@@ -209,6 +234,11 @@
 <p>💡 <strong>设计原则</strong>：收敛优化的目标不是"最短时间"，而是"<strong>最短时间内恢复，同时不让一次抖动引发全网震荡</strong>"。所以节流（throttling）不是保守，是必需。</p>
 </blockquote>
 <h3 id="_6">反直觉五：协议每增加一个，复杂度不是加一，是乘二<a class="anchor" href="#_6" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-06-protocol-multiply.svg" alt="协议数量乘二：三个协议两两之间都要处理重分发方向、选路优先级与回馈环路，组合数呈平方增长" loading="lazy">
+<figcaption><b>图 8-6</b>　协议每增加一个，要处理的边界不是加一，而是两两组合</figcaption>
+</figure>
+
 <p>单协议网络：1 条路径，1 套策略，1 种排障思路。双协议网络：<strong>2 个方向的重分发 + 环路风险 + 度量不可比 + 次优路径</strong>。三协议网络：<strong>6 个方向的重分发</strong>。</p>
 <pre><code>1 个协议：  A
 2 个协议：  A↔B                    （2 个方向）
@@ -246,6 +276,11 @@
 </blockquote>
 <hr />
 <h2 id="_7">三层设计方法论：六步定序<a class="anchor" href="#_7" title="Permanent link"></a></h2>
+<figure class="fig">
+<img src="assets/fig/ch08-07-six-steps.svg" alt="三层设计六步定序及各步产出物，右侧拓扑演示顺序反了导致流量绕行核心间链路" loading="lazy">
+<figcaption><b>图 8-7</b>　六步定序：先定边界与地址，再定协议与度量，最后才是策略与验收</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -341,6 +376,11 @@
 </tbody>
 </table>
 <h4 id="rib-fib">从 RIB 到 FIB：必须理解的四个机制<a class="anchor" href="#rib-fib" title="Permanent link"></a></h4>
+<figure class="fig">
+<img src="assets/fig/ch08-08-rib-to-fib.svg" alt="RIB 到 FIB 的四个机制：递归查找、最长匹配、管理距离 AD、CEF 快速转发，以及各自的失败后果" loading="lazy">
+<figcaption><b>图 8-8</b>　路由表不是转发表：四个机制任意一个理解错，排障方向就会全错</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -477,6 +517,11 @@
 <h2 id="link-state-routing">链路状态路由 (Link-State Routing)<a class="anchor" href="#link-state-routing" title="Permanent link"></a></h2>
 <p>链路状态路由协议使用 Dijkstra 最短路径优先 (SPF) 算法计算最佳路径。OSPF 和 IS-IS 是典型的链路状态协议。</p>
 <h3 id="lsdb">链路状态数据库 (LSDB) 构建过程<a class="anchor" href="#lsdb" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-09-lsdb-build.svg" alt="拓扑：三台路由器各自描述本机链路，LSA 逐跳泛洪后每台设备拼出同一张带权有向图并独立跑 SPF" loading="lazy">
+<figcaption><b>图 8-9</b>　链路状态的核心是“每台设备算自己的树”，前提是所有人的 LSDB 必须一样</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -537,6 +582,11 @@
 </tbody>
 </table>
 <h3 id="hub-and-spoke">Hub-and-Spoke 拓扑中的链路状态设计<a class="anchor" href="#hub-and-spoke" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-10-hub-spoke-loop.svg" alt="Hub-and-Spoke 拓扑：Spoke 之间经 Hub 中转，分支数量增长时全网 LSA 与 SPF 开销按平方上升" loading="lazy">
+<figcaption><b>图 8-10</b>　Hub-and-Spoke 的代价不在带宽，而在每个 Spoke 都要维护全网的拓扑</figcaption>
+</figure>
+
 <p>Hub-and-Spoke（星型）在零售、分支网络中极为常见。用链路状态协议时会遇到三个结构性问题：</p>
 <table>
 <thead>
@@ -590,6 +640,11 @@
 <p>💡 <strong>实践口诀</strong>：<strong>Hub-and-Spoke 用链路状态协议时，"Spoke 必须是纯终端"</strong> —— 它只应有一条出口路由（默认或汇总），不做任何中转决策。任何让 Spoke 参与"选择路径"的设计都会引入次优或回环。</p>
 </blockquote>
 <h3 id="_9">泛洪域的规模：一个被低估的量化约束<a class="anchor" href="#_9" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-11-flood-scale.svg" alt="泛洪域规模量化：节点数增长时 LSA 数量、SPF 计算次数与收敛时间的实测曲线" loading="lazy">
+<figcaption><b>图 8-11</b>　泛洪域要量化，不是凭感觉：先算 LSA 条数，再决定要不要划区域</figcaption>
+</figure>
+
 <p>链路状态协议的可扩展性，本质上是<strong>泛洪域内的路由器数量</strong>决定的：</p>
 <table>
 <thead>
@@ -670,6 +725,11 @@ interface GigabitEthernet1/0/1
 <hr />
 <h2 id="ospf">OSPF 设计考量<a class="anchor" href="#ospf" title="Permanent link"></a></h2>
 <h3 id="ospf-lsa">OSPF LSA 类型<a class="anchor" href="#ospf-lsa" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-12-lsa-types.svg" alt="OSPF 五种 LSA：Type 1/2/3/4/5/7 的发起者、传播范围、携带内容与设计含义对照表" loading="lazy">
+<figcaption><b>图 8-12</b>　LSA 类型就是“谁能看见什么”：Type 3 是区域间唯一的抽象接口</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -734,6 +794,11 @@ interface GigabitEthernet1/0/1
 </table>
 <p><strong>Type 4 为什么存在</strong>（很多人不知道）：Type 5 里只写了 ASBR 的 Router ID，其他区域的路由器要算"到 ASBR 怎么走"，就需要知道 ASBR 的<strong>可达地址</strong>。Type 4 就是 ABR 替 ASBR 做的"位置说明书"。<strong>stub 区域不需要 Type 4/5，因为那里不允许外部路由。</strong></p>
 <h3 id="ospf_1">OSPF 区域类型<a class="anchor" href="#ospf_1" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-13-area-types.svg" alt="五种区域类型允许的 LSA 白名单矩阵，以及分店 stub 区域吃掉 4G 备份出口的拓扑" loading="lazy">
+<figcaption><b>图 8-13</b>　区域类型 = 允许收什么的白名单；能力来自过滤，风险也来自过滤</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -821,6 +886,11 @@ route-map LOCAL-EXIT permit 10
 3. <strong>"备份路径"必须单独验收</strong>：只测主路径等于没测备份。<strong>每一个冗余设计，都要有对应的故障注入用例。</strong></p>
 </blockquote>
 <h3 id="ospf_2">OSPF 网络类型<a class="anchor" href="#ospf_2" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-14-network-types.svg" alt="拓扑对比：Spoke 在 broadcast 网络被选成 DR 导致流量黑洞，改为 point-to-multipoint 后修正" loading="lazy">
+<figcaption><b>图 8-14</b>　网络类型选错，DR 选举就会把流量导向一台没有转发能力的设备</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -909,6 +979,11 @@ interface Tunnel0
 <p>💡 <strong><code>point-to-point</code> 的隐性收益</strong>：它省掉了 Type 2（Network LSA）和 DR/BDR 选举。在几百条三层互联的网络里，这能省掉几百个 LSA 和相应的 SPF 计算量。<strong>这是"零成本优化"。</strong></p>
 </blockquote>
 <h3 id="ospf_3">OSPF 快速收敛技术<a class="anchor" href="#ospf_3" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-15-hello-vs-bfd.svg" alt="双时间轴对比：Hello 1 秒 × 3 约 3.2 秒收敛，BFD 50 毫秒 × 3 约 200 毫秒，并配 SPF/LSA 节流" loading="lazy">
+<figcaption><b>图 8-15</b>　先量化损失再上加速：Hello 计时和 BFD 差一个数量级</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -996,6 +1071,11 @@ interface Tunnel0
 <p>⚠️ <strong>一个常见错误组合</strong>：把 Hello 调到 1s、Dead 调到 3s，<strong>同时</strong>没配 SPF 节流。结果是：光模块抖动 → 邻居断 → SPF 重算 → 邻居恢复 → SPF 再重算 → 反复。CPU 被 SPF 吃满，反而更慢。<strong>快检测必须配抖动抑制，否则是把噪声放大。</strong></p>
 </blockquote>
 <h3 id="ospf-auto-cost">OSPF 度量设计：<code>auto-cost</code> 必须是全网一致的决策<a class="anchor" href="#ospf-auto-cost" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-16-auto-cost.svg" alt="拓扑与 cost 表：参考带宽仍为 100M 时 1G 与 10G 链路同 cost，ECMP 各分一半带宽" loading="lazy">
+<figcaption><b>图 8-16</b>　参考带宽不改，千兆和万兆就是“等价链路” —— 这是最常见的度量事故</figcaption>
+</figure>
+
 <p>OSPF 的默认 cost 计算是 <code>参考带宽 / 接口带宽</code>，参考带宽默认 <strong>100 Mbps</strong>。这带来一个历史上的严重问题：</p>
 <table>
 <thead>
@@ -1073,6 +1153,11 @@ router ospf 1
 <p>💡 <strong>一个实用的设计习惯</strong>：在文档里显式写出<strong>每条链路的 cost 表格</strong>（而不是"由 auto-cost 自动算"）。因为一旦有人改了接口带宽或参考带宽，路径会静默改变，而文档里有表格才能发现偏离。</p>
 </blockquote>
 <h3 id="ospf_4">OSPF 汇总<a class="anchor" href="#ospf_4" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-17-ospf-summary.svg" alt="两个汇总位置：ABR 上的 area range 生成 Type 3，ASBR 上的 summary-address 生成 Type 5，均本地生成 Null0，附三个陷阱" loading="lazy">
+<figcaption><b>图 8-17</b>　汇总在两个位置做，各自生成 Null0 兜底；做错位置的汇总等于自己造黑洞</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -1151,6 +1236,11 @@ router ospf 1
 <h2 id="is-is">IS-IS 设计考量<a class="anchor" href="#is-is" title="Permanent link"></a></h2>
 <p>IS-IS 是另一个链路状态协议，与 OSPF 在概念上高度相似，但在<strong>扩展性、封装层级、厂商生态</strong>上有明显差异。</p>
 <h3 id="ospf-is-is">OSPF 与 IS-IS 的对比<a class="anchor" href="#ospf-is-is" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-18-ospf-vs-isis.svg" alt="封装层对比：OSPF 跑在 IP 协议号 89 之上，IS-IS 跑在 CLNS 之上；右侧七维对比表" loading="lazy">
+<figcaption><b>图 8-18</b>　OSPF 与 IS-IS 的差别，一半来自“跑在哪一层”，一半来自扩展性的设计取舍</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -1206,6 +1296,11 @@ router ospf 1
 </tbody>
 </table>
 <h3 id="is-is_1">IS-IS 的关键设计细节<a class="anchor" href="#is-is_1" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-19-isis-details.svg" alt="IS-IS 的 L1/L2 两级拓扑、NET 地址结构，以及 wide metric、overload bit、PRC、mesh group、LSP 分片、两级认证六个细节" loading="lazy">
+<figcaption><b>图 8-19</b>　IS-IS 的六个细节里，wide metric 与 NET 规划是两个必须一次做对的决定</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -1300,6 +1395,11 @@ interface TenGigabitEthernet1/1/1
 <h2 id="eigrp">EIGRP 设计考量<a class="anchor" href="#eigrp" title="Permanent link"></a></h2>
 <p>EIGRP 是 Cisco 的高级距离矢量（混合型）协议，核心是 <strong>DUAL（扩散更新算法）</strong>。它与链路状态协议的根本差异在于：<strong>它不构建拓扑图，而是维护"到每个目的地的可行路径集合"，靠可行性条件保证无环。</strong></p>
 <h3 id="eigrp_1">EIGRP 的四张表与三个术语<a class="anchor" href="#eigrp_1" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-20-eigrp-fs.svg" alt="拓扑：同一目的地的 RD 为 1200 与 800 两种情形，分别演示可行性条件成立成为 FS、不成立只能进 Active" loading="lazy">
+<figcaption><b>图 8-20</b>　FD / RD / FS 三件事只有一个判据：RD 是否小于当前 FD</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -1360,6 +1460,11 @@ interface TenGigabitEthernet1/1/1
              若 B 的 RD = 1200（&gt; 我的 FD 1000）→ 不可行 → 不能做备份
 </code></pre>
 <h3 id="query-eigrp">Query 域：EIGRP 最需要设计的部分<a class="anchor" href="#query-eigrp" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-21-eigrp-query.svg" alt="双拓扑对比：无边界时 Query 扩散到全网并进入 SIA，加汇总与 stub 后 Query 在边界终止" loading="lazy">
+<figcaption><b>图 8-21</b>　Query 域必须用设计切断：汇总、stub、过滤、层级，四者按优先级叠加</figcaption>
+</figure>
+
 <p>当一条路径失效且<strong>没有可行后继</strong>时，路由器进入 <strong>Active</strong> 状态，向所有邻居发 <strong>Query</strong>："你有到 X 的路吗？" 邻居如果没有，继续向它们的邻居查 —— <strong>这就是 Query 扩散</strong>。</p>
 <table>
 <thead>
@@ -1452,6 +1557,11 @@ router eigrp CAMPUS
 <p>配 <code>stub connected</code> 却<strong>依赖本地静态默认路由</strong>的站点，主链路断后会失去默认路由 → 与 OSPF Stub 那个案例是同一类错误。</p>
 </blockquote>
 <h3 id="eigrp_2">EIGRP 度量与"为什么它不按带宽选路"<a class="anchor" href="#eigrp_2" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-22-eigrp-metric.svg" alt="双路径拓扑：10G+10M 与 1G+1G 两条路径，度量取最小带宽加延迟累加，10G 链路因木桶效应输掉" loading="lazy">
+<figcaption><b>图 8-22</b>　EIGRP 的度量是木桶效应：最窄的那一段决定整条路径的优劣</figcaption>
+</figure>
+
 <p>EIGRP 的经典复合度量：</p>
 <pre><code>metric = 256 × ( 10^7 / 最小带宽(kbps)  +  累计延迟(10μs) / 10 )
                        ↑                      ↑
@@ -1530,6 +1640,11 @@ router eigrp CAMPUS
 <hr />
 <h2 id="_10">流量工程和路径选择<a class="anchor" href="#_10" title="Permanent link"></a></h2>
 <h3 id="_11">为什么要专门设计路径<a class="anchor" href="#_11" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-23-te-10to1.svg" alt="等价与显式设计对比：抖动 2ms 对 12ms、链路利用率 5% 对 100%，附流量工程目标清单" loading="lazy">
+<figcaption><b>图 8-23</b>　不设计路径，就由哈希和默认度量替你决定 —— 代价先落在利用率上</figcaption>
+</figure>
+
 <p>IGP 的 SPF 只看<strong>拓扑和度量</strong>，不看带宽利用率、不看业务重要性。经典的 <strong>10:1 带宽不匹配</strong>：</p>
 <pre><code>        ┌──── 1G 链路（cost 相同）────┐
    R1 ──┤                              ├── R2
@@ -1546,6 +1661,11 @@ SPF 认为等价 → 负载分担 50/50
 <li>度量不反映"预留"与"策略"（如语音优先级、备份链路不应承载业务）</li>
 </ol>
 <h3 id="_12">路径控制的四个层次<a class="anchor" href="#_12" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-24-path-layers.svg" alt="路径控制四层阶梯：拓扑、度量、BGP 属性、PBR，配三个选层问题与 maximum-paths 的影响" loading="lazy">
+<figcaption><b>图 8-24</b>　四层从粗到细，能用拓扑解决的就不要用策略解决</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -1860,7 +1980,17 @@ SPF 认为等价 → 负载分担 50/50
 <p>💡 <strong>判断口诀</strong>：<strong>需要"策略"就用 BGP，只需要"可达性"就用 IGP。</strong> 换句话说——如果所有路径一样好，你不需要 BGP；如果"哪条路径更好"取决于业务而不是拓扑，你需要 BGP。</p>
 </blockquote>
 <h3 id="bgp_2">BGP 可扩展性选项<a class="anchor" href="#bgp_2" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-25-ibgp-fullmesh.svg" alt="iBGP 全互连：10 台路由器需要 45 条会话，平方增长表与 RR 的 4 条会话对比" loading="lazy">
+<figcaption><b>图 8-25</b>　全互连的会话数是 N(N−1)/2：这不是配置问题，是增长模型问题</figcaption>
+</figure>
+
 <h4 id="route-reflector-rr">路由反射器 (Route Reflector, RR)<a class="anchor" href="#route-reflector-rr" title="Permanent link"></a></h4>
+<figure class="fig">
+<img src="assets/fig/ch08-26-rr.svg" alt="RR 拓扑：客户端与非客户端，三条反射规则，以及 Originator ID、Cluster List 两个防环属性和冗余 RR 设计" loading="lazy">
+<figcaption><b>图 8-26</b>　RR 用两条属性换掉平方级会话数，代价是故障域与 cluster 规划</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -2014,6 +2144,11 @@ router bgp 65000
 <li><strong>组内成员的 <code>update-source</code>、<code>ebgp-multihop</code> 一致性</strong>要检查，否则部分邻居起不来</li>
 </ol>
 <h3 id="bgp-13">BGP 选路过程（13 条判据详解）<a class="anchor" href="#bgp-13" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-27-bgp-bestpath.svg" alt="13 条选路判据按四组归类：本机控制、路径长度、IGP 度量、收敛手段" loading="lazy">
+<figcaption><b>图 8-27</b>　13 条判据分四组记：前六条几乎决定一切，后面大多是工程补丁</figcaption>
+</figure>
+
 <p>BGP 从多条路径中选择最佳路径，按以下顺序<strong>逐条比较，遇到不同即停止</strong>：</p>
 <table>
 <thead>
@@ -2270,6 +2405,11 @@ route-map RM-TO-ISP-B permit 10
 <p>💡 <strong>多厂商 BGP 互联的实操建议</strong>：在互联前，把上表逐项与对方核对并写进互联文档。<strong>BGP 的"标准"只在属性格式上标准，在"默认决策行为"上并不完全统一。</strong></p>
 </blockquote>
 <h3 id="_17">出口和入口流量策略<a class="anchor" href="#_17" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-28-egress-ingress.svg" alt="双出口拓扑：出向用 Local Preference 与 Weight 控制，入向用 AS_PATH prepend、community、MED、前缀长度四种手段，附强弱排序" loading="lazy">
+<figcaption><b>图 8-28</b>　出向是自己的事，入向是别人的事 —— 这条边界决定策略的可控性</figcaption>
+</figure>
+
 <p>BGP 的流量控制本质是<strong>两个方向分别设计</strong>：</p>
 <table>
 <thead>
@@ -2445,6 +2585,11 @@ router bgp 65000
   → EIGRP 无法区分&quot;优质的&quot;和&quot;劣质的&quot; OSPF 路由 → 选路失去意义
 </code></pre>
 <h3 id="_19">单点重分发与双点重分发<a class="anchor" href="#_19" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-29-redistribution.svg" alt="单点与双点双向重分发拓扑：回馈环路形成过程，以及 tag、前缀白名单、管理距离三件套的部署位置" loading="lazy">
+<figcaption><b>图 8-29</b>　双点双向重分发不做三件套，回馈环一定会在某个时刻闭环</figcaption>
+</figure>
+
 <table>
 <thead>
 <tr>
@@ -2765,6 +2910,11 @@ router ospf 1
 </ol>
 <hr />
 <h3 id="ibgp">案例二：iBGP 路由"学得到但不装表"<a class="anchor" href="#ibgp" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-30-nexthop-fib.svg" alt="拓扑：BGP 表里有路由但 FIB 里没有出口，递归下一跳不可达，三种修复方式与验证命令" loading="lazy">
+<figcaption><b>图 8-30</b>　“学得到但不装表”只有两个原因：下一跳不可达，或选路输给了别的协议</figcaption>
+</figure>
+
 <p><strong>背景</strong>：某企业用 BGP 作为核心路由协议。两台边界路由器（BR1、BR2）与 Internet 建立 eBGP，同时与核心路由器（CR1、CR2）建立 iBGP 全互连。割接后，<code>show ip bgp</code> 在 CR1 上能看到全部 90 万条路由且状态为 <code>*&gt;i</code>（有效、iBGP 学来），但 <strong><code>show ip route</code> 里一条都没有</strong> —— 用户完全上不了网。</p>
 <p><strong>排查</strong>：</p>
 <table>
@@ -2978,6 +3128,11 @@ router ospf 1
 </ol>
 <hr />
 <h3 id="redistribute-bgp-25">案例五：一条 <code>redistribute bgp</code> 让全网瘫痪 25 分钟<a class="anchor" href="#redistribute-bgp-25" title="Permanent link"></a></h3>
+<figure class="fig">
+<img src="assets/fig/ch08-31-redist-scale.svg" alt="92 万条 BGP 路由被 redistribute 灌进 IGP 的雪崩时间线，附三条红线和替代方案" loading="lazy">
+<figcaption><b>图 8-31</b>　一条 redistribute 命令让全网瘫痪 25 分钟 —— 全表灌 IGP 是设计级红线</figcaption>
+</figure>
+
 <p><strong>背景</strong>：某企业核心是新上的 BGP 域，边缘有一小块遗留的 OSPF 区域（几个老分支）。为了让老分支能访问互联网，运维在 OSPF 的 ASBR 上执行了一条"看起来合理"的命令：</p>
 <pre><code>router ospf 1
  redistribute bgp 65000 subnets

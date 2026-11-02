@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 408" width="100%" role="img" aria-labelledby="t25 d25">
+<title id="t25">iBGP 的水平分割规则与全互连的会话数爆炸</title>
+<desc id="d25">iBGP 有一条硬规则：从 iBGP 邻居学到的路由不再转发给其他 iBGP 邻居，这就是水平分割，目的是防止 AS 内出现环路。因此 AS 内所有路由器必须两两建立会话，即全互连。左侧画出五台路由器的全互连：10 条会话，任意一条链路上的路由只经过一跳即可到达所有设备。中间是会话数增长表：5 台 10 个会话、10 台 45 个、20 台 190 个、50 台 1225 个，运维成本近似按平方增长。右侧是路由反射器的替代方案：以 RR 为中心，客户端只与 RR 建立会话，5 台设备只需要 4 条会话，由 RR 负责把路由反射给其他客户端，并用集群 ID 与 Originator ID 防止环路。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="408" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">iBGP 有一条"不转发"的规矩，于是必须两两相连</text>
+<text class="s" x="24" y="48">水平分割防住了环，也把会话数推成平方级 —— 这是 RR 存在的唯一理由</text>
+
+<rect x="24" y="66" width="300" height="212" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="84" fill="#a32020">全互连：5 台 = 10 条会话</text>
+<circle cx="174" cy="132" r="15" fill="#eaf1ff" stroke="#2f6fed"/>
+<circle cx="258" cy="172" r="15" fill="#eaf1ff" stroke="#2f6fed"/>
+<circle cx="233" cy="240" r="15" fill="#eaf1ff" stroke="#2f6fed"/>
+<circle cx="120" cy="240" r="15" fill="#eaf1ff" stroke="#2f6fed"/>
+<circle cx="90" cy="172" r="15" fill="#eaf1ff" stroke="#2f6fed"/>
+<line x1="189" y1="134" x2="243" y2="167" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="261" y1="187" x2="243" y2="225" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="218" y1="240" x2="135" y2="240" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="108" y1="226" x2="93" y2="187" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="97" y1="157" x2="162" y2="133" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="174" y1="147" x2="233" y2="225" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="189" y1="130" x2="246" y2="166" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="159" y1="134" x2="105" y2="165" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="255" y1="187" x2="120" y2="235" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="105" y1="226" x2="243" y2="237" stroke="#c98a8a" stroke-width="1.4"/>
+<line x1="248" y1="186" x2="100" y2="168" stroke="#c98a8a" stroke-width="1.4"/>
+<text class="r" x="40" y="266">任意一条路由只需一跳到达所有设备，但每台都要维护 N−1 条会话</text>
+
+<rect x="340" y="66" width="272" height="212" rx="5" fill="#fff" stroke="#ccd6e4"/>
+<text class="lb" x="356" y="84">会话数按平方增长</text>
+<text class="b" x="356" y="108">N = 5　→　10 条</text>
+<text class="b" x="356" y="130">N = 10　→　45 条</text>
+<text class="b" x="356" y="152">N = 20　→　190 条</text>
+<text class="r" x="356" y="174">N = 50　→　1225 条</text>
+<text class="b" x="356" y="200">每加一台设备，要改 N 台的配置</text>
+<text class="b" x="356" y="222">每条会话都要 TCP 6379 + 保活 + 策略</text>
+<text class="b" x="356" y="244">失败面：任何一个邻居抖动都会引发大量更新</text>
+
+<rect x="628" y="66" width="308" height="212" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="644" y="84" fill="#0f7f73">路由反射器：5 台 = 4 条会话</text>
+<circle cx="782" cy="150" r="20" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="782" y="154" text-anchor="middle">RR</text>
+<circle cx="700" cy="104" r="13" fill="#fff" stroke="#2f6fed"/>
+<circle cx="864" cy="104" r="13" fill="#fff" stroke="#2f6fed"/>
+<circle cx="700" cy="204" r="13" fill="#fff" stroke="#2f6fed"/>
+<circle cx="864" cy="204" r="13" fill="#fff" stroke="#2f6fed"/>
+<line x1="710" y1="112" x2="766" y2="139" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="854" y1="112" x2="798" y2="139" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="710" y1="196" x2="766" y2="161" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="854" y1="196" x2="798" y2="161" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="c" x="644" y="238">客户端只与 RR 建会话，由 RR 反射给其他客户端</text>
+<text class="b" x="644" y="260">防环靠 cluster-id 与 originator-id</text>
+
+<rect x="24" y="292" width="912" height="60" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="310">两种设计的分界线</text>
+<text class="b" x="40" y="328">≤ 5 台：全互连更简单，能看到每一条真实路径；≥ 8 台：用 RR，并且 RR 至少两台成对部署（否则 RR 成为单点与"路由可见性"瓶颈）</text>
+<text class="b" x="40" y="346">折中方案：分层 RR（核心 RR ↔ 区域 RR），并保证所有 RR 属于同一个集群或用不同 cluster-id 形成多集群</text>
+
+<rect x="24" y="362" width="912" height="38" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="385" fill="#b45309">别忘了底层前提：iBGP 路由要生效，NEXT_HOP 必须被 IGP 记住 —— 全互连 + next-hop-self 是最常见的组合拳。</text>
+</svg>

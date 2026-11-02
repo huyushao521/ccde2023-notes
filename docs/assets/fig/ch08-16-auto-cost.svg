@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t16 d16">
+<title id="t16">参考带宽默认 100M 导致 1G 与 10G 同 cost，改参考带宽前后的选路</title>
+<desc id="d16">拓扑是 R1 到 R2 有两条路径：一条是 1G 直连，一条经 R3 的 10G 链路。默认参考带宽 100M 时，1G 与 10G 接口算出的 cost 都是 1，两条路径等价，ECMP 各占一半流量，1G 链路被撑满而 10G 只用了 5%。把参考带宽改成 10G 后，1G 的 cost 变成 10、10G 的 cost 是 1，流量全部走 10G。中间对比两种配置下的 cost 表。底部指出只在一台设备上改参考带宽会造成单向路径不对称：去程走 10G、回程走 1G，故障排查时极难发现，因此参考带宽必须在全网统一。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">cost 是"相对值"：参考带宽没改，1G 和 10G 就是同一条链路</text>
+<text class="s" x="24" y="48">默认 reference-bandwidth 100 Mbps：任何 ≥100M 的接口 cost 都被压成 1</text>
+
+<rect x="24" y="66" width="452" height="180" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<rect x="60" y="150" width="76" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="98" y="173" text-anchor="middle">R1</text>
+<rect x="330" y="150" width="76" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="368" y="173" text-anchor="middle">R2</text>
+<line x1="136" y1="168" x2="330" y2="168" stroke="#a32020" stroke-width="2"/>
+<text class="r" x="233" y="160" text-anchor="middle">1G · cost 1</text>
+<rect x="196" y="92" width="76" height="32" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="234" y="113" text-anchor="middle">R3</text>
+<path d="M98 150 L98 108 L196 108" fill="none" stroke="#0f7f73" stroke-width="2"/>
+<path d="M272 108 L368 108 L368 150" fill="none" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="140" y="102" text-anchor="middle">10G</text>
+<text class="c" x="320" y="102" text-anchor="middle">10G</text>
+<text class="r" x="40" y="214">ECMP 各 50%：1G 满载丢包，10G 只跑 5%（案例一的典型症状）</text>
+<text class="b" x="40" y="232">按带宽分流的意图，被"cost 相同"直接抹平。</text>
+
+<rect x="492" y="66" width="444" height="86" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="508" y="84" fill="#a32020">默认 reference-bandwidth 100</text>
+<text class="b" x="508" y="104">1G 接口 → 100/1000 取整 → cost 1</text>
+<text class="b" x="508" y="122">10G 接口 → 100/10000 取整 → cost 1（最小值为 1，不能再小）</text>
+<text class="r" x="508" y="142">带宽差 10 倍，cost 完全相同 → 等价路径</text>
+
+<rect x="492" y="160" width="444" height="86" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="508" y="178" fill="#0f7f73">改 auto-cost reference-bandwidth 10000</text>
+<text class="b" x="508" y="198">1G 接口 → cost 10</text>
+<text class="b" x="508" y="216">10G 接口 → cost 1</text>
+<text class="c" x="508" y="236">全部流量走 10G，1G 只作为备用路径</text>
+
+<rect x="24" y="260" width="912" height="72" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="278">改参考带宽的三条纪律</text>
+<text class="b" x="40" y="296">① 全网统一：只在核心改、接入不改，会造成"去程走 10G、回程走 1G"的不对称路径，排障时几乎发现不了</text>
+<text class="b" x="40" y="314">② 参考带宽要 ≥ 现网最大接口带宽，否则万兆与 40G 又会撞成同一个 cost（40G 需要 40000 或更高）</text>
+<text class="b" x="40" y="332">③ 改完必须重算：clear ip ospf process 或等待 SPF，然后 show ip ospf interface brief 逐条核对 cost</text>
+
+<rect x="24" y="342" width="912" height="0" fill="none"/>
+<rect x="24" y="344" width="912" height="44" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="362" fill="#b45309">比 cost 更稳的做法</text>
+<text class="b" x="40" y="379">需要精确控制路径时，用显式 ip ospf cost 而不是依赖自动计算；自动 cost 只适合"带宽与设计一致"的网络。</text>
+
+<rect x="24" y="394" width="912" height="0" fill="none"/>
+</svg>

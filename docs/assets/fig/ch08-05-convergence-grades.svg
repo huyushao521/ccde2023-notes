@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 424" width="100%" role="img" aria-labelledby="t5 d5">
+<title id="t5">收敛的分级响应：毫秒检测、百毫秒本地修复、秒级 IGP、十秒级 BGP</title>
+<desc id="d5">左侧是四层分级响应的时间尺度与手段：毫秒级用 BFD 与物理层告警做快检测，但不立即全网重算；百毫秒级用 FRR、TI-LFA 或备份路径做本地修复；秒级才做 IGP 的 SPF 重算；十秒级做 BGP 收敛与路由策略重算。右侧对比两种配置在链路抖动 200 毫秒时的后果：配了节流时只抖动一次不影响全网；Hello 1 秒、Dead 3 秒且不配 SPF 节流时，邻居反复断连、SPF 反复重算、CPU 被吃满，抖动被放大成全网的持续震荡。底部结论是收敛优化的目标是最短恢复时间且不让一次抖动引发全网震荡。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 12px "Microsoft YaHei",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="424" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">收敛要分级，不要一路踩到底</text>
+<text class="s" x="24" y="48">每层只解决自己的问题：检测快不等于全网重算快，也不等于业务恢复得快</text>
+
+<text class="lb" x="24" y="76">四级响应：谁先动，谁后动</text>
+<rect x="24" y="86" width="440" height="52" rx="4" fill="#e8f4f2" stroke="#a8d8ce"/>
+<text class="k" x="40" y="104">① 毫秒级 · 检测</text>
+<text class="b" x="40" y="122">BFD、物理层告警：快检测，但不立即触发全网重算</text>
+<rect x="24" y="146" width="440" height="52" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="k" x="40" y="164">② 百毫秒级 · 本地修复</text>
+<text class="b" x="40" y="182">FRR、TI-LFA、预置备份路径：就近切换，不惊动全网</text>
+<rect x="24" y="206" width="440" height="52" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="k" x="40" y="224">③ 秒级 · IGP 收敛</text>
+<text class="b" x="40" y="242">SPF 重算：只在前两级都失败时发生</text>
+<rect x="24" y="266" width="440" height="52" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="k" x="40" y="284">④ 十秒级 · BGP 收敛</text>
+<text class="b" x="40" y="302">路径矢量与策略重算：宏观路径调整，本来就不该抢在 IGP 前面</text>
+
+<rect x="500" y="76" width="436" height="114" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="516" y="94" fill="#0f7f73">配了节流：抖动 200ms 被吸收</text>
+<text class="b" x="516" y="114">BFD 检测到 200ms 抖动 → carrier-delay 抑制上报</text>
+<text class="b" x="516" y="132">→ 不产生 LSA 变更 → 不触发 SPF</text>
+<text class="c" x="516" y="154">全网无感，业务无丢包，CPU 平稳</text>
+<text class="b" x="516" y="174">throttle spf 50 200 5000 + lsa arrival 100</text>
+
+<rect x="500" y="200" width="436" height="118" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="516" y="218" fill="#a32020">关了节流：抖动被放大成震荡</text>
+<text class="b" x="516" y="238">Hello 1s / Dead 3s → 抖动即断邻居 → SPF 重算</text>
+<text class="b" x="516" y="256">→ 邻居恢复 → 再重算 → 每 3 秒一次循环</text>
+<text class="r" x="516" y="278">CPU 被 SPF 吃满 → Hello 更易漏处理 → 断得更频繁</text>
+<text class="b" x="516" y="298">同时多路径哈希重排 → 同一 TCP 流乱序重传，吞吐崩塌</text>
+
+<rect x="500" y="330" width="436" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="516" y="350">判断标准只有一个：业务感知得到这 200ms 吗？感知不到就别追。</text>
+
+<rect x="24" y="330" width="440" height="72" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="348">"快"的正确含义</text>
+<text class="b" x="40" y="366">不是"最短时间收敛"，而是"最短时间内恢复，</text>
+<text class="b" x="40" y="384">同时不让一次抖动引发全网震荡"。</text>
+<text class="m" x="40" y="398">所以节流不是保守，是必需 —— 它是稳定性的保险。</text>
+</svg>

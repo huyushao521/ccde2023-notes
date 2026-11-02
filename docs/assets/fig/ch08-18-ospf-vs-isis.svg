@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 424" width="100%" role="img" aria-labelledby="t18 d18">
+<title id="t18">OSPF 与 IS-IS 的封装层差异，以及七个维度的对比</title>
+<desc id="d18">左侧是封装层对比：OSPF 报文封装在 IP 之上，协议号 89，因此邻居之间必须有互通的 IP 地址；IS-IS 报文直接封装在二层之上，不依赖 IP，因此可以在还没配地址时就建立邻接，IP 规划与拓扑解耦。右侧是七维对比表：封装层、扩展性（TLV 与固定格式 LSA）、区域模型（两级与多区）、收敛速度、多拓扑支持、厂商互通、人才储备。底部结论是两者的可靠性差异主要来自运营能力而非协议本身，选型应回到团队熟练度。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="424" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">OSPF 跑在 IP 里，IS-IS 跑在二层上 —— 一切差异从这里开始</text>
+<text class="s" x="24" y="48">一个依赖 IP 可达性建邻，一个不需要 IP 就能建邻；后者让地址规划与拓扑解耦</text>
+
+<rect x="24" y="66" width="446" height="150" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="84">OSPF：IP 之上的协议（协议号 89）</text>
+<rect x="40" y="96" width="80" height="30" rx="3" fill="#fff" stroke="#2f6fed"/>
+<text class="b" x="80" y="116" text-anchor="middle">二层帧</text>
+<rect x="130" y="96" width="80" height="30" rx="3" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="b" x="170" y="116" text-anchor="middle">IP 头</text>
+<rect x="220" y="96" width="110" height="30" rx="3" fill="#eaf1ff" stroke="#2f6fed" stroke-width="2"/>
+<text class="b" x="275" y="116" text-anchor="middle">OSPF (89)</text>
+<rect x="340" y="96" width="110" height="30" rx="3" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="395" y="116" text-anchor="middle">Hello / LSA</text>
+<text class="b" x="40" y="150">建邻前提：接口必须有 IP，且两端必须能互相 ping 通</text>
+<text class="r" x="40" y="170">地址规划错了，邻接就建不起来 —— 拓扑被地址绑死</text>
+<text class="b" x="40" y="194">优点：可直接用 IP 安全机制做认证与过滤</text>
+
+<rect x="490" y="66" width="446" height="150" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="506" y="84" fill="#0f7f73">IS-IS：直接封装在二层（CLNS）</text>
+<rect x="506" y="96" width="80" height="30" rx="3" fill="#fff" stroke="#0f7f73"/>
+<text class="b" x="546" y="116" text-anchor="middle">二层帧</text>
+<rect x="596" y="96" width="130" height="30" rx="3" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="b" x="661" y="116" text-anchor="middle">IS-IS PDU</text>
+<text class="b" x="736" y="116">无需 IP 头</text>
+<text class="b" x="506" y="150">建邻只看二层可达与 NET 地址，与 IP 规划无关</text>
+<text class="c" x="506" y="170">骨干可以先用 IS-IS 起来，IP 地址后配 —— 大网改造友好</text>
+<text class="b" x="506" y="194">代价：排障多一层，抓包与分析工具链要求更高</text>
+
+<rect x="24" y="230" width="912" height="130" rx="5" fill="#fff" stroke="#ccd6e4"/>
+<text class="lb" x="40" y="248">七维对比（结论：可运维性 > 理论优劣）</text>
+<text class="b" x="40" y="268">封装层　　OSPF 在 IP 之上（89）　　　　　IS-IS 在二层之上（无 IP 依赖）</text>
+<text class="b" x="40" y="286">扩展性　　LSA 类型固定，扩展需新类型　　TLV 可自由扩展，新特性易加</text>
+<text class="b" x="40" y="304">区域模型　多区域 + 必须连续骨干　　　　Level 1/Level 2 两级，骨干天然连续</text>
+<text class="b" x="40" y="322">收敛速度　两者量级相同（亚秒）　　　　两者量级相同（亚秒）</text>
+<text class="b" x="40" y="340">多拓扑　　需要单独实例或地址族　　　　原生多拓扑（IPv4/IPv6 共用一张图）</text>
+<text class="b" x="40" y="358">企业存量　设备默认都有，文档与案例多　多见于运营商与大型数据中心骨干</text>
+
+<rect x="24" y="368" width="912" height="48" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="386" fill="#b45309">选型建议（回到本章反直觉二）</text>
+<text class="b" x="40" y="403">企业网选 OSPF：不是为了性能，而是为了"出问题时有人能查"。运营商与超大骨干选 IS-IS：地址解耦与 TLV 扩展性在那里才值钱。</text>
+</svg>

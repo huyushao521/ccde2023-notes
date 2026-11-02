@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 448" width="100%" role="img" aria-labelledby="t1 d1">
+<title id="t1">三层设计的五条反直觉认知：每条都对应一个会被默认值攻陷的地方</title>
+<desc id="d1">五行卡片。一、BGP 精心设计的策略会被 IGP 度量推翻，因为选路第 8 条比的是到 NEXT_HOP 的 IGP metric；二、协议选择是运维模型问题，团队熟悉度权重最高；三、汇总的本质是信息隐藏，代价是失去明细可见性与故障期间的路径正确性；四、收敛不是越快越好，快检测必须配抖动抑制；五、每增加一个协议，重分发方向按 n(n-1) 增长，3 个协议就是 6 个方向。底部给出本章的五层控制主线：拓扑、度量、汇总、属性、翻译。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 11px "Microsoft YaHei",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="448" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">三层设计的五条反直觉认知：默认值就是设计</text>
+<text class="s" x="24" y="48">五条都指向同一件事 —— 你以为在控制台做的事，实际被某个你没看过的默认值决定了</text>
+
+<rect x="24" y="62" width="912" height="56" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<circle cx="46" cy="90" r="11" fill="#a32020"/>
+<text x="46" y="94" text-anchor="middle" font="600 10px Microsoft YaHei" fill="#fff">1</text>
+<text class="k" x="70" y="86">BGP 策略会被 IGP 度量悄悄推翻</text>
+<text class="b" x="70" y="104">13 条判据里，前 7 条全部平局时，第 8 条"到 NEXT_HOP 的 IGP metric"接管决定权</text>
+<text class="r" x="640" y="94">→ 只改 BGP 属性，永远解释不了"为什么改不动"</text>
+
+<rect x="24" y="126" width="912" height="56" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<circle cx="46" cy="154" r="11" fill="#b45309"/>
+<text x="46" y="158" text-anchor="middle" font="600 10px Microsoft YaHei" fill="#fff">2</text>
+<text class="k" x="70" y="150">协议选择不是技术问题，是运维模型问题</text>
+<text class="b" x="70" y="168">决策权重排序：团队熟悉度 &gt; 多厂商需求 &gt; 路径控制 &gt; 收敛速度 &gt; 协议理论可扩展性</text>
+<text class="m" x="640" y="158">→ 设计文档必须写明"为什么选它"，且理由含运维能力</text>
+
+<rect x="24" y="190" width="912" height="56" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<circle cx="46" cy="218" r="11" fill="#b45309"/>
+<text x="46" y="222" text-anchor="middle" font="600 10px Microsoft YaHei" fill="#fff">3</text>
+<text class="k" x="70" y="214">汇总的本质是"信息隐藏"，代价是"失去可见性"</text>
+<text class="b" x="70" y="232">省内存、少泛洪、隔离不稳定、收敛快 —— 全部来自同一个动作：把明细丢掉</text>
+<text class="m" x="640" y="222">→ 故障期间"汇总地址通、业务不通"，核心一无所知</text>
+
+<rect x="24" y="254" width="912" height="56" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<circle cx="46" cy="282" r="11" fill="#b45309"/>
+<text x="46" y="286" text-anchor="middle" font="600 10px Microsoft YaHei" fill="#fff">4</text>
+<text class="k" x="70" y="278">收敛不是"越快越好"</text>
+<text class="b" x="70" y="296">BFD 50ms + Hello 1s + 关闭节流 = 收敛极快但极不稳定：抖动即全网重算，哈希重排导致乱序</text>
+<text class="m" x="640" y="286">→ 快检测必须配抖动抑制，否则是把噪声放大</text>
+
+<rect x="24" y="318" width="912" height="56" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<circle cx="46" cy="346" r="11" fill="#a32020"/>
+<text x="46" y="350" text-anchor="middle" font="600 10px Microsoft YaHei" fill="#fff">5</text>
+<text class="k" x="70" y="342">每增加一个协议，复杂度不是加一，是乘二</text>
+<text class="b" x="70" y="360">1 个协议 0 个重分发方向；2 个协议 2 个方向；3 个协议 6 个方向，且 B↔C 往往是被动产生的</text>
+<text class="r" x="640" y="350">→ 双点双向重分发的复杂度几乎永远超过它解决的问题</text>
+
+<rect x="24" y="386" width="912" height="44" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="404">本章主线：控制的五个层次</text>
+<text class="b" x="40" y="421">① 拓扑（区域/层级/泛洪域）　② 度量（cost、auto-cost）　③ 汇总（range、null0）　④ 属性（LP/MED/AS_PATH）　⑤ 翻译（重分发、tag、种子度量）</text>
+</svg>

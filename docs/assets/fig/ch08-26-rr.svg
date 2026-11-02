@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t26 d26">
+<title id="t26">路由反射器的三条反射规则、两个防环属性与冗余部署</title>
+<desc id="d26">拓扑是两台路由反射器 RR1 与 RR2 互为非客户端邻居，各自挂两台客户端，RR1 还连一台外部边界路由器作为非客户端。图上标注三条反射规则：从客户端学到的路由反射给所有客户端与非客户端；从非客户端学到的路由只反射给客户端；从 eBGP 学到的路由正常发给所有对等体。两个防环属性分别是 Originator ID（记录原始发起者，遇到自己的 ID 就丢弃）与 Cluster List（记录经过的集群，遇到自己集群 ID 就丢弃）。底部指出冗余要点：RR 至少部署两台且互为非客户端邻居，客户端同时接入两台 RR；同时提醒 RR 只反射它的最优路径，因此 RR 上的路由策略会放大到全 AS。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">RR 的三条规则、两个防环属性、一条冗余要求</text>
+<text class="s" x="24" y="48">RR 取消了"不转发"的规矩，就必须补上"不重复、不回环"的证据</text>
+
+<rect x="24" y="66" width="560" height="200" rx="6" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="84" fill="#0f7f73">cluster-id 1</text>
+<rect x="120" y="118" width="94" height="34" rx="4" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="167" y="140" text-anchor="middle">RR1</text>
+<rect x="380" y="118" width="94" height="34" rx="4" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="427" y="140" text-anchor="middle">RR2</text>
+<line x1="214" y1="135" x2="380" y2="135" stroke="#0f7f73" stroke-width="1.6" stroke-dasharray="6 3"/>
+<text class="c" x="297" y="128" text-anchor="middle">非客户端</text>
+<rect x="60" y="188" width="80" height="30" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="100" y="208" text-anchor="middle">C1</text>
+<rect x="196" y="188" width="80" height="30" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="236" y="208" text-anchor="middle">C2</text>
+<rect x="332" y="188" width="80" height="30" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="372" y="208" text-anchor="middle">C3</text>
+<rect x="468" y="188" width="80" height="30" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="508" y="208" text-anchor="middle">C4</text>
+<line x1="120" y1="152" x2="104" y2="188" stroke="#2f6fed" stroke-width="1.4"/>
+<line x1="150" y1="152" x2="225" y2="188" stroke="#2f6fed" stroke-width="1.4"/>
+<line x1="394" y1="152" x2="383" y2="188" stroke="#2f6fed" stroke-width="1.4"/>
+<line x1="424" y1="152" x2="497" y2="188" stroke="#2f6fed" stroke-width="1.4"/>
+<rect x="60" y="96" width="96" height="26" rx="3" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="108" y="113" text-anchor="middle">EBGP 边界</text>
+<line x1="156" y1="112" x2="120" y2="118" stroke="#8494a8" stroke-width="1.4"/>
+<text class="b" x="40" y="242">C1 → RR1 → C2/C3/C4 与 RR2：一次反射覆盖全 AS</text>
+
+<rect x="604" y="66" width="332" height="200" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="620" y="84">三条反射规则</text>
+<text class="b" x="620" y="104">客户端来的 → 发给所有客户端 + 所有非客户端</text>
+<text class="b" x="620" y="124">非客户端来的 → 只发给客户端</text>
+<text class="b" x="620" y="144">eBGP 来的 → 正常发给所有对等体</text>
+<text class="lb" x="620" y="170">两个防环属性</text>
+<text class="b" x="620" y="190">Originator ID：原始发起者，收到自己的 ID 就丢</text>
+<text class="b" x="620" y="210">Cluster List：经过的集群列表，遇到自己就丢</text>
+<text class="b" x="620" y="232">排查时：show ip bgp &lt;前缀&gt; 看不到 originator 说明</text>
+<text class="b" x="620" y="252">该路径是本地或 eBGP 学到的，不是反射来的</text>
+
+<rect x="24" y="278" width="452" height="84" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="296" fill="#b45309">冗余部署要点</text>
+<text class="b" x="40" y="314">两台 RR 互为非客户端邻居（否则客户端之间出现两跳反射）</text>
+<text class="b" x="40" y="332">客户端同时与两台 RR 建会话，任一 RR 故障不影响可见性</text>
+<text class="b" x="40" y="350">RR 不做转发，但要保证自身 IGP 可达与足够的 CPU/内存</text>
+
+<rect x="492" y="278" width="444" height="84" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="508" y="296" fill="#a32020">RR 上的策略会被放大</text>
+<text class="b" x="508" y="314">RR 只反射它自己的最优路径 —— 在 RR 上改 LP/MED/过滤，</text>
+<text class="b" x="508" y="332">等于替全 AS 做了决定，而且客户端看不到被丢弃的备路径。</text>
+<text class="r" x="508" y="350">纪律：RR 上只做"可见性控制"，不做"选路偏好"</text>
+
+<rect x="24" y="374" width="912" height="38" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="40" y="397">判断 RR 是否正常工作：客户端 show ip bgp summary 的 State/PfxRcd 有数；且跨客户端的路由带 (Originator) 标记，Cluster List 只有一跳。</text>
+</svg>

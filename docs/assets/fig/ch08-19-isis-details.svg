@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t19 d19">
+<title id="t19">IS-IS 的两级结构与六个关键设计细节</title>
+<desc id="d19">拓扑：上层是 Level 2 骨干，R1、R2、R3 之间是 L2 邻接；下层两侧各有一个 Level 1 区域，R4 与 R1 之间是 L1 邻接，R5 与 R3 之间也是 L1 邻接，R1 与 R3 是 L1/L2 路由器，各自向本区域注入默认路由。图上标注三点：L1 路由器只关心本区域的 Level 1 LSP，出区域靠 L1/L2 注入的默认路由；L2 骨干不需要像 OSPF 那样维护一个连续的 area 0，因此跨区域扩展更自由；NET 地址由 Area ID 加 System ID 组成，System ID 在同一区域内必须唯一。底部列出六个细节：wide metric、overload bit 在升级期把流量引开、PRC 只重算受影响前缀、mesh group 抑制泛洪、LSP 分片、认证必须在两级都配。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">IS-IS 只有两级，但比"多区域"更好扩 —— 因为骨干不需要连续</text>
+<text class="s" x="24" y="48">L1 区内、L2 骨干；L1/L2 路由器负责把两个世界缝起来，靠注入默认路由</text>
+
+<rect x="24" y="66" width="912" height="150" rx="6" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="40" y="84">Level 2 骨干</text>
+<rect x="330" y="104" width="90" height="34" rx="4" fill="#fff" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="375" y="126" text-anchor="middle">R1 L1/L2</text>
+<rect x="452" y="104" width="70" height="34" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="487" y="126" text-anchor="middle">R2 L2</text>
+<rect x="544" y="104" width="90" height="34" rx="4" fill="#fff" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="589" y="126" text-anchor="middle">R3 L1/L2</text>
+<line x1="420" y1="121" x2="452" y2="121" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="522" y1="121" x2="544" y2="121" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="c" x="436" y="112" text-anchor="middle">L2</text>
+<text class="c" x="533" y="112" text-anchor="middle">L2</text>
+
+<rect x="60" y="152" width="300" height="56" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="76" y="170" fill="#0f7f73">Level 1 区域 · area 49.0001</text>
+<rect x="76" y="178" width="80" height="24" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="116" y="195" text-anchor="middle">R4 L1</text>
+<line x1="156" y1="190" x2="330" y2="138" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="c" x="216" y="176">L1 邻接</text>
+
+<rect x="600" y="152" width="300" height="56" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="616" y="170" fill="#0f7f73">Level 1 区域 · area 49.0002</text>
+<rect x="804" y="178" width="80" height="24" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="844" y="195" text-anchor="middle">R5 L1</text>
+<line x1="634" y1="138" x2="804" y2="190" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="c" x="726" y="176">L1 邻接</text>
+
+<text class="b" x="40" y="240">L1 路由器只知道本区域的 LSP；出区域统一走 L1/L2 路由器注入的默认路由（attached bit 决定谁能注入）。</text>
+<text class="b" x="40" y="258">NET = Area ID + System ID，如 49.0001.0000.0000.0001.00；System ID 在区域内必须唯一，Area ID 决定归属。</text>
+
+<rect x="24" y="274" width="912" height="106" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="292" fill="#b45309">六个必须掌握的细节</text>
+<text class="b" x="40" y="310">① wide metric（默认 10）取代旧式 narrow metric —— 旧值上限太小，万兆与千兆会被压成同一度量</text>
+<text class="b" x="40" y="328">② overload bit：升级/维护时置位，让其他路由器绕开它转发，但保留它自己的直连可达（比"关机"温和得多）</text>
+<text class="b" x="40" y="346">③ PRC（部分路由计算）：只重算受影响前缀，不重建整棵树 —— 这是 IS-IS 在大网里更稳的原因之一</text>
+<text class="b" x="40" y="364">④ mesh group：在全互连的广播网段里抑制重复泛洪，减少 LSP 复制</text>
+
+<rect x="24" y="386" width="446" height="0" fill="none"/>
+<rect x="24" y="386" width="912" height="30" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="40" y="406" fill="#0f7f73">⑤ LSP 分片（fragment）要留余量　⑥ 认证必须 L1 与 L2 都配，只配一级等于没配</text>
+</svg>

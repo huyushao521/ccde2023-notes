@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 436" width="100%" role="img" aria-labelledby="t27 d27">
+<title id="t27">BGP 十三条选路判据的分组与作用域</title>
+<desc id="d27">十三条判据按作用域分成四组。第一组只在本机生效：Weight、Local Preference、本地起源，其中 Weight 是厂商私有、只在本地有效，Local Preference 在整个 AS 内有效但不会传出去。第二组看路径本身：AS_PATH 长度、Origin、MED、eBGP 优于 iBGP，其中 MED 只在相邻 AS 之间有意义。第三组回到 IGP：到 NEXT_HOP 的 IGP metric、最老的路由、最小 router ID。第四组是工程化收敛手段：最短 cluster list、最低邻居地址、最低邻居 router ID，这三条通常用于让选路稳定而不是让选路正确。底部给出实用结论：前三条决定"本机怎么想"，AS_PATH 与 MED 决定"别人怎么进来"，IGP metric 决定"实际从哪出去"。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="436" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">十三条判据：遇到"不同"就停，遇到"相同"就继续往下比</text>
+<text class="s" x="24" y="48">工程上只需要记住四组的作用域，就能判断"我改的这个属性到底能不能生效"</text>
+
+<rect x="24" y="66" width="222" height="240" rx="5" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="40" y="84">① 只在本机生效</text>
+<rect x="36" y="94" width="198" height="34" rx="3" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="48" y="115">1　Weight（本地有效，越大越优）</text>
+<rect x="36" y="134" width="198" height="34" rx="3" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="48" y="155">2　Local Preference（AS 内）</text>
+<rect x="36" y="174" width="198" height="34" rx="3" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="48" y="195">3　本地起源（network/重分发）</text>
+<text class="b" x="48" y="226">改 LP 只影响本 AS 的出口意图</text>
+<text class="b" x="48" y="246">不会改变邻居怎么进来</text>
+<text class="c" x="48" y="272">这三条是"我想怎么出去"</text>
+<text class="b" x="48" y="292">default：Weight 0，LP 100</text>
+
+<rect x="254" y="66" width="222" height="240" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="270" y="84" fill="#b45309">② 看路径本身</text>
+<rect x="266" y="94" width="198" height="34" rx="3" fill="#fff" stroke="#e6cfa8"/>
+<text class="b" x="278" y="115">4　AS_PATH 最短</text>
+<rect x="266" y="134" width="198" height="34" rx="3" fill="#fff" stroke="#e6cfa8"/>
+<text class="b" x="278" y="155">5　Origin（IGP &lt; EGP &lt; ?）</text>
+<rect x="266" y="174" width="198" height="34" rx="3" fill="#fff" stroke="#e6cfa8"/>
+<text class="b" x="278" y="195">6　MED 最小（同邻居 AS）</text>
+<rect x="266" y="214" width="198" height="34" rx="3" fill="#fff" stroke="#e6cfa8"/>
+<text class="b" x="278" y="235">7　eBGP 优于 iBGP</text>
+<text class="b" x="278" y="266">MED 只跨一个 AS，再多一层就丢</text>
+<text class="m" x="278" y="290">"加 AS_PATH 长度"是最省事的入向手段</text>
+
+<rect x="484" y="66" width="222" height="240" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="500" y="84" fill="#0f7f73">③ 回到 IGP</text>
+<rect x="496" y="94" width="198" height="34" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="508" y="115">8　到 NEXT_HOP 的 IGP metric</text>
+<rect x="496" y="134" width="198" height="34" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="508" y="155">9　最老的路由（eBGP）</text>
+<rect x="496" y="174" width="198" height="34" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="508" y="195">10　最低 router ID</text>
+<text class="c" x="508" y="226">第 8 条是"明明属性都对却走错"</text>
+<text class="c" x="508" y="246">的最常见原因（见反直觉一）</text>
+<text class="b" x="508" y="272">到此为止还没有"负载分担"</text>
+<text class="b" x="508" y="292">分担要靠 maximum-paths 额外开启</text>
+
+<rect x="714" y="66" width="222" height="240" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="730" y="84" fill="#a32020">④ 工程收敛手段</text>
+<rect x="726" y="94" width="198" height="34" rx="3" fill="#fff" stroke="#e3b7b7"/>
+<text class="b" x="738" y="115">11　最短 cluster list</text>
+<rect x="726" y="134" width="198" height="34" rx="3" fill="#fff" stroke="#e3b7b7"/>
+<text class="b" x="738" y="155">12　最低邻居地址</text>
+<rect x="726" y="174" width="198" height="34" rx="3" fill="#fff" stroke="#e3b7b7"/>
+<text class="b" x="738" y="195">13　最低邻居 router ID</text>
+<text class="b" x="738" y="226">这三条让选路"确定"，不让它"正确"</text>
+<text class="r" x="738" y="250">它们常常掩盖了真正的属性设计缺陷</text>
+<text class="b" x="738" y="276">排查时留意：命中第 11 条以后</text>
+<text class="b" x="738" y="296">说明前 10 条全部平局</text>
+
+<rect x="24" y="318" width="912" height="76" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="336">实用记法：谁决定什么</text>
+<text class="b" x="40" y="354">"我怎么出去"　→ Weight / LP / 本地起源 / (IGP metric 兜底)　　只在本机与本 AS 内有效，改动安全、影响可控</text>
+<text class="b" x="40" y="372">"别人怎么进来"　→ MED（一层 AS）/ AS_PATH 长度（多层可控）／ community 约定　　必须双侧配合，单侧配置等于没配</text>
+<text class="b" x="40" y="390">"实际从哪走"　→ 第 8 条 IGP metric　　这才是 FIB 里的真实出口，验收必须看 show ip cef</text>
+
+<rect x="24" y="400" width="912" height="30" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="420" fill="#b45309">一个反直觉事实：前 7 条全平局是常态。多宿主双出口同带宽、同 AS_PATH 长度时，"谁被选中"往往由 IGP 拓扑决定。</text>
+</svg>

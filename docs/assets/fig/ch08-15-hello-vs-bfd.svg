@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t15 d15">
+<title id="t15">把 Hello 调小与改用 BFD 的两条收敛时间轴对比</title>
+<desc id="d15">上条时间轴是错误做法：把 Hello 改成 1 秒、Dead 改成 3 秒，链路中断后要等 Dead 计时到期才判死，加上 LSA 泛洪、SPF 重算与 FIB 下发，总收敛接近 3.2 秒，而且 Hello 是控制面报文，CPU 一忙就漏收，会把没坏的邻居判死。下条时间轴是正确做法：Hello 保持 10 秒与 40 秒，用 BFD 以 50 毫秒乘 3 的间隔做独立检测，约 150 毫秒判死，之后 LSA 泛洪 10 毫秒、SPF 5 毫秒、FIB 下发 20 毫秒，总收敛约 200 毫秒，且 BFD 报文由硬件或独立进程处理，不受 SPF 抢占影响。底部给出三条纪律：检测与重算分离、开启 SPF 与 LSA 节流、抖动链路用 carrier-delay 抑制上报。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 11px "Microsoft YaHei",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">快收敛不是"把计时器调小"，而是"把检测和重算拆开"</text>
+<text class="s" x="24" y="48">Hello 是控制面报文，紧耦合意味着 CPU 一忙就会误判 —— 这正是"调小 Hello 导致震荡"的机制</text>
+
+<text class="lb" x="24" y="78">做法 A：Hello 1s / Dead 3s（不推荐）</text>
+<rect x="24" y="88" width="560" height="26" rx="3" fill="#a32020"/>
+<text class="b" x="304" y="106" text-anchor="middle" fill="#fff">等 Dead 计时到期：3.0s</text>
+<rect x="584" y="88" width="120" height="26" rx="3" fill="#c98a8a"/>
+<text class="b" x="644" y="106" text-anchor="middle" fill="#fff">泛洪 10ms</text>
+<rect x="704" y="88" width="100" height="26" rx="3" fill="#ddb3b3"/>
+<text class="b" x="754" y="106" text-anchor="middle" fill="#5b2020">SPF 5ms</text>
+<rect x="804" y="88" width="100" height="26" rx="3" fill="#eacfcf"/>
+<text class="b" x="854" y="106" text-anchor="middle" fill="#5b2020">FIB 20ms</text>
+<text class="big" x="304" y="132" text-anchor="middle">≈ 3.2 秒，且 CPU 忙时 Hello 被延迟处理 → 假死 → 无故障也重算</text>
+
+<text class="lb" x="24" y="164">做法 B：Hello 10s / Dead 40s + BFD 50ms × 3（推荐）</text>
+<rect x="24" y="174" width="60" height="26" rx="3" fill="#0f7f73"/>
+<text class="b" x="54" y="192" text-anchor="middle" fill="#fff">150ms</text>
+<rect x="84" y="174" width="120" height="26" rx="3" fill="#4f9a90"/>
+<text class="b" x="144" y="192" text-anchor="middle" fill="#fff">泛洪 10ms</text>
+<rect x="204" y="174" width="100" height="26" rx="3" fill="#9cc8c1"/>
+<text class="b" x="254" y="192" text-anchor="middle" fill="#0b3f39">SPF 5ms</text>
+<rect x="304" y="174" width="100" height="26" rx="3" fill="#cfe6e2"/>
+<text class="b" x="354" y="192" text-anchor="middle" fill="#0b3f39">FIB 20ms</text>
+<line x1="404" y1="168" x2="404" y2="206" stroke="#0f7f73" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text class="c" x="416" y="192">总 ≈ 200ms（16 倍差距）</text>
+<text class="b" x="24" y="226">BFD 由硬件/独立进程处理，与 SPF 抢占无关；Hello 保持宽松，只负责"邻居还在不在"的粗判断。</text>
+
+<rect x="24" y="244" width="446" height="100" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="262" fill="#a32020">调小 Hello 的四个副作用</text>
+<text class="b" x="40" y="280">① 邻居误判：CPU 峰值时漏收 3 个 Hello 就断邻</text>
+<text class="b" x="40" y="298">② 报文放大：每台路由器每秒 1 个 Hello × 邻居数</text>
+<text class="b" x="40" y="316">③ 与新设备默认值不一致，形成隐性故障</text>
+<text class="b" x="40" y="334">④ 收敛提升有限：泛洪与 SPF 才是瓶颈时收益更小</text>
+
+<rect x="490" y="244" width="446" height="100" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="506" y="262" fill="#0f7f73">三条纪律</text>
+<text class="b" x="506" y="280">① 检测与重算分离：BFD 负责快检测，SPF 节流负责扛震荡</text>
+<text class="b" x="506" y="298">② 必须开节流：timers throttle spf 50 200 5000 / lsa arrival 100</text>
+<text class="b" x="506" y="316">③ 光口与低速链路加 carrier-delay，抑制瞬断抖动上报</text>
+<text class="b" x="506" y="334">验收：拔纤测试，看 show ip ospf neighbor 与业务丢包时长</text>
+
+<rect x="24" y="356" width="912" height="44" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="374">一句话判据</text>
+<text class="b" x="40" y="391">如果"调小 Hello"之后，网络在业务高峰时段出现周期性邻居断开，那它就不是收敛优化，而是新增了一类故障源。</text>
+</svg>

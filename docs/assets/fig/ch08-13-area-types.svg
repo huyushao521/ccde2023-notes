@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 436" width="100%" role="img" aria-labelledby="t13 d13">
+<title id="t13">OPF 区域类型允许的 LSA 矩阵，以及 stub 把备份出口吃掉的案例</title>
+<desc id="d13">上方是五种区域类型允许接收的 LSA 矩阵：标准区域接收全部；stub 区域注入默认路由但不接收 Type 4 与 Type 5；totally-stubby 只保留 Type 1、Type 2 与一条默认路由；NSSA 允许内部引入外部路由并保留 Type 7，不接收 Type 5；totally-NSSA 在 NSSA 基础上只保留默认路由。下方是案例拓扑：分店的 4G 备份路由器旁挂在一个 stub 区域，它的外部路由被区域边界过滤掉，主线路断开时备份路由不会被装载，主备切换失效。底部结论是"过滤得越干净，边界路由器承担的角色就越关键"，备份出口必须放在能收 Type 5 的区域，或者改用 NSSA 加 Type 7。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="436" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">区域类型 = 一张"允许收什么"的白名单</text>
+<text class="s" x="24" y="48">能力来自过滤，风险也来自过滤：被过滤掉的东西不会告诉你它不见了</text>
+
+<rect x="24" y="62" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="79">区域类型</text>
+<text class="lb" x="240" y="79">Type 1/2（本区拓扑）</text>
+<text class="lb" x="420" y="79">Type 3（其他区明细）</text>
+<text class="lb" x="580" y="79">Type 4/5（外部）</text>
+<text class="lb" x="712" y="79">Type 7（NSSA 外部）</text>
+<text class="lb" x="836" y="79">默认路由</text>
+
+<rect x="24" y="90" width="912" height="26" rx="3" fill="#fff" stroke="#ccd6e4"/>
+<text class="b" x="40" y="108">标准 standard</text>
+<text class="q" x="330" y="108">✓</text>
+<text class="q" x="500" y="108">✓</text>
+<text class="q" x="640" y="108">✓</text>
+<text class="x" x="760" y="108">—</text>
+<text class="x" x="880" y="108">不注入</text>
+
+<rect x="24" y="118" width="912" height="26" rx="3" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="40" y="136">stub</text>
+<text class="q" x="330" y="136">✓</text>
+<text class="q" x="500" y="136">✓</text>
+<text class="x" x="640" y="136">✗ 被挡</text>
+<text class="x" x="760" y="136">—</text>
+<text class="q" x="872" y="136">✓ ABR 注入</text>
+
+<rect x="24" y="146" width="912" height="26" rx="3" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="40" y="164">totally-stubby</text>
+<text class="q" x="330" y="164">✓</text>
+<text class="x" x="500" y="164">✗ 被挡</text>
+<text class="x" x="640" y="164">✗ 被挡</text>
+<text class="x" x="760" y="164">—</text>
+<text class="q" x="872" y="164">✓ 仅一条</text>
+
+<rect x="24" y="174" width="912" height="26" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="192">NSSA</text>
+<text class="q" x="330" y="192">✓</text>
+<text class="q" x="500" y="192">✓</text>
+<text class="x" x="640" y="192">✗ 不收 Type 5</text>
+<text class="q" x="760" y="192">✓</text>
+<text class="q" x="872" y="192">✓ 可选</text>
+
+<rect x="24" y="202" width="912" height="26" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="220">totally-NSSA</text>
+<text class="q" x="330" y="220">✓</text>
+<text class="x" x="500" y="220">✗ 被挡</text>
+<text class="x" x="640" y="220">✗ 不收</text>
+<text class="q" x="760" y="220">✓</text>
+<text class="q" x="872" y="220">✓ 仅一条</text>
+
+<text class="lb" x="24" y="256">案例：分店 4G 备份为什么切不过去</text>
+<rect x="24" y="266" width="596" height="112" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<rect x="40" y="288" width="96" height="36" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="88" y="311" text-anchor="middle">CORE</text>
+<rect x="176" y="288" width="96" height="36" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="224" y="311" text-anchor="middle">ABR</text>
+<rect x="312" y="288" width="110" height="36" rx="4" fill="#fff" stroke="#e6cfa8"/>
+<text class="n" x="367" y="311" text-anchor="middle">分店 · stub</text>
+<rect x="452" y="288" width="120" height="36" rx="4" fill="#fdf7f7" stroke="#a32020"/>
+<text class="r" x="512" y="311" text-anchor="middle">4G 备份路由器</text>
+<line x1="136" y1="306" x2="176" y2="306" stroke="#8494a8" stroke-width="1.6"/>
+<line x1="272" y1="306" x2="312" y2="306" stroke="#8494a8" stroke-width="1.6"/>
+<line x1="422" y1="306" x2="452" y2="306" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 3"/>
+<text class="r" x="437" y="298" text-anchor="middle">×</text>
+<text class="b" x="40" y="348">主线路断开 → 备份路由器发 Type 5 → stub 边界直接过滤 → 分店没有备份路由</text>
+<text class="r" x="40" y="366">表面"配了备份"，实际 show ip route 里从来没有这条备份下一跳</text>
+
+<rect x="636" y="266" width="300" height="112" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="652" y="284" fill="#0f7f73">正确做法</text>
+<text class="b" x="652" y="304">· 备份出口所在区域改成 NSSA，用 Type 7</text>
+<text class="b" x="652" y="322">· 或把备份路由器上移到能收 Type 5 的区域</text>
+<text class="b" x="652" y="340">· 或改用静态默认路由 + 浮动静态做备份</text>
+<text class="b" x="652" y="358">· 验收：断开主线，show ip route 必须有两条</text>
+
+<rect x="24" y="390" width="912" height="38" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="40" y="413">区域类型是"有损"设计：stub 让分支变简单，代价是分支上再也不能放引入点。设计时必须确认"这个区域里有没有外部出口"。</text>
+</svg>

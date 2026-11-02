@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t24 d24">
+<title id="t24">路径控制的四个层次：拓扑、度量、属性、策略</title>
+<desc id="d24">四层阶梯从下到上依次是拓扑层、度量层、属性层、策略层。拓扑层改链路与区域，让期望路径成为唯一路径，最稳定也最贵；度量层用 IGP cost 或 EIGRP delay 让两条路径分出高下，影响全网且易回滚；属性层用 BGP 的 Local Preference、MED、AS_PATH 与 community，只在 BGP 域内生效、粒度最细；策略层用 PBR 与静态浮动路由，只影响单台设备、最难维护。右侧标注每层的生效范围、风险与回滚难度。底部指出设计顺序应该是自上而下选层、自下而上实施不成立，正确顺序是先拓扑、后度量、再属性、最后才用策略，并说明 maximum-paths 决定这一层是负载分担还是主备。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">路径控制的四个层次：先用稳的，后用巧的</text>
+<text class="s" x="24" y="48">越靠下的层次越稳定、影响面越大；越靠上越灵活、也越难维护</text>
+
+<rect x="24" y="248" width="452" height="60" rx="4" fill="#e8f4f2" stroke="#0f7f73"/>
+<text class="lb" x="40" y="266" fill="#0f7f73">① 拓扑层：改链路、改区域，让期望路径成为唯一路径</text>
+<text class="b" x="40" y="284">例：把备份链路放进独立区域；用 /31 互联去掉多余等价路径</text>
+<text class="b" x="40" y="300">生效范围：全网　风险：低（改完即定）　回滚：需要改配置 + 割接窗口</text>
+
+<rect x="24" y="184" width="452" height="58" rx="4" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="40" y="202">② 度量层：IGP cost / EIGRP delay / offset-list</text>
+<text class="b" x="40" y="220">例：参考带宽统一到 10G；关键链路 cost 显式指定</text>
+<text class="b" x="40" y="236">生效范围：本 IGP 域　风险：中（可能引出不对称路径）　回滚：快</text>
+
+<rect x="24" y="120" width="452" height="58" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="138" fill="#b45309">③ 属性层：LP / MED / AS_PATH / community</text>
+<text class="b" x="40" y="156">例：出口 LP 200 对 100；入向 MED 50 对 100</text>
+<text class="b" x="40" y="172">生效范围：BGP 域/单邻居　风险：中高（方向敏感）　回滚：快但要双侧配合</text>
+
+<rect x="24" y="56" width="452" height="58" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="74" fill="#a32020">④ 策略层：PBR、静态浮动路由</text>
+<text class="b" x="40" y="92">例：源地址命中的流量强制下一跳；浮动静态做最后兜底</text>
+<text class="b" x="40" y="108">生效范围：单台设备　风险：最高（不参与收敛）　回滚：快但容易被遗忘</text>
+
+<rect x="496" y="56" width="440" height="252" rx="5" fill="#fff" stroke="#ccd6e4"/>
+<text class="lb" x="512" y="74">怎么选层：三个问题</text>
+<text class="b" x="512" y="96">Q1 这是"路径唯一性"问题吗？→ 改拓扑（①②）</text>
+<text class="b" x="512" y="118">Q2 只影响自己出方向的流量吗？→ 度量或 LP</text>
+<text class="b" x="512" y="140">Q3 需要影响别人的入方向吗？→ MED 或 AS_PATH</text>
+<text class="b" x="512" y="162">三者都不是（比如按源地址分流）→ 才考虑 PBR</text>
+<text class="lb" x="512" y="194">maximum-paths 决定"分担"还是"主备"</text>
+<text class="b" x="512" y="214">maximum-paths 1　→ 只留最优，其余作为备份（收敛更可预测）</text>
+<text class="b" x="512" y="232">maximum-paths 4　→ 前 4 条等价路径 ECMP，按流哈希分摊</text>
+<text class="b" x="512" y="250">注意：ECMP 只看"度量相等"，不看"链路质量是否相等"</text>
+<text class="b" x="512" y="272">验证：show ip route &lt;前缀&gt; 是否多下一跳；show ip cef 是否多路径</text>
+<text class="b" x="512" y="294">反例：把 1G 与 10G 都设成 cost 1 再做 ECMP —— 有效带宽不会相加</text>
+
+<rect x="24" y="322" width="912" height="90" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="340">实施顺序（这个顺序不能反）</text>
+<text class="b" x="40" y="358">① 先把拓扑与地址做到"天然只有一条好路" → ② 再用度量区分带宽与代价 → ③ 跨域才用 BGP 属性 → ④ 兜底才用 PBR</text>
+<text class="b" x="40" y="376">反过来做（先用 PBR 拼出路径）会得到一张"能通但不可推理"的网络：任何一次链路变更都要重新核对每一台设备的策略。</text>
+<text class="c" x="40" y="398">判断标准：新来的工程师只看 show ip route 与拓扑图，能不能预测流量走向？能 → 设计合格。</text>
+</svg>

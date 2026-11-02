@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t17 d17">
+<title id="t17">OSPF 汇总的两个位置：ABR 的 area range 与 ASBR 的 summary-address</title>
+<desc id="d17">拓扑：骨干 area 0 中的核心通过 ABR 连到 area 10，area 10 内有 10.1.0.0/24 到 10.1.3.0/24 四条明细。ABR 上配置 area 10 range 10.1.0.0 255.255.252.0，向骨干只通告一条 10.1.0.0/22 的 Type 3，同时在本地生成指向 Null0 的同一前缀。右侧是 ASBR 的位置：它把重分发进来的外部路由用 summary-address 汇总成一条 Type 5。底部列三个陷阱：汇总范围覆盖了不属于本区域的地址会形成黑洞；只在 ABR 上做 range 而不管其他 ABR 会导致不一致；汇总路由器必须同时持有明细，否则汇总会随最后一条明细分发消失或残留。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">汇总只有两个合法位置：区域边界（Type 3）与自治系统边界（Type 5）</text>
+<text class="s" x="24" y="48">位置错了一切都错 —— 在区域内部做汇总，等于把明细藏起来却不减少任何 LSA</text>
+
+<rect x="24" y="66" width="560" height="196" rx="6" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="40" y="84">area 0（骨干）</text>
+<rect x="60" y="94" width="90" height="32" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="105" y="115" text-anchor="middle">CORE</text>
+<text class="b" x="170" y="115">只看到 1 条：10.1.0.0/22</text>
+<rect x="430" y="94" width="90" height="32" rx="4" fill="#fff" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="475" y="115" text-anchor="middle">ABR</text>
+<line x1="150" y1="110" x2="430" y2="110" stroke="#2f6fed" stroke-width="2"/>
+<text class="c" x="290" y="104" text-anchor="middle">Type 3：10.1.0.0/22</text>
+
+<rect x="330" y="150" width="250" height="100" rx="6" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="346" y="168" fill="#0f7f73">area 10</text>
+<rect x="346" y="176" width="106" height="26" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="399" y="193" text-anchor="middle">10.1.0.0/24</text>
+<rect x="462" y="176" width="106" height="26" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="515" y="193" text-anchor="middle">10.1.1.0/24</text>
+<rect x="346" y="210" width="106" height="26" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="399" y="227" text-anchor="middle">10.1.2.0/24</text>
+<rect x="462" y="210" width="106" height="26" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="515" y="227" text-anchor="middle">10.1.3.0/24</text>
+<line x1="475" y1="126" x2="475" y2="150" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="c" x="40" y="248">ABR 上：area 10 range 10.1.0.0 255.255.252.0</text>
+
+<text class="lb" x="40" y="284">ABR 本地同时生成：</text>
+<rect x="40" y="292" width="230" height="26" rx="3" fill="#fff" stroke="#0f7f73"/>
+<text class="n" x="155" y="310" text-anchor="middle">10.1.0.0/22 → Null0</text>
+<text class="b" x="286" y="310">汇总与明细同生共死，杜绝黑洞</text>
+<line x1="240" y1="140" x2="240" y2="292" stroke="#0f7f73" stroke-width="1" stroke-dasharray="4 3"/>
+
+<rect x="604" y="66" width="332" height="196" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="620" y="84" fill="#b45309">另一个位置：ASBR 的外部汇总</text>
+<ellipse cx="770" cy="112" rx="62" ry="22" fill="#f3f0fb" stroke="#b9a9e6"/>
+<text class="n" x="770" y="116" text-anchor="middle">外部 AS</text>
+<rect x="620" y="146" width="80" height="32" rx="4" fill="#fff" stroke="#e6cfa8" stroke-width="2"/>
+<text class="n" x="660" y="167" text-anchor="middle">ASBR</text>
+<line x1="700" y1="160" x2="716" y2="130" stroke="#b9a9e6" stroke-width="1.6"/>
+<text class="b" x="710" y="184">summary-address 172.16.0.0 255.255.0.0</text>
+<text class="b" x="620" y="206">→ 200 条外部明细变成 1 条 Type 5</text>
+<text class="b" x="620" y="226">→ 同样本地生成 /16 指向 Null0</text>
+<text class="m" x="620" y="248">注意：外部汇总只对"重分发进来的"生效</text>
+
+<rect x="24" y="288" width="912" height="112" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="306" fill="#a32020">三个最容易出事的陷阱</text>
+<text class="b" x="40" y="324">① 汇总范围越界：area 10 只有 10.1.0.0/24 与 10.1.2.0/24，却汇总成 /22 —— 覆盖到的 10.1.1.0/24 在别处，会被黑洞吞掉</text>
+<text class="b" x="40" y="342">② 多台 ABR 不一致：只在一台 ABR 上做 range，另一台仍发明细，核心视角随机变化，故障时结论互相矛盾</text>
+<text class="b" x="40" y="360">③ 汇总节点必须持有明细：上游 ABR 汇总了别人的汇总，明细消失后它无法判断哪一段还活着 —— 汇总只做一层</text>
+<text class="c" x="40" y="384">验收：在核心 show ip route 只看到 /22；在 ABR show ip ospf database 能看到 detail；在区域内部 ping 一致。</text>
+</svg>

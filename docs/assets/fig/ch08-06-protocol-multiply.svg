@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 396" width="100%" role="img" aria-labelledby="t6 d6">
+<title id="t6">协议数量与重分发方向数：1 个 0 向、2 个 2 向、3 个 6 向</title>
+<desc id="d6">三组拓扑逐一放大复杂度。单个协议只有一个域，不存在翻译，0 个重分发方向。两个协议时两个域之间需要双向翻译，形成 2 个方向，并引入度量不可比与回馈风险。三个协议时三个域两两之间都要翻译，共 6 个方向，而且 B 与 C 之间的方向往往是被动产生的、没人设计过。底部列出度量不可比的三组对照：OSPF 的 cost 到 EIGRP 的复合度量只能拍种子度量，EIGRP 到 BGP 的 AD 谁更优不确定，BGP 到 OSPF 会让 IGP 承担互联网规模路由。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="396" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">每多一个协议，要维护的翻译方向按 n(n−1) 增长</text>
+<text class="s" x="24" y="48">而且"多出来"的方向通常没人设计过 —— 它是在某次割接中被顺手配上的</text>
+
+<rect x="24" y="64" width="290" height="176" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="84" fill="#0f7f73">1 个协议：0 个方向</text>
+<circle cx="169" cy="140" r="34" fill="#eaf1ff" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="169" y="144" text-anchor="middle">A</text>
+<text class="b" x="40" y="196">一套策略、一种排障思路、</text>
+<text class="b" x="40" y="212">一套度量语义。</text>
+<text class="c" x="40" y="232">可靠性来自"少"，不是来自"强"。</text>
+
+<rect x="334" y="64" width="290" height="176" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="350" y="84" fill="#b45309">2 个协议：2 个方向</text>
+<circle cx="424" cy="140" r="30" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="424" y="144" text-anchor="middle">A</text>
+<circle cx="534" cy="140" r="30" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="534" y="144" text-anchor="middle">B</text>
+<line x1="454" y1="130" x2="504" y2="130" stroke="#b45309" stroke-width="1.6"/>
+<line x1="504" y1="150" x2="454" y2="150" stroke="#b45309" stroke-width="1.6"/>
+<text class="m" x="479" y="120" text-anchor="middle">→</text>
+<text class="m" x="479" y="168" text-anchor="middle">←</text>
+<text class="b" x="350" y="196">度量不可比 + 回馈风险 + 次优路径，</text>
+<text class="b" x="350" y="212">三个问题同时出现。</text>
+
+<rect x="644" y="64" width="292" height="176" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="660" y="84" fill="#a32020">3 个协议：6 个方向</text>
+<circle cx="743" cy="120" r="26" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="743" y="124" text-anchor="middle">A</text>
+<circle cx="838" cy="120" r="26" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="838" y="124" text-anchor="middle">B</text>
+<circle cx="790" cy="186" r="26" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="790" y="190" text-anchor="middle">C</text>
+<line x1="769" y1="116" x2="812" y2="116" stroke="#a32020" stroke-width="1.6"/>
+<line x1="812" y1="128" x2="769" y2="128" stroke="#a32020" stroke-width="1.6"/>
+<line x1="757" y1="144" x2="777" y2="164" stroke="#a32020" stroke-width="1.6"/>
+<line x1="782" y1="168" x2="764" y2="148" stroke="#a32020" stroke-width="1.6"/>
+<line x1="826" y1="144" x2="806" y2="164" stroke="#a32020" stroke-width="1.6"/>
+<line x1="801" y1="168" x2="821" y2="148" stroke="#a32020" stroke-width="1.6"/>
+<text class="b" x="660" y="216">B↔C 往往是被动产生的：</text>
+<text class="r" x="660" y="232">没人设计过它，但故障时它最先出问题</text>
+
+<rect x="24" y="256" width="912" height="84" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="274">度量不可比：三组最典型的换算难题</text>
+<text class="b" x="40" y="292">OSPF（cost 1–65535）→ EIGRP（复合度量百万级）　：无法换算，只能拍一个种子度量，优劣信息当场丢失</text>
+<text class="b" x="40" y="310">EIGRP → BGP（AS_PATH + 属性）　：同一前缀两个协议 AD 不同（EIGRP 外部 170 vs iBGP 200），选谁靠巧合</text>
+<text class="b" x="40" y="328">BGP → OSPF　：把互联网规模的路由灌进 IGP，IGP 从"可达性协议"变成"背不动的表"（案例五）</text>
+
+<rect x="24" y="348" width="912" height="36" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="40" y="371" fill="#0f7f73">本章最强的一条建议：能用 BGP 统一核心，就不要叠一层协议转换；双点双向重分发的复杂度几乎永远超过它解决的问题。</text>
+</svg>

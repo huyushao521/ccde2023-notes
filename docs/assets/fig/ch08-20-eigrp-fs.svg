@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t20 d20">
+<title id="t20">EIGRP 的可行距离、报告距离与可行后继：一条路径能不能免查询切换</title>
+<desc id="d20">拓扑：R1 到目的网络 10.9.0.0/24 有两条路径，直连 R2 的可行距离是 1000，经 R3 的报告距离是 1200。因为 1200 大于当前的可行距离 1000，这条备路径不满足可行性条件，不能成为可行后继。于是 R2 侧的链路一旦断开，R1 必须向邻居发起查询，并在等待应答期间把路由置为 active 状态。如果经 R3 的报告距离是 800，小于 1000，它就满足可行性条件成为可行后继，链路断开时可以立即切换，不需要任何查询。右侧列出 EIGRP 的四张表：邻居表、拓扑表、路由表与查询状态；底部说明可行后继是本地预先验证过的备份，它的存在与否直接决定收敛方式是本地切换还是扩散查询。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">FD / RD / FS：EIGRP 的"本地备份"是有条件的</text>
+<text class="s" x="24" y="48">有可行后继 = 本地切换（毫秒）；没有 = 扩散查询（可能几秒，也可能 SIA）</text>
+
+<rect x="24" y="66" width="452" height="180" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<rect x="60" y="150" width="80" height="36" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="100" y="173" text-anchor="middle">R1</text>
+<rect x="330" y="150" width="80" height="36" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+<text class="n" x="370" y="173" text-anchor="middle">10.9.0.0/24</text>
+<line x1="140" y1="168" x2="330" y2="168" stroke="#0f7f73" stroke-width="2.2"/>
+<text class="c" x="235" y="160" text-anchor="middle">经 R2：FD = 1000</text>
+<rect x="196" y="96" width="70" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="231" y="116" text-anchor="middle">R3</text>
+<path d="M100 150 L100 111 L196 111" fill="none" stroke="#b45309" stroke-width="1.6"/>
+<path d="M266 111 L370 111 L370 150" fill="none" stroke="#b45309" stroke-width="1.6"/>
+<text class="m" x="290" y="105" text-anchor="middle">RD = 1200</text>
+<text class="r" x="40" y="208">1200 &gt; FD(1000) → 不满足可行性条件 → 不是可行后继</text>
+<text class="r" x="40" y="228">R2 链路断 → 查询扩散 → 路由进入 active → 等应答</text>
+
+<rect x="492" y="66" width="444" height="180" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="508" y="84" fill="#0f7f73">如果 RD = 800（小于 FD 1000）</text>
+<text class="b" x="508" y="104">可行性条件满足 → 该邻居成为可行后继（FS）</text>
+<text class="b" x="508" y="124">R2 链路断 → 直接从拓扑表提升 FS → 无需查询</text>
+<text class="c" x="508" y="146">本地切换，通常 &lt; 200ms，且不影响其他路由器</text>
+<text class="b" x="508" y="170">判断依据：show ip eigrp topology 里两条路径分别标</text>
+<text class="b" x="508" y="190">"via ... (1000/...) " 与 "via ... (1200/...)"，后者带 "Reply status" 说明在查询</text>
+<text class="b" x="508" y="216">设计含义：让备份路径的 RD 尽量小于主路径 FD（例如同带宽双上行）</text>
+
+<rect x="24" y="258" width="912" height="76" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="276">四张表与三个术语，一次对齐</text>
+<text class="b" x="40" y="294">邻居表：谁在跟我说话（show ip eigrp neighbors）　拓扑表：所有收到的路径与状态（topology）　路由表：最终入选的</text>
+<text class="b" x="40" y="312">FD 可行距离＝本地到目的地的最优度量；RD 报告距离＝邻居声称它到目的地的度量；FS 可行后继＝RD &lt; 当前 FD 的备份</text>
+<text class="b" x="40" y="330">这三者的关系决定了 EIGRP 是"本地切换"还是"扩散查询"，也是 Query 域问题的源头</text>
+
+<rect x="24" y="344" width="912" height="44" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="362" fill="#a32020">最容易踩的坑</text>
+<text class="b" x="40" y="379">把"有两条上行"当成"有备份"：若两条上行带宽不同，慢的那条 RD 往往大于快路径的 FD，于是它永远不会成为 FS，故障时照样扩散查询。</text>
+</svg>

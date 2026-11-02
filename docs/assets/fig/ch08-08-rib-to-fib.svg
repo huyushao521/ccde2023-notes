@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t8 d8">
+<title id="t8">从 RIB 到 FIB：最长匹配、管理距离、度量、递归查找四个机制</title>
+<desc id="d8">上方流水线：协议进程算出候选路由进入 RIB，RIB 按管理距离与度量选出最优，再经递归查找解析出真实的出接口与下一跳，最终写入 FIB 并下发硬件。下方四张机制卡：最长匹配决定同一前缀集的选路方向；管理距离只在不同协议之间比较；度量只在同一协议内部比较；递归查找决定"下一跳能不能走"。底部是常用管理距离条带：直连 0、静态 1、eBGP 20、EIGRP 90、OSPF 110、IS-IS 115、RIP 120、EIGRP 外部 170、iBGP 200，并提醒 iBGP 200 高于 OSPF 110，这是"BGP 学到的路由不生效"的最常见原因。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">从 RIB 到 FIB：路由"生效"要过四道关</text>
+<text class="s" x="24" y="48">show ip route 里出现一条路由，不代表硬件在转发它 —— 递归失败的路由不会进 FIB</text>
+
+<rect x="24" y="66" width="150" height="48" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="99" y="86" text-anchor="middle">协议进程</text>
+<text class="b" x="99" y="103" text-anchor="middle">候选路由</text>
+<rect x="204" y="66" width="150" height="48" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="279" y="86" text-anchor="middle">RIB</text>
+<text class="b" x="279" y="103" text-anchor="middle">AD 与度量选最优</text>
+<rect x="384" y="66" width="150" height="48" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="459" y="86" text-anchor="middle">递归查找</text>
+<text class="b" x="459" y="103" text-anchor="middle">解析出接口</text>
+<rect x="564" y="66" width="150" height="48" rx="4" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="639" y="86" text-anchor="middle">FIB / CEF</text>
+<text class="b" x="639" y="103" text-anchor="middle">硬件转发表</text>
+<rect x="744" y="66" width="190" height="48" rx="4" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="n" x="839" y="86" text-anchor="middle">线速转发</text>
+<text class="b" x="839" y="103" text-anchor="middle">最长匹配命中</text>
+<line x1="174" y1="90" x2="204" y2="90" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="354" y1="90" x2="384" y2="90" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="534" y1="90" x2="564" y2="90" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="714" y1="90" x2="744" y2="90" stroke="#2f6fed" stroke-width="1.6"/>
+
+<rect x="24" y="132" width="222" height="96" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<text class="lb" x="38" y="150">最长匹配</text>
+<text class="b" x="38" y="168">10.1.2.0/24 优先于</text>
+<text class="b" x="38" y="184">10.1.0.0/16，与 AD 无关</text>
+<text class="b" x="38" y="200">先比长度，再比优劣</text>
+<text class="b" x="38" y="216">→ 明细永远赢汇总</text>
+
+<rect x="258" y="132" width="222" height="96" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<text class="lb" x="272" y="150">管理距离 AD</text>
+<text class="b" x="272" y="168">只在"不同协议"之间比较</text>
+<text class="b" x="272" y="184">同协议内部不参与</text>
+<text class="b" x="272" y="200">越小越可信</text>
+<text class="b" x="272" y="216">→ 决定谁进 RIB 主表</text>
+
+<rect x="492" y="132" width="222" height="96" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<text class="lb" x="506" y="150">度量 Metric</text>
+<text class="b" x="506" y="168">只在"同一协议"内部比较</text>
+<text class="b" x="506" y="184">跨协议不可比，不能换算</text>
+<text class="b" x="506" y="200">重分发时必须拍种子值</text>
+<text class="b" x="506" y="216">→ 优劣信息在此丢失</text>
+
+<rect x="726" y="132" width="210" height="96" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="740" y="150" fill="#a32020">递归查找</text>
+<text class="b" x="740" y="168">BGP 的下一跳必须是</text>
+<text class="b" x="740" y="184">IGP 可达的地址</text>
+<text class="r" x="740" y="202">不可达 → 不进 FIB</text>
+<text class="b" x="740" y="218">→ 案例二的根本原因</text>
+
+<text class="lb" x="24" y="254">常用管理距离（越小越优先）</text>
+<rect x="24" y="262" width="120" height="24" rx="3" fill="#0f7f73"/>
+<text class="b" x="84" y="279" text-anchor="middle" fill="#fff">直连 0</text>
+<rect x="148" y="262" width="120" height="24" rx="3" fill="#0f7f73"/>
+<text class="b" x="208" y="279" text-anchor="middle" fill="#fff">静态 1</text>
+<rect x="272" y="262" width="120" height="24" rx="3" fill="#2f6fed"/>
+<text class="b" x="332" y="279" text-anchor="middle" fill="#fff">eBGP 20</text>
+<rect x="396" y="262" width="120" height="24" rx="3" fill="#2f6fed"/>
+<text class="b" x="456" y="279" text-anchor="middle" fill="#fff">EIGRP 90</text>
+<rect x="520" y="262" width="120" height="24" rx="3" fill="#2f6fed"/>
+<text class="b" x="580" y="279" text-anchor="middle" fill="#fff">OSPF 110</text>
+<rect x="644" y="262" width="120" height="24" rx="3" fill="#7c8b9f"/>
+<text class="b" x="704" y="279" text-anchor="middle" fill="#fff">IS-IS 115</text>
+<rect x="768" y="262" width="168" height="24" rx="3" fill="#b45309"/>
+<text class="b" x="852" y="279" text-anchor="middle" fill="#fff">EIGRP 外部 170</text>
+<rect x="24" y="290" width="620" height="24" rx="3" fill="#a32020"/>
+<text class="b" x="334" y="307" text-anchor="middle" fill="#fff">iBGP 200　——　高于 OSPF 110，所以同一前缀 iBGP 永远输给 OSPF</text>
+<rect x="648" y="290" width="288" height="24" rx="3" fill="#c9cfd8"/>
+<text class="b" x="792" y="307" text-anchor="middle" fill="#fff">不可信 255（丢弃）</text>
+
+<rect x="24" y="330" width="912" height="62" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="348" fill="#a32020">两个最常被忽略的陷阱</text>
+<text class="b" x="40" y="366">① show ip route 有条目 ≠ 硬件在转发：递归失败、下一跳不可达、FIB 溢出都会让路由"看得见、走不通"，必须看 show ip cef。</text>
+<text class="b" x="40" y="384">② 明细永远赢汇总：指望"汇总路由优先"来做流量引导，在最长匹配面前不成立。</text>
+</svg>

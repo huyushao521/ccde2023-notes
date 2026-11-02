@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 424" width="100%" role="img" aria-labelledby="t2 d2">
+<title id="t2">BGP 选路第 8 条 IGP metric 如何劫持出口</title>
+<desc id="d2">上方是选路前 8 条级联条：1 到 7 条全部平局，第 8 条"到 NEXT_HOP 的 IGP metric"用红框标出。下方拓扑中 BR1、BR2 各有 eBGP 会话连同一家 ISP（AS 65100），两条路径 LP 都是 200、MED 都是 50、AS_PATH 都是 2 跳，完全平局；但 BR1 到下一跳的 IGP cost 是 30、BR2 是 10，于是出口落到 BR2。底部给出三步验收：show ip bgp 看属性、show ip bgp 前缀看 best、show ip cef 看 FIB。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 12px "Microsoft YaHei",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="424" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">出口是怎么被决定的：前七条平局，第八条说了算</text>
+<text class="s" x="24" y="48">你设计的是 LP 与 MED；实际生效的是"哪台路由器离下一跳更近"</text>
+
+<text class="lb" x="24" y="72">BGP 选路前 8 条（遇到不同即停止）</text>
+<rect x="24" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="76" y="99" text-anchor="middle">1 Weight</text>
+<text class="c" x="76" y="112" text-anchor="middle">平局</text>
+<rect x="134" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="186" y="99" text-anchor="middle">2 Local Pref</text>
+<text class="c" x="186" y="112" text-anchor="middle">平局 200</text>
+<rect x="244" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="296" y="99" text-anchor="middle">3 本地起源</text>
+<text class="c" x="296" y="112" text-anchor="middle">平局</text>
+<rect x="354" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="406" y="99" text-anchor="middle">4 AS_PATH</text>
+<text class="c" x="406" y="112" text-anchor="middle">平局 2 跳</text>
+<rect x="464" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="516" y="99" text-anchor="middle">5 Origin</text>
+<text class="c" x="516" y="112" text-anchor="middle">平局 IGP</text>
+<rect x="574" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="626" y="99" text-anchor="middle">6 MED</text>
+<text class="c" x="626" y="112" text-anchor="middle">平局 50</text>
+<rect x="684" y="82" width="104" height="38" rx="4" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="b" x="736" y="99" text-anchor="middle">7 eBGP &gt; iBGP</text>
+<text class="c" x="736" y="112" text-anchor="middle">平局</text>
+<rect x="794" y="82" width="142" height="38" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="2"/>
+<text class="k" x="865" y="99" text-anchor="middle">8 IGP metric</text>
+<text class="r" x="865" y="112" text-anchor="middle">★ 决定权在这里</text>
+
+<ellipse cx="480" cy="152" rx="126" ry="24" fill="#f3f0fb" stroke="#b9a9e6"/>
+<text class="n" x="480" y="156" text-anchor="middle">ISP · AS 65100 · 前缀 8.8.8.0/24</text>
+
+<rect x="96" y="212" width="128" height="52" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="160" y="232" text-anchor="middle">BR1</text>
+<text class="b" x="160" y="248" text-anchor="middle">LP 200 · MED 50</text>
+<line x1="160" y1="212" x2="404" y2="168" stroke="#8494a8" stroke-width="1.4"/>
+<line x1="224" y1="212" x2="440" y2="174" stroke="#8494a8" stroke-width="1.4" stroke-dasharray="4 3"/>
+
+<rect x="736" y="212" width="128" height="52" rx="4" fill="#f4f9f7" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="800" y="232" text-anchor="middle">BR2</text>
+<text class="b" x="800" y="248" text-anchor="middle">LP 200 · MED 50</text>
+<line x1="800" y1="212" x2="556" y2="168" stroke="#0f7f73" stroke-width="2.2"/>
+
+<rect x="96" y="300" width="336" height="46" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="b" x="112" y="319">CR1　→　BR1 直连 cost 30（绕行一条低速链路）</text>
+<text class="r" x="112" y="336">IGP 认为"经 BR2 更近"，BGP 只好服从</text>
+
+<rect x="528" y="300" width="336" height="46" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="544" y="319">CR2　→　BR2 直连 cost 10（万兆直达）</text>
+<text class="c" x="544" y="336">best 路径落在 BR2，与 LP/MED 的意图无关</text>
+
+<line x1="264" y1="238" x2="264" y2="300" stroke="#8494a8" stroke-width="1.2" stroke-dasharray="4 3"/>
+<line x1="696" y1="238" x2="696" y2="300" stroke="#0f7f73" stroke-width="1.6" stroke-dasharray="4 3"/>
+<line x1="432" y1="323" x2="528" y2="323" stroke="#c3d4f5" stroke-width="1.2" stroke-dasharray="4 3"/>
+<text class="m" x="480" y="318" text-anchor="middle">IGP 域</text>
+
+<rect x="24" y="362" width="912" height="44" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="380" fill="#a32020">验收三步，缺一步就会误判"改成功了"</text>
+<text class="b" x="40" y="397">① show ip bgp　→ 属性对不对　② show ip bgp &lt;前缀&gt;　→ best 变了没　③ show ip cef &lt;前缀&gt;　→ FIB 真的变了吗</text>
+</svg>

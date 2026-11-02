@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 404" width="100%" role="img" aria-labelledby="t7 d7">
+<title id="t7">三层设计六步定序：地址在协议之前冻结</title>
+<desc id="d7">上方六步流程：定拓扑、定地址、定协议、定度量、定汇总、定收敛，每步标注产出物，其中第二步"定地址"用粗框强调。下方左侧是地址层次分配树，10.0.0.0/12 按站点切成 /16、按功能切成 /20、按 VLAN 切成 /24，任意一层都能一行汇总。下方右侧指出顺序反了的代价：先选协议再定地址，地址不连续就只能手工列举，每次新增网段都要改核心策略。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="404" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">三层设计六步定序：地址在协议之前</text>
+<text class="s" x="24" y="48">协议可以换，地址换不了 —— 所以地址规划必须在协议选型之前冻结</text>
+
+<rect x="24" y="64" width="140" height="56" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="94" y="84" text-anchor="middle">① 定拓扑</text>
+<text class="b" x="94" y="102" text-anchor="middle">层级 / 区域 / 泛洪域</text>
+<rect x="176" y="64" width="140" height="56" rx="4" fill="#eaf1ff" stroke="#2f6fed" stroke-width="2.4"/>
+<text class="n" x="246" y="84" text-anchor="middle">② 定地址 ★</text>
+<text class="b" x="246" y="102" text-anchor="middle">连续 / 可分 / 可汇总</text>
+<rect x="328" y="64" width="140" height="56" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="398" y="84" text-anchor="middle">③ 定协议</text>
+<text class="b" x="398" y="102" text-anchor="middle">IGP 选型 + 区域划分</text>
+<rect x="480" y="64" width="140" height="56" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="550" y="84" text-anchor="middle">④ 定度量</text>
+<text class="b" x="550" y="102" text-anchor="middle">路径策略 / 带宽基线</text>
+<rect x="632" y="64" width="140" height="56" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="702" y="84" text-anchor="middle">⑤ 定汇总</text>
+<text class="b" x="702" y="102" text-anchor="middle">边界 + null0</text>
+<rect x="784" y="64" width="140" height="56" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="854" y="84" text-anchor="middle">⑥ 定收敛</text>
+<text class="b" x="854" y="102" text-anchor="middle">BFD / 节流 / 验收</text>
+<line x1="164" y1="92" x2="176" y2="92" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="316" y1="92" x2="328" y2="92" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="468" y1="92" x2="480" y2="92" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="620" y1="92" x2="632" y2="92" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="772" y1="92" x2="784" y2="92" stroke="#2f6fed" stroke-width="1.6"/>
+
+<rect x="24" y="134" width="452" height="140" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="152" fill="#0f7f73">② 的实操：层次分配让每层都能一行汇总</text>
+<rect x="40" y="162" width="112" height="26" rx="3" fill="#eaf1ff" stroke="#0f7f73"/>
+<text class="n" x="96" y="180" text-anchor="middle">10.0.0.0/12</text>
+<rect x="176" y="162" width="90" height="26" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="221" y="180" text-anchor="middle">站点 A /16</text>
+<rect x="278" y="162" width="90" height="26" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="323" y="180" text-anchor="middle">站点 B /16</text>
+<line x1="152" y1="175" x2="176" y2="175" stroke="#0f7f73" stroke-width="1.4"/>
+<line x1="166" y1="175" x2="166" y2="190" stroke="#0f7f73" stroke-width="1.4"/>
+<line x1="166" y1="190" x2="278" y2="190" stroke="#0f7f73" stroke-width="1.4"/>
+<rect x="176" y="204" width="90" height="24" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="221" y="221" text-anchor="middle">办公 /20</text>
+<rect x="278" y="204" width="90" height="24" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="323" y="221" text-anchor="middle">语音 /20</text>
+<rect x="176" y="240" width="90" height="22" rx="3" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="221" y="256" text-anchor="middle">VLAN 10 /24</text>
+<rect x="278" y="240" width="90" height="22" rx="3" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="323" y="256" text-anchor="middle">VLAN 11 /24</text>
+<line x1="221" y1="188" x2="221" y2="204" stroke="#a8d8ce" stroke-width="1.2"/>
+<line x1="221" y1="228" x2="221" y2="240" stroke="#a8d8ce" stroke-width="1.2"/>
+<line x1="323" y1="188" x2="323" y2="204" stroke="#a8d8ce" stroke-width="1.2"/>
+<line x1="323" y1="228" x2="323" y2="240" stroke="#a8d8ce" stroke-width="1.2"/>
+<text class="c" x="384" y="196">/12 → 站点</text>
+<text class="c" x="384" y="216">/20 → 功能</text>
+<text class="c" x="384" y="236">/24 → VLAN</text>
+<text class="b" x="40" y="266">任意一层汇总都是一行：area 1 range 10.1.0.0 255.255.0.0 这类配置不会写错。</text>
+
+<rect x="492" y="134" width="444" height="140" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="508" y="152" fill="#a32020">顺序反了的代价：先选协议，后定地址</text>
+<rect x="508" y="164" width="96" height="30" rx="3" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="556" y="184" text-anchor="middle">CORE</text>
+<rect x="680" y="164" width="110" height="30" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="r" x="735" y="184" text-anchor="middle">/24 散落不连续</text>
+<line x1="604" y1="179" x2="680" y2="179" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 3"/>
+<text class="r" x="508" y="216">地址不连续 → 无法一行汇总 → 只能 12 条静态/前缀列表</text>
+<text class="r" x="508" y="236">每新增一个网段，核心策略与防火墙规则都要同步改</text>
+<text class="b" x="508" y="258">技术债的利息，从第一条不连续的 /24 开始算。</text>
+
+<rect x="24" y="288" width="912" height="42" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="306">六步的产出物要能交给别人</text>
+<text class="b" x="40" y="323">拓扑图、IP 规划表、协议矩阵、cost 表、汇总清单、验收单 —— 少一张，设计就只存在于设计者脑子里。</text>
+
+<rect x="24" y="342" width="912" height="44" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="360" fill="#b45309">最容易跳过的两步</text>
+<text class="b" x="40" y="377">② 地址（因为"建好再规划"）与 ⑥ 验收（因为"通了就算完"）—— 恰恰是后期成本最高的两步。</text>
+</svg>

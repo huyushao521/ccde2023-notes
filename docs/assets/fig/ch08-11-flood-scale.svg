@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 392" width="100%" role="img" aria-labelledby="t11 d11">
+<title id="t11">泛洪域规模：LSA 数量决定 SPF 成本，变更频率决定 CPU 成本</title>
+<desc id="d11">左侧是规模台阶：单区域 50 台时 LSA 约 150 条、SPF 约几毫秒；200 台时 LSA 约 600 条、每次变更全网重算；500 台时 LSA 超过 1500 条，任何一次接口抖动都会让所有路由器的 CPU 同时上升。右侧指出两个不同的成本维度：LSA 数量（规模）决定 SPF 单次运算时间，LSA 变更频率决定 SPF 被触发的次数，两者相乘才是真正的 CPU 负载。底部列出五个抑制手段：划分区域、边界汇总、stub 区域、LSA 与 SPF 节流、减少参与泛洪的接口。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="392" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">泛洪域的规模：真正压垮 CPU 的是"变更频率 × LSA 数量"</text>
+<text class="s" x="24" y="48">单看台数没意义 —— 50 台稳定运行的网络，比 20 台天天抖动的网络更省 CPU</text>
+
+<text class="lb" x="24" y="76">规模台阶（单区域，每台 3 条直连）</text>
+<rect x="24" y="248" width="120" height="52" rx="4" fill="#e8f4f2" stroke="#a8d8ce"/>
+<text class="b" x="84" y="268" text-anchor="middle" fill="#0f7f73">50 台</text>
+<text class="b" x="84" y="286" text-anchor="middle">~150 条 LSA</text>
+<rect x="164" y="204" width="120" height="96" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="224" y="224" text-anchor="middle" fill="#b45309">200 台</text>
+<text class="b" x="224" y="242" text-anchor="middle">~600 条 LSA</text>
+<text class="b" x="224" y="260" text-anchor="middle">SPF 数十毫秒</text>
+<text class="b" x="224" y="278" text-anchor="middle">已需关注抖动</text>
+<rect x="304" y="150" width="120" height="150" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="b" x="364" y="170" text-anchor="middle" fill="#a32020">500 台</text>
+<text class="b" x="364" y="188" text-anchor="middle">&gt; 1500 条 LSA</text>
+<text class="b" x="364" y="206" text-anchor="middle">任何一次抖动</text>
+<text class="b" x="364" y="224" text-anchor="middle">全网 CPU 齐升</text>
+<text class="r" x="364" y="246" text-anchor="middle">必须分区</text>
+<text class="r" x="364" y="264" text-anchor="middle">+ 汇总 + 节流</text>
+<line x1="24" y1="300" x2="444" y2="300" stroke="#c3d4f5" stroke-width="1.4"/>
+<text class="b" x="24" y="318">规模只决定"一次重算多贵"。</text>
+<text class="b" x="24" y="334">频率决定"一天要重算多少次"。</text>
+
+<rect x="476" y="76" width="460" height="120" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="492" y="94">两个成本维度必须分开算</text>
+<text class="b" x="492" y="114">LSA 数量（规模）→ 单次 SPF 的运算量　　→ 用区域与汇总降</text>
+<text class="b" x="492" y="134">LSA 变更频率（稳定性）→ SPF 被触发的次数　→ 用节流与抑制降</text>
+<text class="m" x="492" y="158">乘积才是 CPU 负载：500 台稳定 &lt; 200 台天天抖</text>
+<text class="b" x="492" y="178">所以"先治抖动，再谈规模"是更划算的顺序。</text>
+
+<rect x="476" y="208" width="460" height="126" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="492" y="226" fill="#0f7f73">五个抑制手段（按性价比排序）</text>
+<text class="b" x="492" y="246">① 划区域：把泛洪域切成多个 area，Type 1/2 不再跨区</text>
+<text class="b" x="492" y="264">② 边界汇总：Type 3 一条替代一片明细</text>
+<text class="b" x="492" y="282">③ stub：分支区域不再收外部 LSA</text>
+<text class="b" x="492" y="300">④ 节流：timers throttle spf / lsa arrival（治频率）</text>
+<text class="b" x="492" y="318">⑤ 抑制无关接口：passive-interface，避免把用户口算进来</text>
+
+<rect x="24" y="348" width="912" height="36" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="371" fill="#b45309">一个常见误判：把"CPU 高"归因于"网络太大"。多数情况下是"某个接口每天断 200 次"，而它恰好在一个 500 台的区域里。</text>
+</svg>

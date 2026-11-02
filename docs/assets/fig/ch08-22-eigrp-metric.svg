@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t22 d22">
+<title id="t22">EIGRP 度量取路径上的最小带宽：木桶效应让高速路径输给全程中速路径</title>
+<desc id="d22">上条路径从 R1 到目的网段经过一段 10G 与一段 10M，EIGRP 取路径上的最小带宽 10M 作为带宽分量，延迟累加；下条路径全程是 1G 加 1G，带宽分量取 1G。结果下条路径的度量更优，流量走全程 1G，而含有 10G 的上条路径被放弃，尽管它的大部分链路更快。图上标注了两条路径的带宽分量与最终度量。底部说明这与 OSPF 相反：OSPF 的 cost 逐跳累加，所以 10G 段贡献很小、10M 段贡献很大，两条路径的判决可能与 EIGRP 不同，这也是两个协议并存时同一拓扑会选出不同路径的原因。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">EIGRP 的带宽分量是"路径上的最小值"，不是"累加"</text>
+<text class="s" x="24" y="48">所以一条"10G 接 10M"的路径，在 EIGRP 眼里就是一条 10M 的路径</text>
+
+<rect x="24" y="66" width="560" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="84" fill="#a32020">路径 A：10G + 10M（其中一段窄）</text>
+<rect x="60" y="100" width="76" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="98" y="122" text-anchor="middle">R1</text>
+<rect x="200" y="100" width="76" height="34" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="238" y="122" text-anchor="middle">R2</text>
+<rect x="400" y="100" width="90" height="34" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+<text class="n" x="445" y="122" text-anchor="middle">目的 /24</text>
+<line x1="136" y1="117" x2="200" y2="117" stroke="#0f7f73" stroke-width="3"/>
+<text class="c" x="168" y="110" text-anchor="middle">10G</text>
+<line x1="276" y1="117" x2="400" y2="117" stroke="#a32020" stroke-width="3" stroke-dasharray="6 3"/>
+<text class="r" x="338" y="110" text-anchor="middle">10M ← 木桶最短板</text>
+<text class="r" x="40" y="160">带宽分量 = min(10G, 10M) = 10M → 度量按 10M 计算，10G 段等于白给</text>
+<text class="b" x="40" y="178">延迟分量 = 两段之和（这里假设合计 2000 微秒）</text>
+
+<rect x="24" y="196" width="560" height="120" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="214" fill="#0f7f73">路径 B：1G + 1G（全程匀速）</text>
+<rect x="60" y="230" width="76" height="34" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="98" y="252" text-anchor="middle">R1</text>
+<rect x="200" y="230" width="76" height="34" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="238" y="252" text-anchor="middle">R3</text>
+<rect x="400" y="230" width="90" height="34" rx="4" fill="#f4f9f7" stroke="#0f7f73"/>
+<text class="n" x="445" y="252" text-anchor="middle">目的 /24</text>
+<line x1="136" y1="247" x2="200" y2="247" stroke="#0f7f73" stroke-width="2.2"/>
+<text class="c" x="168" y="240" text-anchor="middle">1G</text>
+<line x1="276" y1="247" x2="400" y2="247" stroke="#0f7f73" stroke-width="2.2"/>
+<text class="c" x="338" y="240" text-anchor="middle">1G</text>
+<text class="c" x="40" y="290">带宽分量 = min(1G, 1G) = 1G → 度量更小，EIGRP 选它</text>
+<text class="b" x="40" y="308">直觉上"有 10G 的路径更快"，实测却是全程 1G 更优 —— 木桶效应</text>
+
+<rect x="604" y="66" width="332" height="120" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="620" y="84">为什么这么设计</text>
+<text class="b" x="620" y="104">EIGRP 来自"距离矢量"传统：</text>
+<text class="b" x="620" y="122">它只知道"邻居声称多远"，</text>
+<text class="b" x="620" y="140">无法区分路径上每一段的速率。</text>
+<text class="b" x="620" y="160">取最小值是保守近似：按最窄处估算吞吐。</text>
+
+<rect x="604" y="196" width="332" height="120" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="620" y="214" fill="#b45309">与 OSPF 的判决可能相反</text>
+<text class="b" x="620" y="234">OSPF：cost 逐跳累加</text>
+<text class="b" x="620" y="252">10G 段 cost 1，10M 段 cost 100 → 合计 101</text>
+<text class="b" x="620" y="270">1G + 1G：10 + 10 = 20 → 还是 B 更优</text>
+<text class="r" x="620" y="292">但换成 10G + 100M：101 vs 20 → 结论一致</text>
+<text class="b" x="620" y="310">构造"结论相反"的拓扑很容易，这正是双协议并存的隐患</text>
+
+<rect x="24" y="332" width="912" height="76" rx="5" fill="#fff" stroke="#ccd6e4"/>
+<text class="lb" x="40" y="350">设计建议</text>
+<text class="b" x="40" y="368">① 不要让高速链路串低速段：链路带宽尽量"同质"，木桶效应才不会惩罚你的 10G 投资</text>
+<text class="b" x="40" y="386">② 需要精确控制时用 offset-list 或改 delay（metric weights 保持默认 k1/k3，改权重会带来互通风险）</text>
+<text class="b" x="40" y="404">③ 双协议并存时，先用"度量换算 + 路径对比表"验证两个协议选出的是同一条路，否则会在重分发点形成环路。</text>
+</svg>

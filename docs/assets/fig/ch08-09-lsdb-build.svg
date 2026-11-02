@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 408" width="100%" role="img" aria-labelledby="t9 d9">
+<title id="t9">链路状态数据库的构建五步：从直连描述到各自独立跑 SPF</title>
+<desc id="d9">上方五步流程：每台路由器描述自身直连链路并生成 LSA、通过 Hello 建立邻接并同步数据库、泛洪 LSA 直到全网收敛出相同 LSDB、每台路由器以自己为根独立运行 SPF、把最短路径树安装进路由表。下方拓扑是四台路由器两两互连，每台都用方框标注"LSDB 相同"，但右侧同时标注四台各自的最短路径树不同，说明控制面数据库一致不代表转发表一致，因为每台都以自己为根。底部结论：LSDB 是共享的，SPF 树是个体的；链路状态的可预测性来自这个分工。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="408" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">LSDB 是怎么长出来的：五步，大家都在做同一件事</text>
+<text class="s" x="24" y="48">链路状态协议相信一件事实：只要数据库一样、算法一样，结论就一样</text>
+
+<rect x="24" y="66" width="172" height="58" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="110" y="86" text-anchor="middle">① 描述直连</text>
+<text class="b" x="110" y="104" text-anchor="middle">生成 Type 1/2 LSA</text>
+<text class="b" x="110" y="118" text-anchor="middle">"我连着谁、多贵"</text>
+<rect x="208" y="66" width="172" height="58" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="294" y="86" text-anchor="middle">② 建立邻接</text>
+<text class="b" x="294" y="104" text-anchor="middle">Hello 参数匹配后</text>
+<text class="b" x="294" y="118" text-anchor="middle">交换 DD → 同步 DB</text>
+<rect x="392" y="66" width="172" height="58" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="478" y="86" text-anchor="middle">③ 泛洪 LSA</text>
+<text class="b" x="478" y="104" text-anchor="middle">逐跳可靠扩散</text>
+<text class="b" x="478" y="118" text-anchor="middle">直到全网 LSDB 一致</text>
+<rect x="576" y="66" width="172" height="58" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="662" y="86" text-anchor="middle">④ 各自跑 SPF</text>
+<text class="b" x="662" y="104" text-anchor="middle">Dijkstra，以自己为根</text>
+<text class="b" x="662" y="118" text-anchor="middle">不向邻居"要"路由</text>
+<rect x="760" y="66" width="176" height="58" rx="4" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="848" y="86" text-anchor="middle">⑤ 装表</text>
+<text class="b" x="848" y="104" text-anchor="middle">最短路径树 → 路由表</text>
+<text class="b" x="848" y="118" text-anchor="middle">→ FIB → 转发</text>
+<line x1="196" y1="95" x2="208" y2="95" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="380" y1="95" x2="392" y2="95" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="564" y1="95" x2="576" y2="95" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="748" y1="95" x2="760" y2="95" stroke="#2f6fed" stroke-width="1.6"/>
+
+<rect x="24" y="142" width="452" height="180" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="160">拓扑：四条链路，四份数据库</text>
+<circle cx="130" cy="200" r="24" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="130" y="204" text-anchor="middle">R1</text>
+<circle cx="330" cy="200" r="24" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="330" y="204" text-anchor="middle">R2</text>
+<circle cx="130" cy="288" r="24" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="130" y="292" text-anchor="middle">R3</text>
+<circle cx="330" cy="288" r="24" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="330" y="292" text-anchor="middle">R4</text>
+<line x1="154" y1="200" x2="306" y2="200" stroke="#8494a8" stroke-width="1.6"/>
+<line x1="130" y1="224" x2="130" y2="264" stroke="#8494a8" stroke-width="1.6"/>
+<line x1="330" y1="224" x2="330" y2="264" stroke="#8494a8" stroke-width="1.6"/>
+<line x1="152" y1="284" x2="308" y2="284" stroke="#8494a8" stroke-width="1.6"/>
+<text class="m" x="230" y="194" text-anchor="middle">cost 10</text>
+<text class="m" x="230" y="278" text-anchor="middle">cost 10</text>
+<text class="b" x="96" y="248" text-anchor="end">cost 5</text>
+<text class="b" x="344" y="248">cost 20</text>
+<text class="c" x="40" y="312">每台都持有四条链路的完整描述 —— LSDB 是"全网共享的一份事实"。</text>
+
+<text class="k" x="496" y="160">同一份 LSDB，四棵不同的树</text>
+<rect x="496" y="172" width="440" height="150" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="b" x="512" y="192">R1 为根：R1→R3（5）、R1→R2（10）、R1→R4 经 R3（15）</text>
+<text class="b" x="512" y="212">R2 为根：R2→R1（10）、R2→R4（20）、R2→R3 经 R1（15）</text>
+<text class="b" x="512" y="232">R3 为根：R3→R1（5）、R3→R4（10）、R3→R2 经 R1（15）</text>
+<text class="b" x="512" y="252">R4 为根：R4→R3（10）、R4→R1 经 R3（15）、R4→R2（20）</text>
+<text class="c" x="512" y="278">数据库一致，但每台以自己为根 → 转发表必然不同。</text>
+<text class="c" x="512" y="298">这就是"链路状态可预测"的来源：没有邻居告诉你路由，</text>
+<text class="c" x="512" y="316">只有自己算出来的结论。</text>
+
+<rect x="24" y="336" width="912" height="56" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="354">排障含义</text>
+<text class="b" x="40" y="372">两台路由器对同一目的地选路不同，先比 LSDB（show ip ospf database）再看 SPF 结果，而不是先怀疑环路。</text>
+<text class="b" x="40" y="389">LSDB 不一致（区域不匹配、MTU 不一致卡在 ExStart、LSA 时间戳异常）时，SPF 算出的"最优"只是局部最优。</text>
+</svg>

@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t21 d21">
+<title id="t21">EIGRP 查询扩散与 SIA：没有汇总边界就没有自然的查询终止点</title>
+<desc id="d21">左侧拓扑是五台路由器的 EIGRP 域：R1 与 R2 为核心，R3、R4、R5 分布在三层。R3 上一条路径丢失后向所有邻居发起查询，若没有汇总边界与 stub 限制，查询会沿着每一跳继续传播到整个自治系统，每台路由器在应答之前都必须把这条路由标记为 active，应答慢或丢失就进入 stuck in active，默认等 3 分钟后重置邻居。右侧是同一拓扑加上汇总与 stub 之后的效果：R1 上用汇总把明细隐藏起来，R4 配成 stub 不转发查询，查询在 R2 处就终止，R5 完全不知道发生过故障。底部给出四种抑制手段的优先级：汇总最有效、stub 次之、路由过滤第三、层级设计是根本。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">EIGRP 的收敛成本不在"算"，而在"问"</text>
+<text class="s" x="24" y="48">查询是逐跳的，没有边界就会走到全网；每一跳都要等应答，等不到就是 SIA</text>
+
+<rect x="24" y="66" width="446" height="190" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="84" fill="#a32020">无边界：查询扩散到全网</text>
+<rect x="70" y="94" width="72" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="106" y="114" text-anchor="middle">R1</text>
+<rect x="196" y="94" width="72" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="232" y="114" text-anchor="middle">R2</text>
+<rect x="70" y="164" width="72" height="30" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="2"/>
+<text class="n" x="106" y="184" text-anchor="middle">R3 丢路</text>
+<rect x="196" y="164" width="72" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="232" y="184" text-anchor="middle">R4</text>
+<rect x="330" y="130" width="72" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="366" y="150" text-anchor="middle">R5</text>
+<line x1="142" y1="109" x2="196" y2="109" stroke="#a32020" stroke-width="1.6"/>
+<line x1="106" y1="124" x2="106" y2="164" stroke="#a32020" stroke-width="1.6"/>
+<line x1="142" y1="179" x2="196" y2="179" stroke="#a32020" stroke-width="1.6"/>
+<line x1="268" y1="109" x2="330" y2="132" stroke="#a32020" stroke-width="1.6"/>
+<line x1="268" y1="179" x2="330" y2="152" stroke="#a32020" stroke-width="1.6"/>
+<text class="r" x="40" y="222">R3 → R1、R4 → R2 → R5：每跳都要等应答</text>
+<text class="r" x="40" y="240">应答慢 3 分钟 → SIA → 重置邻居（业务二次中断）</text>
+
+<rect x="490" y="66" width="446" height="190" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="506" y="84" fill="#0f7f73">加边界：查询在 R2 终止</text>
+<rect x="536" y="94" width="72" height="30" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="572" y="114" text-anchor="middle">R1 汇总</text>
+<rect x="662" y="94" width="72" height="30" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="698" y="114" text-anchor="middle">R2</text>
+<rect x="536" y="164" width="72" height="30" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="572" y="184" text-anchor="middle">R3</text>
+<rect x="662" y="164" width="72" height="30" rx="4" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="698" y="184" text-anchor="middle">R4 stub</text>
+<rect x="796" y="130" width="72" height="30" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="832" y="150" text-anchor="middle">R5</text>
+<line x1="608" y1="109" x2="662" y2="109" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="572" y1="124" x2="572" y2="164" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="608" y1="179" x2="662" y2="179" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="734" y1="109" x2="796" y2="132" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="734" y1="179" x2="796" y2="152" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="c" x="506" y="222">R2 只知道汇总前缀，明细丢失不影响它 → 不发起查询</text>
+<text class="c" x="506" y="240">R4 是 stub：收到查询只应答、不转发 → 右半边完全无感</text>
+
+<rect x="24" y="272" width="912" height="96" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="290">四种抑制手段（按效果排序）</text>
+<text class="b" x="40" y="308">① 汇总：最有效。查询天然止于"我不知道明细"的路由器 —— 这也是"汇总即边界"的另一种解释</text>
+<text class="b" x="40" y="326">② stub 路由器：分支上不形成传递依赖，只应答不转问；适合只有单出口的接入层</text>
+<text class="b" x="40" y="344">③ 路由过滤：不让分支学到它无法转发的明细，从源头消除查询链</text>
+<text class="b" x="40" y="362">④ 层级设计：控制邻居数量与冗余度，让拓扑本身没有"人人都问"的路径</text>
+
+<rect x="24" y="378" width="912" height="30" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="398" fill="#b45309">排查线索：日志里出现"DUAL-3-SIA"或邻居频繁重置，先看有没有汇总与 stub，而不是先怀疑带宽。</text>
+</svg>

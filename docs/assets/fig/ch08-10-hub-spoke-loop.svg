@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t10 d10">
+<title id="t10">Hub-and-Spoke 拓扑里的 Spoke 中转回环，以及三种隔离做法</title>
+<desc id="d10">左侧是正确做法：两个 Hub 之间运行骨干，Spoke 分别挂在不同 Hub 上，Spoke 只做 stub 学习默认路由，所有 Spoke 间流量都经 Hub 转发。右侧是错误做法：Spoke 之间也互相同步明细路由，Hub2 把从 Spoke-B 学到的汇总再通告回 Hub1，Hub1 又通告给 Spoke-A，于是 Spoke-A 把发往 Spoke-B 的流量交给 Hub1、Hub1 交给 Hub2、Hub2 顺着更具体的明细送回 Spoke-A 侧，形成回环，同时每台 Spoke 都承担了别人的中转流量。底部给出三种隔离做法：Spoke 配置为 stub 只学默认路由、只在 ABR 上针对自己直连的区域汇总、Spoke 侧加 area range suppress 或前缀过滤防止明细回流。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 11px "Microsoft YaHei",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">Hub-and-Spoke：Spoke 一旦学会明细，就会开始给别人中转</text>
+<text class="s" x="24" y="48">分叉拓扑的核心风险不是收敛慢，而是"分支变成中转节点"</text>
+
+<rect x="24" y="64" width="446" height="212" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="82" fill="#0f7f73">正解：Spoke 只学默认路由</text>
+<rect x="60" y="96" width="104" height="38" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="112" y="120" text-anchor="middle">Hub1</text>
+<rect x="230" y="96" width="104" height="38" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="282" y="120" text-anchor="middle">Hub2</text>
+<line x1="164" y1="115" x2="230" y2="115" stroke="#0f7f73" stroke-width="2.2"/>
+<text class="c" x="197" y="108" text-anchor="middle">area 0</text>
+<rect x="60" y="196" width="104" height="38" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="112" y="220" text-anchor="middle">Spoke-A</text>
+<rect x="230" y="196" width="104" height="38" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="282" y="220" text-anchor="middle">Spoke-B</text>
+<line x1="112" y1="134" x2="112" y2="196" stroke="#0f7f73" stroke-width="1.8"/>
+<line x1="282" y1="134" x2="282" y2="196" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="c" x="120" y="168">stub + 默认</text>
+<text class="c" x="290" y="168">stub + 默认</text>
+<text class="b" x="40" y="252">Spoke 只知道"出去找 Hub"，A→B 的流量在 Hub 处转一次，</text>
+<text class="b" x="40" y="268">不会出现两条分支之间的第二条路径 —— 没有第二条路径就没有回环。</text>
+
+<rect x="490" y="64" width="446" height="212" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="506" y="82" fill="#a32020">错误：Spoke 互相同步明细 + 双 Hub 互相汇总</text>
+<rect x="526" y="96" width="104" height="38" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="578" y="120" text-anchor="middle">Hub1</text>
+<rect x="696" y="96" width="104" height="38" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="748" y="120" text-anchor="middle">Hub2</text>
+<line x1="630" y1="115" x2="696" y2="115" stroke="#c3d4f5" stroke-width="1.8"/>
+<rect x="526" y="196" width="104" height="38" rx="4" fill="#fff" stroke="#e3b7b7"/>
+<text class="n" x="578" y="220" text-anchor="middle">Spoke-A</text>
+<rect x="696" y="196" width="104" height="38" rx="4" fill="#fff" stroke="#e3b7b7"/>
+<text class="n" x="748" y="220" text-anchor="middle">Spoke-B</text>
+<line x1="578" y1="134" x2="578" y2="196" stroke="#a32020" stroke-width="1.8"/>
+<line x1="748" y1="134" x2="748" y2="196" stroke="#a32020" stroke-width="1.8"/>
+<path d="M630 215 L696 215" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 3"/>
+<text class="r" x="663" y="208" text-anchor="middle">明细互传</text>
+<path d="M526 120 L470 120 L470 158 L526 158" fill="none" stroke="#a32020" stroke-width="1.6"/>
+<text class="big" x="506" y="152" text-anchor="end">回环</text>
+<text class="b" x="506" y="252">Hub2 把 Spoke-B 的汇总再教给 Hub1，Hub1 又教给 Spoke-A；</text>
+<text class="r" x="506" y="268">A 发往 B 的包被 Hub1 送回 Hub2，Hub2 按明细再送回 A 侧 → 环。</text>
+
+<rect x="24" y="288" width="912" height="80" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="306">三种隔离做法（任选其一即可，第二个最常用）</text>
+<text class="b" x="40" y="324">① Spoke 侧配 stub / totally-stub，只学一条默认路由，明细永远不进分支</text>
+<text class="b" x="40" y="342">② 汇总只在 ABR 上针对"自己直连的区域"做，禁止把别的区域学来的汇总再往下发（area range 只对自己的 area 生效）</text>
+<text class="b" x="40" y="360">③ 在 Hub 面向 Spoke 的接口做前缀过滤或 distribute-list，从入口切断明细回流</text>
+
+<rect x="24" y="376" width="912" height="32" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="397" fill="#b45309">判断依据：Spoke 的 show ip route 里如果出现"别的分支的 /24"，说明它已经在承担中转职责了。</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 424" width="100%" role="img" aria-labelledby="t4 d4">
+<title id="t4">汇总的本质是信息隐藏：明细断开后汇总路由仍在，流量进区域被丢弃</title>
+<desc id="d4">上方拓扑：核心只有 10.10.0.0/16 一条汇总路由，区域 10 内部有 10.10.1.0/24、10.10.2.0/24、10.10.3.0/24 三条明细；其中 10.10.2.0/24 的链路断开后，ABR 依然通告汇总，核心认为目的地可达，流量照旧送进区域，最终在区域内被丢弃。中间是收益与代价的对照：路由表小换明细故障可见性、泛洪少换故障定位能力、收敛快换故障期间的路径正确性。下方是正解：汇总路由器同时生成指向 null0 的汇总路由，让汇总与明细同生共死，并在区域内用 stub 加默认路由隔离故障。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 11px "Microsoft YaHei",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="424" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">汇总把"某条明细断了"这件事藏起来 —— 包括藏起来不让你知道</text>
+<text class="s" x="24" y="48">核心的 show ip route 一切正常，ping 汇总地址也通，但业务已经断了</text>
+
+<rect x="96" y="70" width="150" height="46" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="171" y="90" text-anchor="middle">CORE</text>
+<text class="b" x="171" y="106" text-anchor="middle">只知 10.10.0.0/16</text>
+<rect x="96" y="184" width="150" height="46" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="171" y="204" text-anchor="middle">ABR</text>
+<text class="b" x="171" y="220" text-anchor="middle">area 10 range</text>
+<line x1="171" y1="116" x2="171" y2="184" stroke="#2f6fed" stroke-width="2.2"/>
+<text class="c" x="180" y="155">通告 /16（一条）</text>
+
+<rect x="360" y="184" width="150" height="46" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="435" y="204" text-anchor="middle">ASW-1</text>
+<text class="b" x="435" y="220" text-anchor="middle">10.10.1.0/24</text>
+<rect x="540" y="184" width="150" height="46" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="2"/>
+<text class="n" x="615" y="204" text-anchor="middle">ASW-2</text>
+<text class="r" x="615" y="220" text-anchor="middle">10.10.2.0/24 断</text>
+<rect x="720" y="184" width="150" height="46" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="795" y="204" text-anchor="middle">ASW-3</text>
+<text class="b" x="795" y="220" text-anchor="middle">10.10.3.0/24</text>
+<line x1="246" y1="207" x2="360" y2="207" stroke="#8494a8" stroke-width="1.4"/>
+<line x1="246" y1="200" x2="540" y2="200" stroke="#8494a8" stroke-width="1.4"/>
+<line x1="246" y1="215" x2="720" y2="215" stroke="#8494a8" stroke-width="1.4"/>
+
+<path d="M171 70 L171 60 L615 60 L615 184" fill="none" stroke="#a32020" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text class="big" x="300" y="52">业务流量继续送往 10.10.2.0/24 → 在区域内部被丢弃</text>
+<text class="r" x="384" y="252">核心视角：目的可达（有 /16），路径正常，无任何告警</text>
+
+<rect x="24" y="272" width="446" height="88" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="290">你获得了</text>
+<text class="b" x="40" y="308">路由表小 · 泛洪范围小 · 不稳定性被隔离 · 收敛快</text>
+<text class="b" x="40" y="326">"核心只有 20 条汇总路由"是常见的设计成绩单</text>
+<text class="b" x="40" y="346">代价只有一个动作：把明细记录下来（然后丢掉）</text>
+
+<rect x="490" y="272" width="446" height="88" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="506" y="290" fill="#a32020">你失去了</text>
+<text class="r" x="506" y="308">明细故障的可见性 · 故障定位能力 · 端到端验证的意义</text>
+<text class="r" x="506" y="326">最重要的：故障期间的路径正确性</text>
+<text class="b" x="506" y="346">排障只能进区域内看，不能在核心看 —— 这条要写进运维手册</text>
+
+<rect x="24" y="372" width="912" height="40" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="389" fill="#0f7f73">正解：汇总必须配 null0</text>
+<text class="b" x="40" y="405">明细全部消失时，指向 Null0 的汇总路由随之消失 → 不留黑洞；再叠加 stub + 区域内默认路由，让故障不外溢</text>
+</svg>

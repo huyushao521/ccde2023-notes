@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t3 d3">
+<title id="t3">协议选择的真实权重：运维能力排在技术指标之前</title>
+<desc id="d3">左侧是决策因素按真实权重的排序条：团队熟悉度最高、多厂商需求高、路径控制与收敛速度中、协议理论可扩展性最低。右侧是两个团队与两个网络的结果对比：A 团队把 OSPF 排障搞透，网络可用性 99.98%；B 团队选了理论上更优的 IS-IS 但只会配不会查，一次故障定位耗时 4 小时，可用性 99.6%。底部结论是设计文档写"为什么选这个协议"时必须包含运维能力，只写"因为它是标准协议"等于没写。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">协议选择的真实权重：先问"谁能维护"，再问"谁更先进"</text>
+<text class="s" x="24" y="48">CCDE 爱问"选 OSPF 还是 IS-IS"，真实项目的答案取决于团队能把哪个协议的故障定位到底</text>
+
+<text class="lb" x="24" y="76">决策因素的真实权重（不是教科书的排序）</text>
+<rect x="24" y="86" width="440" height="24" rx="3" fill="#a32020"/>
+<text class="k" x="36" y="103" fill="#fff">团队熟悉哪个协议 —— 最高</text>
+<rect x="24" y="116" width="352" height="24" rx="3" fill="#b45309"/>
+<text class="k" x="36" y="133" fill="#fff">是否多厂商 —— 高</text>
+<rect x="24" y="146" width="264" height="24" rx="3" fill="#2f6fed"/>
+<text class="k" x="36" y="163" fill="#fff">需要多强的路径控制 —— 中</text>
+<rect x="24" y="176" width="228" height="24" rx="3" fill="#2f6fed"/>
+<text class="k" x="36" y="193" fill="#fff">收敛速度（都能亚秒，差异不大）—— 中</text>
+<rect x="24" y="206" width="140" height="24" rx="3" fill="#7c8b9f"/>
+<text class="k" x="36" y="223" fill="#fff">协议理论可扩展性 —— 低</text>
+<text class="b" x="24" y="252">企业网很少真的撞到协议上限；但经常撞到"没人会查"的墙。</text>
+
+<rect x="500" y="70" width="436" height="120" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="516" y="90" fill="#0f7f73">A 团队：选 OSPF，排障链路完整</text>
+<text class="b" x="516" y="110">团队会把 LSDB、Type 3/5、区域边界一路查到根因</text>
+<text class="b" x="516" y="127">故障平均定位 25 分钟；每季度做一次故障注入演练</text>
+<text class="c" x="516" y="150">结果：可用性 99.98%，变更信心高，敢做区域重构</text>
+<text class="b" x="516" y="172">协议不是最优，但"人 + 协议"这个组合是最优的</text>
+
+<rect x="500" y="200" width="436" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="516" y="220" fill="#a32020">B 团队：选 IS-IS，只会配不会查</text>
+<text class="b" x="516" y="240">理论上 TLV 扩展性更好、多拓扑更强</text>
+<text class="b" x="516" y="257">但故障时无人能读 LSP、不知道 overload bit 影响</text>
+<text class="r" x="516" y="280">结果：一次邻居异常定位 4 小时，可用性 99.6%</text>
+<text class="b" x="516" y="302">"更先进"没有兑现成"更可靠"，反而变成排障风险</text>
+
+<rect x="24" y="340" width="912" height="44" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="358">写进设计文档的句式</text>
+<text class="b" x="40" y="375">"选用 OSPF：多厂商接入设备需互通；团队有 3 名工程师具备 OSPF 故障定位能力；EIGRP 仅 1 人熟悉，不满足运维要求。"</text>
+</svg>

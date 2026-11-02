@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t23 d23">
+<title id="t23">为什么必须显式设计路径：等价路径下的时延抖动与带宽错配</title>
+<desc id="d23">左侧是等价多路径的后果：同一业务的两条 TCP 连接经哈希分别走上 10G 低时延链路与 1G 高时延链路，时延在 2 毫秒与 12 毫秒之间跳动，应用侧看到的是"时快时慢"；同时 1G 链路的利用率被推到 100% 而 10G 只有 5%，总吞吐被最差的链路拖累。右侧是显式设计路径之后的效果：关键业务固定走 10G 低时延路径，1G 只承载备份与非关键流量，时延稳定在 2 毫秒、两条链路利用率分别为 60% 与 20%。底部给出路径控制的三个动机：业务分级、时延稳定、带宽利用，并提醒等价路径不是"更好"，只是"更省事"。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">等价路径不是"更好"，只是"更省事"</text>
+<text class="s" x="24" y="48">两条链路等价时，选哪条由哈希决定 —— 而哈希不知道哪条链路贵、哪条时延低</text>
+
+<rect x="24" y="66" width="446" height="184" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="84" fill="#a32020">等价：哈希随机，业务被迫随机</text>
+<rect x="60" y="96" width="70" height="30" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="95" y="116" text-anchor="middle">R1</text>
+<rect x="300" y="96" width="70" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="335" y="116" text-anchor="middle">R2</text>
+<rect x="150" y="80" width="76" height="24" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="188" y="97" text-anchor="middle">10G 2ms</text>
+<rect x="150" y="122" width="76" height="24" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="r" x="188" y="139" text-anchor="middle">1G 12ms</text>
+<line x1="130" y1="111" x2="150" y2="94" stroke="#0f7f73" stroke-width="1.8"/>
+<line x1="226" y1="94" x2="300" y2="109" stroke="#0f7f73" stroke-width="1.8"/>
+<line x1="130" y1="112" x2="150" y2="132" stroke="#a32020" stroke-width="1.8"/>
+<line x1="226" y1="132" x2="300" y2="112" stroke="#a32020" stroke-width="1.8"/>
+<text class="r" x="40" y="176">同一业务的两条连接，时延在 2ms 与 12ms 之间跳</text>
+<rect x="40" y="188" width="120" height="10" rx="2" fill="#0f7f73"/>
+<text class="b" x="168" y="197">10G 利用率 5%（案例一实测）</text>
+<rect x="40" y="206" width="380" height="10" rx="2" fill="#a32020"/>
+<text class="b" x="40" y="232">1G 利用率 100%：按"分摊"设计，却按"最窄"拥堵</text>
+<text class="b" x="40" y="248">应用日志：时快时慢，但每条链路看都不算异常</text>
+
+<rect x="490" y="66" width="446" height="184" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="506" y="84" fill="#0f7f73">显式设计：关键业务钉在低时延路径</text>
+<rect x="526" y="96" width="70" height="30" rx="4" fill="#eaf1ff" stroke="#2f6fed"/>
+<text class="n" x="561" y="116" text-anchor="middle">R1</text>
+<rect x="766" y="96" width="70" height="30" rx="4" fill="#fff" stroke="#c3d4f5"/>
+<text class="n" x="801" y="116" text-anchor="middle">R2</text>
+<rect x="616" y="80" width="76" height="24" rx="3" fill="#e8f4f2" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="654" y="97" text-anchor="middle">10G 2ms</text>
+<rect x="616" y="122" width="76" height="24" rx="3" fill="#fff" stroke="#a8d8ce"/>
+<text class="b" x="654" y="139" text-anchor="middle">1G 12ms</text>
+<line x1="596" y1="111" x2="616" y2="94" stroke="#0f7f73" stroke-width="3"/>
+<line x1="692" y1="94" x2="766" y2="109" stroke="#0f7f73" stroke-width="3"/>
+<line x1="596" y1="112" x2="616" y2="132" stroke="#a8d8ce" stroke-width="1.6" stroke-dasharray="5 3"/>
+<line x1="692" y1="132" x2="766" y2="112" stroke="#a8d8ce" stroke-width="1.6" stroke-dasharray="5 3"/>
+<text class="c" x="506" y="176">关键业务固定 2ms；1G 只承载备份与批量流量</text>
+<rect x="506" y="188" width="240" height="10" rx="2" fill="#0f7f73"/>
+<text class="b" x="754" y="197">10G 60%</text>
+<rect x="506" y="206" width="90" height="10" rx="2" fill="#7c8b9f"/>
+<text class="b" x="604" y="215">1G 20%</text>
+<text class="b" x="506" y="248">时延稳定 → 应用超时与重传同时下降</text>
+
+<rect x="24" y="266" width="912" height="88" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="284">路径控制的三个真实动机</text>
+<text class="b" x="40" y="302">① 业务分级：交易、语音、视频对抖动敏感，批量备份不敏感 —— 让它们走同一条"最优"路径本身就是设计错误</text>
+<text class="b" x="40" y="320">② 时延稳定：等价路径带来的抖动比"稍高的固定时延"更伤应用（TCP 重传与超时阈值都按稳定时延调优）</text>
+<text class="b" x="40" y="338">③ 带宽利用：分摊按"流"而不是按"字节"，长流会黏在一条链路上，聚合带宽难以兑现</text>
+
+<rect x="24" y="362" width="912" height="46" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="380" fill="#b45309">先问一句</text>
+<text class="b" x="40" y="397">"我需要两条链路自动分摊，还是需要业务始终走某一条？"—— 答案决定用 ECMP、还是用 cost/LP/静态路由显式指定。</text>
+</svg>

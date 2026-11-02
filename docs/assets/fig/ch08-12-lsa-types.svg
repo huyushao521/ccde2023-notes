@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t12 d12">
+<title id="t12">OSPF 六种 LSA 的生成者与传播范围</title>
+<desc id="d12">拓扑分为三个区域：中间是骨干 area 0，含 R1、R2 与一台 ASBR，ASBR 接外部自治系统；左侧是 area 10，含 R3、R4 与一台 ABR；右侧是 area 20 的 NSSA，含 R5、R6。图上逐一标注六种 LSA：Type 1 由每台路由器生成、只在区域内传播；Type 2 由 DR 生成、描述广播网段、只在区域内传播；Type 3 由 ABR 生成、把其他区域的明细转成汇总、跨区传播；Type 4 由 ABR 生成、告诉其他区域"ASBR 怎么走"、跨区传播；Type 5 由 ASBR 生成、描述外部路由、除 stub 与 NSSA 外全网传播；Type 7 由 NSSA 内的 ASBR 生成、只在 NSSA 内传播，由 ABR 转成 Type 5。底部提示 Type 4 常常成为"跨区 ASBR 不可达"的排查盲点。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">六种 LSA：谁生成、传到哪，决定了区域设计的边界</text>
+<text class="s" x="24" y="48">记住一句话：Type 1/2 不出区，Type 3/4/5 跨区，Type 7 只在 NSSA 内</text>
+
+<rect x="300" y="122" width="360" height="150" rx="8" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="316" y="140">area 0（骨干）</text>
+<rect x="330" y="156" width="80" height="34" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="370" y="178" text-anchor="middle">R1</text>
+<rect x="440" y="156" width="80" height="34" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="480" y="178" text-anchor="middle">R2</text>
+<rect x="550" y="156" width="80" height="34" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="590" y="178" text-anchor="middle">ASBR</text>
+<line x1="410" y1="173" x2="440" y2="173" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="520" y1="173" x2="550" y2="173" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="c" x="330" y="216">Type 1 每台自身链路（区内）</text>
+<text class="c" x="330" y="234">Type 2 DR 描述广播网段（区内）</text>
+<text class="m" x="330" y="254">Type 3/4 由 ABR 生成，跨区传输</text>
+<ellipse cx="700" cy="110" rx="76" ry="26" fill="#f3f0fb" stroke="#b9a9e6"/>
+<text class="n" x="700" y="114" text-anchor="middle">外部 AS</text>
+<line x1="630" y1="160" x2="672" y2="130" stroke="#b9a9e6" stroke-width="1.6"/>
+<text class="r" x="706" y="160">Type 5：ASBR 生成</text>
+<text class="r" x="706" y="176">除 stub/NSSA 全网泛洪</text>
+
+<rect x="24" y="140" width="248" height="116" rx="8" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="158" fill="#0f7f73">area 10（普通区）</text>
+<rect x="52" y="172" width="76" height="32" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="90" y="193" text-anchor="middle">R3</text>
+<rect x="164" y="172" width="76" height="32" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="n" x="202" y="193" text-anchor="middle">R4</text>
+<line x1="128" y1="188" x2="164" y2="188" stroke="#a8d8ce" stroke-width="1.6"/>
+<text class="c" x="40" y="226">收 Type 1/2（本区）+ Type 3/4/5</text>
+<text class="b" x="40" y="244">R3 是 ABR：生成 Type 3 通告 /16</text>
+<line x1="240" y1="204" x2="300" y2="196" stroke="#0f7f73" stroke-width="1.8"/>
+
+<rect x="700" y="206" width="236" height="106" rx="8" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="716" y="224" fill="#b45309">area 20（NSSA）</text>
+<rect x="716" y="236" width="76" height="30" rx="4" fill="#fff" stroke="#e6cfa8"/>
+<text class="n" x="754" y="256" text-anchor="middle">R5</text>
+<rect x="820" y="236" width="76" height="30" rx="4" fill="#fff" stroke="#e6cfa8"/>
+<text class="n" x="858" y="256" text-anchor="middle">R6</text>
+<text class="m" x="716" y="286">Type 7 在区内泛洪，ABR 转成 Type 5</text>
+<text class="b" x="716" y="304">不收 Type 5，靠 Type 7 + 默认路由</text>
+<line x1="660" y1="230" x2="700" y2="240" stroke="#b45309" stroke-width="1.8"/>
+
+<rect x="24" y="272" width="452" height="132" rx="5" fill="#fff" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="290">传播范围速查</text>
+<text class="b" x="40" y="308">Type 1　区内　每台路由器　　→ 看拓扑与 cost</text>
+<text class="b" x="40" y="326">Type 2　区内　DR 　　　　　→ 广播网段的"虚拟节点"</text>
+<text class="b" x="40" y="344">Type 3　跨区　ABR　　　　　→ 其他区域的明细/汇总</text>
+<text class="b" x="40" y="362">Type 4　跨区　ABR　　　　　→ "ASBR 在哪个方向"</text>
+<text class="b" x="40" y="380">Type 5　全网　ASBR　　　　　→ 外部路由（stub/NSSA 不收）</text>
+<text class="b" x="40" y="398">Type 7　NSSA　NSSA 内 ASBR　→ 由 ABR 翻译成 Type 5</text>
+
+<rect x="492" y="352" width="444" height="52" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="508" y="370" fill="#a32020">最容易被忽略的一条</text>
+<text class="b" x="508" y="388">Type 4 缺失时，跨区网络能看到外部路由（Type 5）却装不进表 —— 因为不知道 ASBR 怎么去。</text>
+</svg>

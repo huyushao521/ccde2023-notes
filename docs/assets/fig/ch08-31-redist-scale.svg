@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 412" width="100%" role="img" aria-labelledby="t31 d31">
+<title id="t31">把 BGP 全表重分发进 IGP 的雪崩过程</title>
+<desc id="d31">左侧是正常状态：BGP 表里约 92 万条前缀，IGP 只有约 200 条内部网段，两者各司其职。右侧是失控之后：有人把 BGP 全表重分发进 OSPF，IGP 的路由表瞬间涨到 92 万条，每次 SPF 重算从几毫秒涨到数秒，CPU 冲到 98%；CPU 一满，Hello 报文被延迟处理，邻居被判死，链路一断又产生新的 LSA 变更，全网反复重算，最终业务全面中断。案例五是某运营商把互联网全表灌进 IGP，18 分钟内从单点故障演变成全网雪崩。底部给出三条红线：永远不把互联网全表重分发进 IGP；重分发必须有前缀白名单；上线前用 show ip ospf database 与 CPU 基线做容量测算。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .big{font:600 12px "Microsoft YaHei",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="412" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">把 BGP 全表灌进 IGP：18 分钟从单点故障到全网雪崩</text>
+<text class="s" x="24" y="48">IGP 的设计前提是"内部可达性"，它从来没有为 90 万条外部路由做过准备</text>
+
+<rect x="24" y="66" width="440" height="150" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="84" fill="#0f7f73">各司其职（正常）</text>
+<rect x="40" y="94" width="180" height="52" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="k" x="56" y="114">BGP 表</text>
+<text class="c" x="56" y="134">≈ 92 万条外部前缀</text>
+<rect x="250" y="94" width="180" height="52" rx="4" fill="#fff" stroke="#a8d8ce"/>
+<text class="k" x="266" y="114">IGP 表</text>
+<text class="c" x="266" y="134">≈ 200 条内部网段</text>
+<text class="b" x="40" y="170">SPF 单次几毫秒；CPU 常年在 10% 以下</text>
+<text class="b" x="40" y="190">IGP 只回答"内部怎么走"，BGP 回答"外部在哪"</text>
+<text class="b" x="40" y="208">分工清晰，故障域也被分开</text>
+
+<rect x="496" y="66" width="440" height="150" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="512" y="84" fill="#a32020">全表重分发（失控）</text>
+<rect x="512" y="94" width="180" height="52" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="2"/>
+<text class="k" x="528" y="114">IGP 表</text>
+<text class="r" x="528" y="134">92 万条（被灌满）</text>
+<rect x="722" y="94" width="196" height="52" rx="4" fill="#fff" stroke="#e3b7b7"/>
+<text class="k" x="738" y="114">后果</text>
+<text class="r" x="738" y="134">SPF 数秒 / CPU 98%</text>
+<text class="b" x="512" y="170">CPU 满 → Hello 被延迟处理 → 邻居被判死</text>
+<text class="b" x="512" y="190">邻居断 → 新的 LSA 变更 → 全网再次重算</text>
+<text class="r" x="512" y="210">正反馈：越算越慢，越慢越断，越断越算</text>
+
+<rect x="24" y="230" width="912" height="86" rx="5" fill="#fff" stroke="#ccd6e4"/>
+<text class="lb" x="40" y="248">雪崩时间线（案例五）</text>
+<text class="b" x="40" y="268">T+0　　重分发命令下发，路由表开始暴涨</text>
+<text class="b" x="40" y="286">T+3min　核心 CPU 90%，第一个邻居超时断开</text>
+<text class="b" x="40" y="304">T+18min 全网 OSPF 邻居反复震荡，业务大面积中断；事后只能逐台隔离、手动清空重分发</text>
+
+<rect x="24" y="330" width="912" height="70" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="348" fill="#b45309">三条红线</text>
+<text class="b" x="40" y="366">① 永远不把互联网全表重分发进 IGP；需要默认路由就用 default-information originate 或静态默认</text>
+<text class="b" x="40" y="384">② 重分发必须有前缀白名单（route-map + prefix-list），默认 deny 而不是默认 permit</text>
+<text class="b" x="40" y="398">③ 上线前做容量测算：在测试环境灌入目标规模后，观察 SPF 时间、LSDB 内存与 CPU 基线</text>
+
+<rect x="0" y="0" width="0" height="0" fill="none"/>
+</svg>

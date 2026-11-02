@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 424" width="100%" role="img" aria-labelledby="t30 d30">
+<title id="t30">BGP 学过路由、FIB 却没有出口：下一跳不可达导致递归失败</title>
+<desc id="d30">拓扑：核心 CR1 通过 iBGP 与边界 BR1 建会话，BR1 再通过 eBGP 连 ISP。BR1 从 ISP 学到前缀 198.51.100.0/24，下一跳是公网互联地址 203.0.113.2。这条路由通过 iBGP 传给 CR1 时保留了原始下一跳，但 203.0.113.2 属于 BR1 与 ISP 之间的互联网段，没有进入 IGP，CR1 无法解析它，于是这条路由停在 RIB 里，进不了 FIB，虽然 show ip bgp 显示它是最优路径。底部列出三种修复：在 BR1 面向内部的会话上配置 next-hop-self，让下一跳变成 BR1 自己的内部地址；把互联网段（或一条明细路由）引入 IGP；或者在 CR1 上写静态路由指向该下一跳。最后提醒验收必须看 show ip cef，只看 show ip bgp 会得出错误结论。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="424" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">路由进了 BGP 表、也进了 RIB，但 FIB 里没有它</text>
+<text class="s" x="24" y="48">因为下一跳解析不出来 —— 递归查找失败的静默程度，比丢包更高</text>
+
+<rect x="24" y="66" width="600" height="170" rx="6" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="40" y="84">AS 65000</text>
+<rect x="70" y="110" width="96" height="40" rx="4" fill="#fff" stroke="#2f6fed"/>
+<text class="n" x="118" y="128" text-anchor="middle">CR1</text>
+<text class="b" x="118" y="144" text-anchor="middle">核心</text>
+<rect x="300" y="110" width="96" height="40" rx="4" fill="#fff" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="348" y="128" text-anchor="middle">BR1</text>
+<text class="b" x="348" y="144" text-anchor="middle">边界</text>
+<rect x="500" y="110" width="104" height="40" rx="4" fill="#f3f0fb" stroke="#b9a9e6"/>
+<text class="n" x="552" y="128" text-anchor="middle">ISP AS 65100</text>
+<text class="b" x="552" y="144" text-anchor="middle">198.51.100.0/24</text>
+<line x1="166" y1="130" x2="300" y2="130" stroke="#2f6fed" stroke-width="2"/>
+<line x1="396" y1="130" x2="500" y2="130" stroke="#b9a9e6" stroke-width="2"/>
+<text class="c" x="233" y="122" text-anchor="middle">iBGP</text>
+<text class="b" x="448" y="122" text-anchor="middle">eBGP</text>
+<text class="b" x="233" y="150" text-anchor="middle">10.0.0.1 / 10.0.0.2</text>
+<text class="r" x="400" y="166">下一跳 = 203.0.113.2（互联地址）</text>
+<text class="k" x="40" y="196">BR1 学到后 iBGP 传给 CR1，保留原始下一跳 203.0.113.2</text>
+<text class="r" x="40" y="216">但 203.0.113.0/30 没有进 IGP → CR1 show ip route 里没有它 → 递归失败 → 不进 FIB</text>
+
+<rect x="648" y="66" width="288" height="170" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="664" y="84" fill="#a32020">三处命令，三处不一致</text>
+<text class="b" x="664" y="106">show ip bgp　→ 有这条，best 打星</text>
+<text class="b" x="664" y="128">show ip route　→ 有这条，但可能标</text>
+<text class="b" x="682" y="144">"% 下一跳不可达" 或根本不出现</text>
+<text class="r" x="664" y="168">show ip cef　→ 没有出口，转发不通</text>
+<text class="b" x="664" y="192">三个视图不一致时，以 FIB 为准。</text>
+<text class="b" x="664" y="214">这是 BGP 排障最容易漏的一步。</text>
+
+<rect x="24" y="250" width="294" height="106" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="40" y="268" fill="#0f7f73">修复 ① next-hop-self</text>
+<text class="b" x="40" y="288">BR1 面向 iBGP 邻居配 next-hop-self</text>
+<text class="b" x="40" y="306">下一跳改为 10.0.0.2，IGP 可达</text>
+<text class="b" x="40" y="324">最常用；代价是边界必须自己转发</text>
+<text class="b" x="40" y="344">适用：边界就是出口网关的网络</text>
+
+<rect x="334" y="250" width="294" height="106" rx="5" fill="#f4f9f7" stroke="#a8d8ce"/>
+<text class="lb" x="350" y="268" fill="#0f7f73">修复 ② 互联地址进 IGP</text>
+<text class="b" x="350" y="288">把 203.0.113.0/30 重分发/宣告进 IGP</text>
+<text class="b" x="350" y="306">CR1 能递归解析，出口仍是 BR1</text>
+<text class="b" x="350" y="324">注意别把这网段再泄漏进 BGP</text>
+<text class="b" x="350" y="344">适用：多处边界、希望在别处转发</text>
+
+<rect x="644" y="250" width="292" height="106" rx="5" fill="#f7f7fb" stroke="#c9c1e8"/>
+<text class="lb" x="660" y="268">修复 ③ 静态指向下一跳</text>
+<text class="b" x="660" y="288">ip route 203.0.113.2 255.255.255.255 10.0.0.2</text>
+<text class="b" x="660" y="306">最快见效，但增加一处手工依赖</text>
+<text class="b" x="660" y="324">只适合过渡或单点场景</text>
+<text class="b" x="660" y="344">不推荐作为长期设计</text>
+
+<rect x="24" y="370" width="912" height="44" rx="5" fill="#eef3fd" stroke="#c3d4f5"/>
+<text class="lb" x="40" y="388">验收规范（写进变更单）</text>
+<text class="b" x="40" y="405">任何 BGP 变更，验收必须包含 show ip bgp 与 show ip cef 两条证据；只截 BGP 表当作"已生效"，是案例二耗时 3 小时的直接原因。</text>
+</svg>
