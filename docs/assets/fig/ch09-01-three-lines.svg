@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="100%" role="img" aria-labelledby="t91 d91">
+<title id="t91">网络虚拟化的三条主线：地址空间复用、标识与位置分离、控制与转发分离</title>
+<desc id="d91">上方三张卡片分别是三条主线：地址空间复用解决不同客户用同一个 10.0.0.0/8 如何共存，代表技术是 VRF 加 RD/RT、VXLAN VNI、SD-WAN VPN；标识与位置分离让虚拟机迁移后 IP 不变，代表技术是 LISP、EVPN、SD-Access；控制与转发分离把每台设备单独算路改为控制器统一下发，代表技术是 SDN 控制器、vSmart、DNA Center。下方拓扑演示两条主线叠加：一台物理核心网上并行跑 RED 与 BLUE 两个 VRF，两侧主机用了完全相同的 10.0.0.1，右侧同一台虚机迁移到另一个站点后 IP 不变但 RLOC 变了。底部结论：虚拟化解耦了物理拓扑与业务拓扑，代价是封装开销、控制平面与运维层三项新增成本。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="470" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">虚拟化只做三件事，其余都是实现方式</text>
+<text class="s" x="24" y="48">记不住缩写时，先问自己：这件事解决的是"地址重复"、"位置变化"还是"配置分散"</text>
+
+<rect x="24" y="62" width="288" height="176" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="84">① 地址空间复用（隔离）</text>
+<text class="b" x="40" y="104">问题：两个客户都用 10.0.0.0/8</text>
+<text class="b" x="40" y="122">要在同一张物理网上共存</text>
+<text class="k" x="40" y="148">VRF + RD/RT（MPLS L3VPN）</text>
+<text class="k" x="40" y="166">VXLAN VNI（24 bit）</text>
+<text class="k" x="40" y="184">SD-WAN Service VPN</text>
+<text class="r" x="40" y="212">代价：每跳都要查隔离标识</text>
+<text class="r" x="40" y="228">扩容时先撞上 RT 与编号规划</text>
+
+<rect x="336" y="62" width="288" height="176" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="352" y="84" fill="#0f7f73">② 标识与位置分离</text>
+<text class="b" x="352" y="104">问题：虚机迁移后 IP 不变</text>
+<text class="b" x="352" y="122">但物理位置变了</text>
+<text class="k" x="352" y="148">LISP（EID 与 RLOC）</text>
+<text class="k" x="352" y="166">EVPN（MAC/IP 走控制面）</text>
+<text class="k" x="352" y="184">SD-Access fabric</text>
+<text class="r" x="352" y="212">代价：映射系统成为新单点</text>
+<text class="r" x="352" y="228">映射表的老化与一致性要设计</text>
+
+<rect x="648" y="62" width="288" height="176" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="664" y="84" fill="#b45309">③ 控制与转发分离</text>
+<text class="b" x="664" y="104">问题：每台设备单独算路、</text>
+<text class="b" x="664" y="122">单独配置，策略无法端到端</text>
+<text class="k" x="664" y="148">SDN 控制器（DNA Center）</text>
+<text class="k" x="664" y="166">SD-WAN vSmart（OMP）</text>
+<text class="k" x="664" y="184">LISP Map-Server</text>
+<text class="r" x="664" y="212">代价：控制器自己就是单点</text>
+<text class="r" x="664" y="228">证书、版本、备份都是硬要求</text>
+
+<rect x="24" y="252" width="912" height="150" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="40" y="272">两张网叠在一起跑：物理拓扑只有一份，业务拓扑有两份</text>
+
+<rect x="60" y="288" width="90" height="34" rx="4" fill="#fdf7f7" stroke="#e3b7b7" stroke-width="1.6"/>
+<text class="n" x="105" y="309" text-anchor="middle">主机 A</text>
+<text class="q" x="60" y="336">10.0.0.1（客户甲）</text>
+
+<rect x="60" y="352" width="90" height="30" rx="4" fill="#fdf7f7" stroke="#e3b7b7" stroke-width="1.6"/>
+<text class="n" x="105" y="371" text-anchor="middle">主机 A'</text>
+<text class="q" x="160" y="371">10.0.0.1（客户乙）</text>
+
+<rect x="230" y="292" width="70" height="60" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="265" y="318" text-anchor="middle">PE1</text>
+<text class="c" x="265" y="336" text-anchor="middle">2 个 VRF</text>
+
+<rect x="400" y="300" width="80" height="44" rx="4" fill="#f6f7f9" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="n" x="440" y="320" text-anchor="middle">P</text>
+<text class="b" x="440" y="336" text-anchor="middle">只换标签</text>
+
+<rect x="560" y="292" width="70" height="60" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="595" y="318" text-anchor="middle">PE2</text>
+<text class="c" x="595" y="336" text-anchor="middle">2 个 VRF</text>
+
+<rect x="700" y="288" width="90" height="34" rx="4" fill="#fdf7f7" stroke="#e3b7b7" stroke-width="1.6"/>
+<text class="n" x="745" y="309" text-anchor="middle">主机 B</text>
+<text class="q" x="700" y="336">10.0.0.1（客户甲）</text>
+
+<line x1="150" y1="305" x2="228" y2="310" stroke="#a32020" stroke-width="1.8"/>
+<line x1="150" y1="367" x2="228" y2="334" stroke="#0f7f73" stroke-width="1.8"/>
+<line x1="300" y1="310" x2="398" y2="316" stroke="#a32020" stroke-width="1.8"/>
+<line x1="300" y1="334" x2="398" y2="328" stroke="#0f7f73" stroke-width="1.8" stroke-dasharray="5 3"/>
+<line x1="480" y1="316" x2="558" y2="310" stroke="#a32020" stroke-width="1.8"/>
+<line x1="480" y1="328" x2="558" y2="334" stroke="#0f7f73" stroke-width="1.8" stroke-dasharray="5 3"/>
+<line x1="630" y1="310" x2="698" y2="305" stroke="#a32020" stroke-width="1.8"/>
+<line x1="630" y1="334" x2="698" y2="352" stroke="#0f7f73" stroke-width="1.8" stroke-dasharray="5 3"/>
+
+<text class="r" x="330" y="296">VRF RED 路径</text>
+<text class="c" x="330" y="352">VRF BLUE 路径（同一 10.0.0.1）</text>
+
+<rect x="800" y="288" width="120" height="94" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="812" y="306" fill="#0f7f73">VM 迁移后</text>
+<text class="b" x="812" y="324">IP 10.0.0.9 不变</text>
+<text class="b" x="812" y="342">RLOC 从 1.1.1.1</text>
+<text class="b" x="812" y="358">变成 2.2.2.2</text>
+<text class="c" x="812" y="376">改的是映射，不是 IP</text>
+
+<text class="m" x="24" y="424">解耦的代价只有三项，且都可被设计消化：封装（MTU 与开销）、控制面（协议与收敛）、运维层（控制器与编排）。</text>
+<text class="r" x="24" y="444">CCDE 考的不是"会不会配"，而是"什么时候不该上" —— 没有隔离或移动性需求时，虚拟化只增加成本。</text>
+</svg>

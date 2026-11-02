@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t917 d917">
+<title id="t917">VPLS 的三个结构性缺陷，以及 EVPN 用 ESI 多活与 ARP 抑制解决它们</title>
+<desc id="d917">上半部分列出 VPLS 的三个结构性缺陷：MAC 学习靠数据面泛洪，未知单播、广播、组播全部泛洪，规模一大核心带宽被泛洪吃掉；全连接伪线使 N 个站点需要 N 乘 N 减一除以 2 条伪线，PE 的伪线数量随站点数平方增长；多归属困难，一个站点双归两个 PE 时必须阻塞一条链路以防环，无法 Active/Active，收敛靠 STP 计时器。下半部分是五行对照表：MAC 学习从数据面泛洪变为 BGP 控制面 RT-2 通告；BUM 流量从全站点泛洪变为按需 RT-3 IMET 组播树；多归属从必须阻塞一条变为 ESI 多活加 DF 选举；ARP 从全网泛洪变为控制面代答抑制；扩展性从平方级伪线变为每 PE 只与 RR 建会话。底部是 EVPN 五种路由类型中日常只用记的 2、3、5。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">VPLS 的三个缺陷不是配置问题，是结构问题 —— 所以只能用 EVPN 修</text>
+<text class="s" x="24" y="48">凡是"MAC 靠泛洪学、伪线全互连、多归属要阻塞"的方案，规模一大必然出问题</text>
+
+<rect x="24" y="62" width="292" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="82" fill="#a32020">缺陷 1：MAC 靠数据面泛洪</text>
+<text class="b" x="40" y="102">未知单播、广播、组播（BUM）全部泛洪</text>
+<text class="b" x="40" y="120">泛洪范围 = 整个 VPLS 实例</text>
+<text class="r" x="40" y="142">规模一大，核心带宽被泛洪吃掉</text>
+<text class="r" x="40" y="160">且泛洪没有可预测的收敛行为</text>
+
+<rect x="334" y="62" width="292" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="350" y="82" fill="#a32020">缺陷 2：全连接伪线</text>
+<text class="b" x="350" y="102">N 个站点需要 N(N-1)/2 条 PW</text>
+<text class="b" x="350" y="120">5 站 10 条、10 站 45 条、20 站 190 条</text>
+<text class="r" x="350" y="142">PE 的 PW 数与内存随站点数平方增长</text>
+<text class="r" x="350" y="160">每加一个站点，要改所有 PE 的配置</text>
+
+<rect x="644" y="62" width="292" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="660" y="82" fill="#a32020">缺陷 3：多归属必须阻塞</text>
+<text class="b" x="660" y="102">站点双归两个 PE 时必须阻塞一条防环</text>
+<text class="b" x="660" y="120">无法 Active/Active，另一半带宽闲置</text>
+<text class="r" x="660" y="142">收敛依赖 STP 计时器（秒级）</text>
+<text class="r" x="660" y="160">链路切换期间业务中断</text>
+
+<rect x="24" y="194" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="211">维度</text>
+<text class="lb" x="240" y="211">VPLS</text>
+<text class="lb" x="560" y="211">EVPN</text>
+<rect x="24" y="218" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="237">MAC 学习</text>
+<text class="r" x="240" y="237">数据面泛洪学习</text>
+<text class="c" x="560" y="237">BGP 控制面通告（RT-2），不泛洪</text>
+<rect x="24" y="246" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="265">BUM 流量</text>
+<text class="r" x="240" y="265">全站点泛洪</text>
+<text class="c" x="560" y="265">按需：RT-3 IMET 建立组播树</text>
+<rect x="24" y="274" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="293">多归属</text>
+<text class="r" x="240" y="293">必须阻塞一条</text>
+<text class="c" x="560" y="293">ESI 多活（All-Active），DF 选举决定 BUM 转发者</text>
+<rect x="24" y="302" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="321">ARP / ND</text>
+<text class="r" x="240" y="321">全网泛洪</text>
+<text class="c" x="560" y="321">ARP 抑制：控制面已知 MAC/IP 时直接代答</text>
+<rect x="24" y="330" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="349">扩展性</text>
+<text class="r" x="240" y="349">站点数平方级 PW</text>
+<text class="c" x="560" y="349">每 PE 只与 RR 建会话</text>
+
+<rect x="24" y="368" width="912" height="62" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="388" fill="#0f7f73">EVPN 路由类型：日常只需要记住 2、3、5</text>
+<text class="b" x="40" y="406">RT-2 MAC/IP 通告（控制面学 MAC，可带 IP 做 ARP 抑制）；RT-3 IMET（BUM 复制列表）；RT-5 IP 前缀（L3 场景，对称 IRB）。</text>
+<text class="b" x="40" y="422">RT-1 Ethernet A-D 用于多归属快速收敛与别名；RT-4 Ethernet Segment 用于 DF 选举 —— 这两个是排障时才需要翻的。</text>
+</svg>

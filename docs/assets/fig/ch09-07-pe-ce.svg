@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t97 d97">
+<title id="t97">PE-CE 协议选择矩阵与四类协议的适用边界</title>
+<desc id="d97">上方是四种 PE-CE 协议的对照：BGP 最常用、原生支持，需要处理 AS 覆盖、allowas-in 与 SoO；OSPF 适合企业，需要处理 DN 位、Domain ID 与 Sham Link；EIGRP 用于 Cisco 环境，需要处理 SoO 与 cost community；静态路由最简单，但没有动态学习与双向验证。中间是选择逻辑三条：CE 是客户自己管的设备就沿用客户已有协议；客户不想暴露内部路由就用静态加默认路由；站点很多且需要精细策略才用 BGP。下方拓扑演示三种典型的边界形态：左侧是双归到同一运营商的同一 AS，中间是客户与运营商 AS 号冲突，右侧是站点带后门链路的三角拓扑。底部结论：PE-CE 的协议选择由客户的运维能力决定，不由运营商的偏好决定。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">PE-CE 之间跑什么，取决于客户团队会什么</text>
+<text class="s" x="24" y="48">PE 上多一个协议，就多一套重分发、过滤与故障域</text>
+
+<rect x="24" y="62" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="79">协议</text>
+<text class="lb" x="180" y="79">特点</text>
+<text class="lb" x="440" y="79">必须处理的特殊问题</text>
+<text class="lb" x="760" y="79">典型客户</text>
+
+<rect x="24" y="86" width="912" height="34" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="108">BGP</text>
+<text class="b" x="180" y="108">最常用，原生支持策略</text>
+<text class="r" x="440" y="108">AS 覆盖、allowas-in、SoO</text>
+<text class="b" x="760" y="108">多站点、有专职网络团队</text>
+
+<rect x="24" y="120" width="912" height="34" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="142">OSPF</text>
+<text class="b" x="180" y="142">企业里最常见</text>
+<text class="r" x="440" y="142">DN 位、Domain ID、Sham Link</text>
+<text class="b" x="760" y="142">传统企业园区</text>
+
+<rect x="24" y="154" width="912" height="34" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="176">EIGRP</text>
+<text class="b" x="180" y="176">Cisco 环境为主</text>
+<text class="r" x="440" y="176">SoO、cost community</text>
+<text class="b" x="760" y="176">纯 Cisco 存量网</text>
+
+<rect x="24" y="188" width="912" height="34" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="210">静态</text>
+<text class="b" x="180" y="210">最简单，零协议开销</text>
+<text class="r" x="440" y="210">无动态学习、无双向验证、无收敛</text>
+<text class="b" x="760" y="210">不想暴露内部路由的小站点</text>
+
+<text class="lb" x="24" y="248">选择逻辑只有三句</text>
+<text class="b" x="24" y="268">① CE 是客户自己管的设备 → 沿用客户已有的协议，不要强推 BGP</text>
+<text class="b" x="24" y="286">② 客户不愿意向运营商暴露内部路由 → 静态 + 一条默认路由，边界最干净</text>
+<text class="b" x="24" y="304">③ 站点多、需要按站点做精细化策略 → 才值得上 BGP</text>
+
+<rect x="24" y="318" width="912" height="70" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="338" fill="#b45309">三种典型边界形态，决定了后面所有特殊机制</text>
+<text class="b" x="40" y="358">双归到同一运营商同一 AS → 需要 as-override 或 allowas-in；客户与运营商 AS 冲突 → 同上；站点有后门链路 → 需要 SoO（BGP/EIGRP）或 sham-link（OSPF）。</text>
+<text class="r" x="40" y="378">注意：这三种形态在图上都表现为"多一条线"，而在配置里表现为三个完全不同的机制。</text>
+</svg>

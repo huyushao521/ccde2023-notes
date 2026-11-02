@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t913 d913">
+<title id="t913">场景三：让 Spoke 之间互通的两个方案，以及绕过 Hub 防火墙的安全事故</title>
+<desc id="d913">上半部分是两条路线对比。方案一改 RT：Spoke 增加 route-target import 65000:200，Spoke 之间立刻建起直连路径，代价是流量绕过 Hub 的防火墙与 IPS，安全策略失效；这是生产中最常见的隐性事故。方案二 Hub 中转：Hub 的 VRF 把 Spoke 路由再导出（RT 重写或 Hub 上多 VRF 串联），Spoke 之间仍看不到对方明细，流量继续经 Hub，代价是时延翻倍、Hub 带宽成瓶颈。下半部分是拓扑示意：左侧是改 RT 后 Spoke2 与 Spoke3 之间出现的直连虚线路，虚线绕过中间标着防火墙的 Hub 方框；右侧是 Hub 中转，流量仍穿过防火墙。底部是事故复盘的三个时间点与结论：RT 是配置上去就再也想不起来的隐性策略，必须命名成业务域语义并纳入变更评审。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">场景三：Spoke 互访 —— 一个改 RT 的临时决定，三个月后变成安全事故</text>
+<text class="s" x="24" y="48">"当时测试是全通的"这句话，掩盖的是"策略点被绕过了"</text>
+
+<rect x="24" y="62" width="440" height="126" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="82" fill="#a32020">方案一：改 RT（Spoke 互收）</text>
+<text class="q" x="40" y="104">Spoke 增加 route-target import 65000:200</text>
+<text class="b" x="40" y="124">效果：Spoke 之间立刻有直连路径</text>
+<text class="r" x="40" y="146">代价：绕过 Hub 的防火墙 / IPS → 安全策略失效</text>
+<text class="r" x="40" y="164">更麻烦：RT 加完后没人记得，也不会有告警</text>
+<text class="x" x="40" y="182">这是生产里最常见的"分部互访"事故</text>
+
+<rect x="496" y="62" width="440" height="126" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="516" y="82" fill="#0f7f73">方案二：Hub 中转（推荐）</text>
+<text class="b" x="516" y="104">Hub 的 VRF 把 Spoke 路由再导出（RT 重写或多 VRF 串联）</text>
+<text class="b" x="516" y="124">效果：Spoke 之间仍看不到对方明细，流量继续经 Hub</text>
+<text class="m" x="516" y="146">代价：时延翻倍；Hub 带宽成瓶颈；Hub 故障即全断</text>
+<text class="c" x="516" y="164">好处：安全策略点保持唯一，审计链路完整</text>
+<text class="b" x="516" y="182">适用：分支互访量小、安全要求硬的企业</text>
+
+<text class="lb" x="24" y="216">左：改 RT 之后，流量从哪走</text>
+<text class="lb" x="508" y="216" fill="#0f7f73">右：Hub 中转，流量仍过防火墙</text>
+
+<rect x="24" y="226" width="452" height="132" rx="5" fill="#fff" stroke="#dde5f0"/>
+<rect x="60" y="240" width="92" height="34" rx="4" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="106" y="261" text-anchor="middle">PE-SP2</text>
+<rect x="360" y="240" width="92" height="34" rx="4" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="406" y="261" text-anchor="middle">PE-SP3</text>
+<rect x="196" y="292" width="120" height="48" rx="4" fill="#f2f2f5" stroke="#6b7a90" stroke-width="1.6"/>
+<text class="n" x="256" y="312" text-anchor="middle">PE-HUB</text>
+<text class="b" x="256" y="330" text-anchor="middle">防火墙 / IPS</text>
+<line x1="152" y1="252" x2="196" y2="300" stroke="#9aa8bd" stroke-width="1.4" stroke-dasharray="4 3"/>
+<line x1="316" y1="300" x2="360" y2="252" stroke="#9aa8bd" stroke-width="1.4" stroke-dasharray="4 3"/>
+<path d="M152 250 C 240 214, 320 214, 360 250" stroke="#a32020" stroke-width="2.4" fill="none"/>
+<text class="x" x="200" y="228">RT 200 互相 import → 直连，绕过防火墙</text>
+<text class="r" x="40" y="352">Hub 上的安全设备看不到这条会话，日志里也没有记录</text>
+
+<rect x="508" y="226" width="428" height="132" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<rect x="540" y="240" width="92" height="34" rx="4" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="586" y="261" text-anchor="middle">PE-SP2</text>
+<rect x="828" y="240" width="92" height="34" rx="4" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="874" y="261" text-anchor="middle">PE-SP3</text>
+<rect x="664" y="292" width="120" height="48" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="724" y="312" text-anchor="middle">PE-HUB</text>
+<text class="b" x="724" y="330" text-anchor="middle">防火墙 / IPS</text>
+<line x1="632" y1="252" x2="676" y2="300" stroke="#0f7f73" stroke-width="2"/>
+<line x1="784" y1="300" x2="828" y2="252" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="620" y="228">两条都在 Hub 上汇聚 → 策略可见、可审计</text>
+<text class="c" x="524" y="352">代价是时延与 Hub 带宽，换来的是"策略仍然成立"</text>
+
+<rect x="24" y="372" width="912" height="52" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="40" y="392">事故复盘三段：加 RT 时"只是临时方便" → 测试全通，无异常 → 三个月后安全审计发现分部互访从未过防火墙。</text>
+<text class="r" x="40" y="412">防法：RT 命名成业务域语义（如 CORP-SPOKE-ACCESS），变更走评审；隔离要求写进设计文档的验收清单。</text>
+</svg>

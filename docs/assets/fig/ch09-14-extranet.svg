@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" width="100%" role="img" aria-labelledby="t914 d914">
+<title id="t914">Extranet 与共享服务的三种 RT 模型，以及"一律单向"的设计原则</title>
+<desc id="d914">图上是三个模型。模型一是共享服务 VRF：服务 VRF 的 export 是 65000:999，所有业务 VRF 都 import 65000:999，服务 VRF 再按需 import 各业务的 RT，典型用途是共享 DNS、DHCP、NTP 与数据中心服务器。模型二为单向 Extranet：供应商 VRF 只 import 库存服务器所在 VRF 的 RT，反向不 import，结果是合作方只能访问指定服务器，无法横向移动。模型三为 Hub 作为中转的共享服务：Hub VRF 同时 import 所有 RT 并用 export 重写，实现集中式安全清洗。底部标注设计原则：Extranet 一律单向，双向 import 等于把两个组织的路由域合并，环路与策略泄露风险成倍增加。右侧还标出三种模型在"谁能主动发起连接"上的差别。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="410" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">Extranet 的箭头方向就是权限方向：谁 import 谁，谁就能主动访问</text>
+<text class="s" x="24" y="48">RT 是一张有向图，不是一张连接表 —— 画图时把箭头画出来，错误会立刻暴露</text>
+
+<rect x="24" y="62" width="292" height="150" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="82" fill="#0f7f73">① 共享服务 VRF</text>
+<rect x="40" y="96" width="96" height="30" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="88" y="116" text-anchor="middle">业务 VRF-A</text>
+<rect x="40" y="134" width="96" height="30" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="88" y="154" text-anchor="middle">业务 VRF-B</text>
+<rect x="196" y="114" width="100" height="34" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="246" y="136" text-anchor="middle">服务 VRF</text>
+<line x1="136" y1="111" x2="194" y2="126" stroke="#0f7f73" stroke-width="1.8"/>
+<line x1="136" y1="149" x2="194" y2="136" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="q" x="138" y="106" font-size="8.5">import 999</text>
+<text class="b" x="40" y="182">export 65000:999 ← 所有业务都 import</text>
+<text class="b" x="40" y="198">服务 VRF 按需 import 各业务 RT（可单向）</text>
+
+<rect x="334" y="62" width="292" height="150" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="350" y="82" fill="#a32020">② 单向 Extranet（推荐）</text>
+<rect x="350" y="96" width="100" height="30" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="400" y="116" text-anchor="middle">供应商 VRF</text>
+<rect x="510" y="96" width="100" height="30" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="560" y="116" text-anchor="middle">库存服务 VRF</text>
+<line x1="450" y1="111" x2="508" y2="111" stroke="#a32020" stroke-width="2"/>
+<text class="x" x="456" y="105" font-size="8.5">import</text>
+<line x1="508" y1="140" x2="450" y2="140" stroke="#d9dee6" stroke-width="1.6" stroke-dasharray="4 3"/>
+<text class="b" x="456" y="156" font-size="8.5">反向不 import</text>
+<text class="b" x="350" y="182">供应商只能访问指定服务器</text>
+<text class="c" x="350" y="198">不能横向移动到其他业务网段</text>
+
+<rect x="644" y="62" width="292" height="150" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="660" y="82" fill="#b45309">③ Hub 中转的共享服务</text>
+<rect x="660" y="96" width="70" height="28" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="695" y="115" text-anchor="middle">Spoke</text>
+<rect x="760" y="96" width="70" height="28" rx="3" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="795" y="115" text-anchor="middle">Hub</text>
+<rect x="860" y="96" width="62" height="28" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="891" y="115" text-anchor="middle">服务</text>
+<line x1="730" y1="110" x2="758" y2="110" stroke="#b45309" stroke-width="1.8"/>
+<line x1="830" y1="110" x2="858" y2="110" stroke="#b45309" stroke-width="1.8"/>
+<text class="b" x="660" y="150">Hub import 所有 RT，再 export 重写</text>
+<text class="b" x="660" y="166">Spoke 只与 Hub 交换，不直接互见</text>
+<text class="m" x="660" y="186">适合集中式安全清洗（引流到清洗中心）</text>
+<text class="r" x="660" y="202">代价：Hub 又成了带宽与故障单点</text>
+
+<text class="lb" x="24" y="242">三种模型的能力差异，一眼看得出</text>
+<rect x="24" y="252" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="269">模型</text>
+<text class="lb" x="220" y="269">谁能主动访问谁</text>
+<text class="lb" x="520" y="269">风险点</text>
+<text class="lb" x="780" y="269">典型用途</text>
+<rect x="24" y="276" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="295">共享服务 VRF</text>
+<text class="b" x="220" y="295">业务 → 服务（反向按需）</text>
+<text class="m" x="520" y="295">服务 VRF 若 import 全部业务，等于隐形路由器</text>
+<text class="b" x="780" y="295">DNS / NTP / DC 服务器</text>
+<rect x="24" y="304" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="323">单向 Extranet</text>
+<text class="b" x="220" y="323">第三方 → 特定服务器</text>
+<text class="c" x="520" y="323">风险最低，方向可控</text>
+<text class="b" x="780" y="323">供应商、合作方接入</text>
+<rect x="24" y="332" width="912" height="28" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="351">Hub 中转</text>
+<text class="b" x="220" y="351">全部经 Hub 转发</text>
+<text class="r" x="520" y="351">Hub 带宽与故障单点；需评估流量模型</text>
+<text class="b" x="780" y="351">集中安全清洗</text>
+
+<rect x="24" y="370" width="912" height="32" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="r" x="40" y="391">铁律：Extranet 一律单向。双向 import = 把两个组织的路由域合并，环路与策略泄露风险成倍增加。</text>
+</svg>

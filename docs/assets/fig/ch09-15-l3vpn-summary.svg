@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" width="100%" role="img" aria-labelledby="t915 d915">
+<title id="t915">L3VPN 汇总的三个位置与汇总黑洞的产生</title>
+<desc id="d915">图上是 Pe 上每个 VRF 都要保存完整路由表带来的压力公式：站点数乘以每站点路由数等于 PE 的 FIB 压力。中间是三种汇总位置对比。Hub 侧汇总后再通告：PE 路由表大幅缩小，但 Spoke 之间失去明细可达性，故障定位变难。CE 侧汇总：最优，运营商无感，但需要客户配合且要求地址规划连续。PE 上 per-VRF 汇总：折中，但存在汇总黑洞，明细消失时没有兜底，必须配 null0。下方是汇总黑洞拓扑：Spoke 站点有三个连续子网，Hub 汇总成一个 /21 通告出去；其中一个子网链路断开后，Hub 上仍保留汇总条目，来自其他站点的流量被吸引到 Hub 后无处可去而被丢弃。底部给出两种修复：在汇总点本地生成指向 Null0 的汇总前缀，或做更细的明细泄露。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="410" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">汇总是 L3VPN 唯一的可扩展手段，也是唯一会自己造黑洞的配置</text>
+<text class="s" x="24" y="48">站点数 × 每站点路由数 = PE 的 FIB 压力；不做汇总，PE 内存先到上限</text>
+
+<rect x="24" y="62" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="79">汇总位置</text>
+<text class="lb" x="220" y="79">效果</text>
+<text class="lb" x="540" y="79">注意</text>
+<rect x="24" y="86" width="912" height="30" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="106">Hub 侧汇总后通告</text>
+<text class="b" x="220" y="106">PE 路由表大幅缩小</text>
+<text class="m" x="540" y="106">Spoke 之间失去明细可达性，故障定位变难</text>
+<rect x="24" y="116" width="912" height="30" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="40" y="136">CE 侧汇总（最优）</text>
+<text class="b" x="220" y="136">运营商无感，PE 天然只收汇总</text>
+<text class="c" x="540" y="136">需要客户配合，且要求地址规划连续</text>
+<rect x="24" y="146" width="912" height="30" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="k" x="40" y="166">PE 上 per-VRF 汇总</text>
+<text class="b" x="220" y="166">折中：边界清晰，一处置好</text>
+<text class="r" x="540" y="166">汇总黑洞：明细消失时无兜底，必须配 null0</text>
+
+<text class="lb" x="24" y="200">汇总黑洞是怎么产生的</text>
+
+<rect x="60" y="212" width="110" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="n" x="115" y="237" text-anchor="middle">PE（远端站点）</text>
+<rect x="240" y="212" width="96" height="40" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="288" y="237" text-anchor="middle">PE-HUB</text>
+<text class="c" x="240" y="268">本地生成 10.1.0.0/21 → Null0</text>
+
+<rect x="400" y="200" width="180" height="66" rx="4" fill="#fff" stroke="#9aa8bd"/>
+<text class="n" x="490" y="220" text-anchor="middle">Spoke 站点</text>
+<text class="q" x="414" y="240">10.1.0.0/24 正常</text>
+<text class="q" x="414" y="256">10.1.1.0/24 正常</text>
+<text class="x" x="414" y="266" font-size="8.5">10.1.2.0/24 链路断开</text>
+
+<line x1="170" y1="232" x2="238" y2="232" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="176" y="226">汇总 /21</text>
+<line x1="336" y1="232" x2="398" y2="232" stroke="#9aa8bd" stroke-width="1.8"/>
+<text class="b" x="342" y="226">明细 /24</text>
+
+<rect x="620" y="200" width="316" height="72" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="x" x="636" y="220">远端 PE 只有 /21，没有明细 →</text>
+<text class="x" x="636" y="240">去往 10.1.2.x 的包全部送到 Hub</text>
+<text class="r" x="636" y="260">Hub 上该 /24 已消失，只能丢弃（或走 Null0）</text>
+
+<text class="lb" x="24" y="298">两种修复，选一个但必须选</text>
+<rect x="24" y="308" width="440" height="46" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="40" y="328">① 在汇总点本地生成汇总前缀指向 Null0</text>
+<text class="b" x="40" y="346">好处：明细全消失时汇总条目也消失，不会留下空壳</text>
+
+<rect x="496" y="308" width="440" height="46" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="516" y="328">② 明细泄露（selective leak）：把关键前缀单独通告</text>
+<text class="b" x="516" y="346">代价：汇总规模回升，需要维护例外清单</text>
+
+<rect x="24" y="366" width="912" height="34" rx="4" fill="#fff" stroke="#dde5f0"/>
+<text class="b" x="40" y="388">验收：在远端 PE 上 show ip route vrf CORP 10.1.2.0 应能明确回答"这条明细到底存不存在"，而不是只看到 /21 就以为可达。</text>
+</svg>

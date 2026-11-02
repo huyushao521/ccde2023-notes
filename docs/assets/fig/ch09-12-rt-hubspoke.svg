@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t912 d912">
+<title id="t912">场景二：Hub-and-Spoke 的 RT 设计，以及 Spoke 之间为什么收不到对方路由</title>
+<desc id="d912">左边是两段配置。Hub 站点 export 65000:100 作为全局 RT，import 65000:200 收所有 Spoke 的路由，同时 import 65000:100 自己能收别的 Hub 与共享服务。Spoke 站点 export 65000:200，只有 Hub 会收，import 只有 65000:100，所以只能收到 Hub 的路由。右边是拓扑：PE-HUB 居中，三个 Spoke PE 分列，VPNv4 路由经 RR 交换。Spoke1 的 export 65000:200 只有 PE-HUB 的 import 里有，因此 Spoke2、Spoke3 的 VRF 里看不到 Spoke1 的明细；它们只能看到 Hub 通告的默认路由或汇总。下方标注效果与代价：Spoke 之间流量必须经 Hub，时延翻倍、Hub 带宽成瓶颈，但安全策略点唯一。底部是三条验收命令。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">场景二：两个 RT 就够 —— 100 是"全局"，200 是"只给 Hub 看"</text>
+<text class="s" x="24" y="48">Spoke 的 export 与 import 不对称，这就是"分部之间不通"的全部原因</text>
+
+<rect x="24" y="62" width="300" height="128" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="82" fill="#0f7f73">Hub 站点</text>
+<text class="q" x="40" y="102">vrf definition CORP</text>
+<text class="q" x="40" y="120">  route-target export 65000:100</text>
+<text class="b" x="40" y="138">  ! 全局 RT：谁都要能到 Hub</text>
+<text class="q" x="40" y="156">  route-target import 65000:200</text>
+<text class="b" x="40" y="172">  ! 收所有 Spoke 的路由</text>
+<text class="q" x="40" y="182">  route-target import 65000:100</text>
+
+<rect x="344" y="62" width="300" height="128" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="360" y="82">Spoke 站点</text>
+<text class="q" x="360" y="102">vrf definition CORP</text>
+<text class="q" x="360" y="120">  route-target export 65000:200</text>
+<text class="b" x="360" y="138">  ! 只有 Hub 的 import 里才有它</text>
+<text class="q" x="360" y="156">  route-target import 65000:100</text>
+<text class="b" x="360" y="172">  ! 只收 Hub 的路由</text>
+<text class="r" x="360" y="182">  ! 收不到别的 Spoke</text>
+
+<text class="lb" x="684" y="86">效果与代价</text>
+<text class="c" x="684" y="106">Spoke 只看到 Hub（默认或汇总）</text>
+<text class="c" x="684" y="124">安全策略点唯一，审计好回答</text>
+<text class="r" x="684" y="148">Spoke 间流量必经 Hub：时延翻倍</text>
+<text class="r" x="684" y="166">Hub 带宽与故障成为单点</text>
+<text class="m" x="684" y="184">必须算清 Spoke 间流量模型</text>
+
+<text class="lb" x="24" y="216">拓扑：三个 Spoke 的 export 都是 200，只有 Hub 收</text>
+
+<rect x="404" y="234" width="120" height="46" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="464" y="255" text-anchor="middle">PE-HUB</text>
+<text class="c" x="464" y="272" text-anchor="middle">import 100 / 200</text>
+
+<rect x="120" y="246" width="110" height="42" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="n" x="175" y="264" text-anchor="middle">PE-SP1</text>
+<text class="q" x="175" y="281" text-anchor="middle" font-size="8.5">export 200</text>
+
+<rect x="120" y="330" width="110" height="42" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="n" x="175" y="348" text-anchor="middle">PE-SP2</text>
+<text class="q" x="175" y="365" text-anchor="middle" font-size="8.5">export 200</text>
+
+<rect x="700" y="288" width="110" height="42" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="n" x="755" y="306" text-anchor="middle">PE-SP3</text>
+<text class="q" x="755" y="323" text-anchor="middle" font-size="8.5">export 200</text>
+
+<line x1="230" y1="262" x2="402" y2="254" stroke="#0f7f73" stroke-width="2"/>
+<line x1="230" y1="348" x2="402" y2="272" stroke="#0f7f73" stroke-width="2"/>
+<line x1="524" y1="264" x2="698" y2="304" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="286" y="250">RT 200 → Hub import</text>
+
+<path d="M232 352 C 380 420, 600 420, 700 326" stroke="#a32020" stroke-width="2" fill="none" stroke-dasharray="6 4"/>
+<text class="x" x="360" y="404">SP2 ←→ SP3 之间没有路由：双方 export 200 都无人 import（除 Hub）</text>
+
+<rect x="404" y="300" width="240" height="60" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="418" y="320">Hub 通告给 Spoke 的内容通常是</text>
+<text class="b" x="418" y="338">默认路由 0.0.0.0/0 或站点汇总，</text>
+<text class="b" x="418" y="354">不是全部明细 —— 这是可扩展性的关键</text>
+
+<rect x="24" y="382" width="912" height="46" rx="4" fill="#f8fbf8" stroke="#b6dcd6"/>
+<text class="c" x="40" y="402">验收三条：show ip bgp vpnv4 vrf CORP 看 RT 是否被正确附加；show ip route vrf CORP 看 Spoke 是否只有默认；在 Hub 抓包确认 Spoke 间流量真的经过 Hub。</text>
+<text class="r" x="40" y="420">反例：只在 Hub 上 import 200、忘了让自己也 import 100 —— Hub 收不到其他 Hub 与共享服务的路由。</text>
+</svg>

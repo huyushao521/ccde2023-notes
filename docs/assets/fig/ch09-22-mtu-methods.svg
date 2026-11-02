@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t922 d922">
+<title id="t922">三种 MTU 处理方式：加大底层 MTU、MSS clamp 与 PMTUD，以及 ICMP 被墙造成的黑洞</title>
+<desc id="d922">上部是三种手段对比。方案一加大底层 MTU：在 underlay 所有接口与链路上把 MTU 提到 1550 以上，内层保持 1500，最干净但要求整条路径可控，跨运营商时做不到。方案二 MSS clamp：在隧道两端的 TCP 握手中把 MSS 改写为内层 MTU 减 40，能解决 TCP，但对 UDP 与 ICMP 无效。方案三依赖 PMTUD：依靠 ICMP 的需要分片消息反馈，一旦防火墙屏蔽 ICMP type 3 code 4 就形成黑洞。下部是黑洞拓扑：主机发 1500 字节包，进入隧道后超过底层 MTU 需要分片但 DF 位已置，中间路由器回 ICMP 需要分片，防火墙丢弃该 ICMP，主机永远收不到反馈并不断重传。底部是三条判定与修复建议：在两端同时抓包看是否有 ICMP type 3 code 4 被丢弃；优先 MSS clamp 加 PMTUD 保留；跨域场景一律在两端配置 MSS clamp。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">三种处理方式：改底层、改 TCP、靠 ICMP —— 只有前两个可靠</text>
+<text class="s" x="24" y="48">PMTUD 在"ICMP 必须放行"的前提下才成立，而生产网往往不放行</text>
+
+<rect x="24" y="62" width="292" height="128" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="82" fill="#0f7f73">① 加大底层 MTU</text>
+<text class="b" x="40" y="102">underlay 全部接口与链路提到 1550+</text>
+<text class="b" x="40" y="120">内层保持 1500，主机无感</text>
+<text class="c" x="40" y="142">最干净，一次到位</text>
+<text class="r" x="40" y="162">前提：整条路径可控</text>
+<text class="x" x="40" y="180">跨运营商 / 跨云时做不到</text>
+
+<rect x="334" y="62" width="292" height="128" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="350" y="82">② MSS clamp</text>
+<text class="b" x="350" y="102">改写 TCP 握手中的 MSS 值</text>
+<text class="b" x="350" y="120">通常设为 内层 MTU − 40</text>
+<text class="c" x="350" y="142">对 TCP 有效，配置量小</text>
+<text class="r" x="350" y="162">对 UDP / ICMP / 非 TCP 无效</text>
+<text class="x" x="350" y="180">需在隧道两端都配</text>
+
+<rect x="644" y="62" width="292" height="128" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="660" y="82" fill="#a32020">③ 依赖 PMTUD</text>
+<text class="b" x="660" y="102">靠 ICMP type 3 code 4 反馈</text>
+<text class="b" x="660" y="120">主机据此降低分片大小</text>
+<text class="r" x="660" y="142">ICMP 被墙 → 黑洞（静默丢包）</text>
+<text class="r" x="660" y="162">故障表现：小包通、大包断</text>
+<text class="x" x="660" y="180">不能作为唯一手段</text>
+
+<text class="lb" x="24" y="222">黑洞拓扑：ICMP 被防火墙丢弃，主机永远收不到"需要分片"</text>
+
+<rect x="40" y="240" width="96" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="88" y="265" text-anchor="middle">主机 1500</text>
+<rect x="200" y="240" width="90" height="40" rx="4" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="245" y="265" text-anchor="middle">隧道端点</text>
+<rect x="352" y="240" width="90" height="40" rx="4" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="397" y="265" text-anchor="middle">中间路由</text>
+<rect x="504" y="240" width="90" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.8"/>
+<text class="n" x="549" y="265" text-anchor="middle">防火墙</text>
+<rect x="656" y="240" width="90" height="40" rx="4" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="701" y="265" text-anchor="middle">隧道端点</text>
+
+<line x1="136" y1="260" x2="198" y2="260" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="290" y1="260" x2="350" y2="260" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="442" y1="260" x2="502" y2="260" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="594" y1="260" x2="654" y2="260" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="q" x="300" y="252" font-size="8.5">1550 封装，DF=1</text>
+
+<path d="M470 236 C 500 190, 540 190, 552 236" stroke="#a32020" stroke-width="2" fill="none" stroke-dasharray="5 3"/>
+<text class="x" x="466" y="180">路由回 ICMP type 3 code 4 "需要分片"</text>
+<text class="x" x="466" y="196">防火墙策略：禁止 ICMP → 丢弃</text>
+
+<line x1="549" y1="284" x2="549" y2="316" stroke="#a32020" stroke-width="2"/>
+<text class="r" x="470" y="334">主机收不到反馈 → 持续以 1500 重传，连接卡死</text>
+
+<rect x="40" y="348" width="880" height="58" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="56" y="368" fill="#b45309">判定与修复</text>
+<text class="b" x="56" y="386">判定：两端同时抓包，看是否收到过 ICMP type 3 code 4；或 ping -M do -s 1472 逐步试出可用尺寸。</text>
+<text class="b" x="56" y="402">修复：优先 MSS clamp 并保留 PMTUD；跨域场景一律在两端配 clamp，不指望对端 ICMP 放行。</text>
+</svg>

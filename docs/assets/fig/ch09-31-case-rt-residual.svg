@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t931 d931">
+<title id="t931">案例二：删掉 RT 之后分部仍然互通 —— OSPF LSA 老化需要一小时</title>
+<desc id="d931">图上还原案例二的时间线。场景是总部加 12 个分部，安全要求分部之间不允许互访。上线三个月后运维为"临时方便"给两个分部加了互相 import 的 RT。上方是四个时间点：T0 加 RT，两条 VPNv4 路由被导入各自 VRF；T1 PE 把 BGP 路由重分发进 OSPF，CE 学到对端路由并写进 LSDB；T2 删除 import RT，PE 停止导入新路由，但 CE 侧 LSDB 里的 LSA 仍然存在，需要 MaxAge 老化流程才会消失，最长 1 小时；T3 期间两端仍然互通，总部日志显示分部间流量"既走总部又直连"，防火墙出现漏判。中间是拓扑：两个分部 PE 各带一个 CE，OSPF 是 CE 与 PE 之间的邻居关系，PE 的 RT 只是控制是否把 VPNv4 路由导入 VRF。下方给出根因三句与修复：PE 上删 RT 后配合清除 VRF 内 OSPF 进程，或等 LSA 自然老化；安全类变更必须同时验证两端 CE 的路由表与 LSDB。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">案例二：删 RT 不等于封住路 —— 下游协议有自己的定时器</text>
+<text class="s" x="24" y="48">"安全隔离类变更"必须验证到 CE 侧，只看 PE 等于没验证</text>
+
+<line x1="60" y1="96" x2="900" y2="96" stroke="#dde5f0" stroke-width="2"/>
+<circle cx="120" cy="96" r="6" fill="#2f6fed"/>
+<circle cx="360" cy="96" r="6" fill="#b45309"/>
+<circle cx="600" cy="96" r="6" fill="#a32020"/>
+<circle cx="840" cy="96" r="6" fill="#a32020"/>
+
+<text class="lb" x="96" y="80">T0 加 RT</text>
+<text class="lb" x="330" y="80" fill="#b45309">T1 重分发进 OSPF</text>
+<text class="lb" x="566" y="80" fill="#a32020">T2 删 RT</text>
+<text class="lb" x="800" y="80" fill="#a32020">T3 仍互通</text>
+
+<rect x="60" y="112" width="180" height="56" rx="4" fill="#eef3fd" stroke="#c3d5f5"/>
+<text class="b" x="72" y="132">两条 VPNv4 路由</text>
+<text class="b" x="72" y="150">被导入各自 VRF</text>
+
+<rect x="300" y="112" width="180" height="56" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="312" y="132">PE 把 BGP 路由重分发</text>
+<text class="b" x="312" y="150">进 OSPF → CE 写入 LSDB</text>
+
+<rect x="540" y="112" width="180" height="56" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="b" x="552" y="132">PE 停止导入新路由，</text>
+<text class="b" x="552" y="150">但 LSA 还在 CE 里</text>
+
+<rect x="780" y="112" width="156" height="56" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.8"/>
+<text class="x" x="792" y="132">MaxAge 老化最长</text>
+<text class="x" x="792" y="150">约 1 小时</text>
+
+<text class="lb" x="24" y="202">拓扑：OSPF 邻居是 CE 与 PE 之间，不是 CE 与 CE</text>
+
+<rect x="60" y="214" width="90" height="40" rx="4" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="105" y="239" text-anchor="middle">CE-A</text>
+<rect x="196" y="214" width="80" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="236" y="239" text-anchor="middle">PE-A</text>
+<rect x="320" y="214" width="90" height="40" rx="4" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="365" y="239" text-anchor="middle">MPLS</text>
+<rect x="452" y="214" width="80" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="492" y="239" text-anchor="middle">PE-B</text>
+<rect x="576" y="214" width="90" height="40" rx="4" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="621" y="239" text-anchor="middle">CE-B</text>
+
+<line x1="150" y1="234" x2="194" y2="234" stroke="#9aa8bd" stroke-width="1.8"/>
+<line x1="276" y1="234" x2="318" y2="234" stroke="#2f6fed" stroke-width="2"/>
+<line x1="410" y1="234" x2="450" y2="234" stroke="#2f6fed" stroke-width="2"/>
+<line x1="532" y1="234" x2="574" y2="234" stroke="#9aa8bd" stroke-width="1.8"/>
+<text class="m" x="156" y="228" font-size="8.5">OSPF</text>
+<text class="m" x="538" y="228" font-size="8.5">OSPF</text>
+
+<path d="M105 256 C 240 300, 500 300, 621 256" stroke="#a32020" stroke-width="2" fill="none" stroke-dasharray="6 4"/>
+<text class="x" x="300" y="318">残留路径：CE-A 仍认为经总部可达 CE-B → 防火墙漏判</text>
+
+<rect x="700" y="202" width="236" height="120" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="714" y="222">根因三句</text>
+<text class="b" x="714" y="242">① RT 只控制"新路由是否导入"</text>
+<text class="b" x="714" y="260">② CE 的路由来自 BGP→OSPF 重分发</text>
+<text class="b" x="714" y="278">③ LSA 清除要等 CE 侧收敛</text>
+<text class="r" x="714" y="300">所以"删 RT"与"封路"之间有时延</text>
+<text class="b" x="714" y="316">最长约 1 小时（MaxAge 流程）</text>
+
+<rect x="24" y="336" width="912" height="24" rx="3" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="353" fill="#0f7f73">修复：PE 上删 RT 后，同步清除 VRF 内 OSPF 进程（或显式 no import），并验证两端 CE 的 LSDB 与路由表</text>
+
+<text class="m" x="24" y="382">教训：RT 是策略，不是开关。加 RT 是"放开一条路"，删 RT 不一定立即"封住这条路"。</text>
+<text class="r" x="24" y="402">流程建议：安全隔离类变更要把"验证窗口"写进变更单 —— 观察到 CE 侧路由消失才算完成。</text>
+<text class="c" x="24" y="418"> </text>
+</svg>

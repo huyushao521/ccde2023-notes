@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" width="100%" role="img" aria-labelledby="t928 d928">
+<title id="t928">SD-WAN 策略四层结构：Topology、Control Policy、AAR、Data Policy 的顺序与覆盖关系</title>
+<desc id="d928">图上是四层策略的阶梯与依赖关系。第一层 Topology 决定站点之间能不能建隧道，例如 Spoke 只与 Hub 建隧道；第二层 Control Policy 决定哪些路由可以被通告，只在 OMP 层过滤；第三层 AAR 应用感知路由决定每个应用走哪条链路、SLA 阈值是多少；第四层 Data Policy 决定数据面怎么处理，包括 QoS、重定向、服务链与加密。四层是严格的顺序依赖：把 AAR 写在 Topology 之前，策略不会生效，这是"配置看起来全对但不生效"的最常见原因。右侧是一个具体例子：语音应用要求 mpls 优先、时延小于 150ms，超阈值切到 biz-internet；如果 Topology 层没有 Spoke 与 Hub 的隧道，AAR 再怎么写也没有可选链路。下方是排障顺序与三条提醒：先看隧道是否建立（Topology），再看路由是否学到（Control Policy），再看 SLA 是否被满足（AAR），最后看数据面是否被重写（Data Policy）。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="410" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">四层策略是严格顺序：上面不通，下面写了也不生效</text>
+<text class="s" x="24" y="48">"配置全对但不生效"九成发生在这四层的顺序或范围上</text>
+
+<rect x="24" y="62" width="470" height="56" rx="5" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="lb" x="40" y="82">① Topology</text>
+<text class="b" x="40" y="100">站点间连通模型：full mesh / hub-spoke / partial mesh</text>
+<text class="c" x="40" y="112">决定"能不能通"，是所有后续策略的前提</text>
+
+<rect x="60" y="126" width="470" height="50" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="76" y="146" fill="#0f7f73">② Control Policy / Traffic Rules</text>
+<text class="b" x="76" y="164">哪些路由可以被通告（OMP 层过滤）</text>
+
+<rect x="96" y="184" width="470" height="50" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="112" y="204" fill="#b45309">③ Application-Aware Routing</text>
+<text class="b" x="112" y="222">每个应用的 SLA 与选路偏好（语音优先 mpls）</text>
+
+<rect x="132" y="242" width="470" height="50" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="148" y="262" fill="#a32020">④ Data Policy</text>
+<text class="b" x="148" y="280">QoS、重定向、服务链、加密（访客本地 breakout）</text>
+
+<rect x="620" y="62" width="316" height="150" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="636" y="82">一个具体例子</text>
+<text class="b" x="636" y="102">语音：优先 mpls，时延 &gt; 150ms 切 biz-internet</text>
+<text class="b" x="636" y="122">前提：Topology 层已有 Spoke→Hub 隧道</text>
+<text class="b" x="636" y="142">前提：Control Policy 允许 Hub 通告该前缀</text>
+<text class="r" x="636" y="164">任一前提缺失 → AAR 无链路可选，策略静默失效</text>
+<text class="c" x="636" y="188">"静默"是关键：控制器不会报"策略被跳过"</text>
+<text class="b" x="636" y="206">只能用 show sdwan policy 逐层核对命中计数</text>
+
+<rect x="620" y="222" width="316" height="122" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="636" y="242">排障顺序（与配置顺序一致）</text>
+<text class="b" x="636" y="262">① 隧道是否建立：show sdwan tunnels</text>
+<text class="b" x="636" y="280">② 路由是否学到：show sdwan omp routes</text>
+<text class="b" x="636" y="298">③ SLA 是否满足：看 BFD 历史曲线</text>
+<text class="b" x="636" y="316">④ 数据面是否被重写：看 QoS 与重定向计数</text>
+<text class="r" x="636" y="336">逆序排查 = 从结果猜原因，通常要花三倍时间</text>
+
+<rect x="24" y="312" width="570" height="32" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="40" y="333">最常见的错：把 AAR 写在 Topology 之前 —— 顺序反了，策略永远不生效。</text>
+
+<text class="r" x="24" y="368">第二条提醒：Control Policy 只过滤"路由通告"，不做数据面拦截；要拦流量必须用 Data Policy 或防火墙。</text>
+<text class="c" x="24" y="390">第三条提醒：AAR 的阈值要留回滞（hysteresis），否则会在阈值上下反复切换（见案例四）。</text>
+</svg>

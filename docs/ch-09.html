@@ -33,7 +33,7 @@
   <div class="scrim" id="scrim"></div>
 
   <main class="main">
-    <article class="article markdown-body"><div class="ch-meta"><span class="badge" data-s="精讲">精讲</span><span class="ch-words">约 9235 字</span></div><h1 id="9-network-virtualization">第 9 章：网络虚拟化 (Network Virtualization)<a class="anchor" href="#9-network-virtualization" title="Permanent link"></a></h1>
+    <article class="article markdown-body"><div class="ch-meta"><span class="badge" data-s="精讲">精讲</span><span class="ch-words">约 10546 字</span></div><h1 id="9-network-virtualization">第 9 章：网络虚拟化 (Network Virtualization)<a class="anchor" href="#9-network-virtualization" title="Permanent link"></a></h1>
 <blockquote>
 <p>《CCDE 400-007 Official Cert Guide》中文翻译 | 原书第 434-506 页</p>
 </blockquote>
@@ -74,6 +74,11 @@
 </table>
 <p><strong>设计视角记住这一句</strong>：虚拟化把"物理拓扑"和"业务拓扑"解耦了。代价是<strong>多了封装（MTU、开销）、多了控制平面（协议、收敛）、多了运维层（控制器、编排）</strong>。CCDE 考的不是"会不会配"，而是"<strong>什么时候不该上</strong>"。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-01-three-lines.svg" alt="9-1 三条主线：地址空间复用、标识与位置分离、控制与转发分离 —— 本章所有技术都能归到其中一条">
+<figcaption>图 9-1 三条主线：地址空间复用、标识与位置分离、控制与转发分离 —— 本章所有技术都能归到其中一条</figcaption>
+</figure>
+
 <h2 id="foundation-topics">基础内容 (Foundation Topics)<a class="anchor" href="#foundation-topics" title="Permanent link"></a></h2>
 <h3 id="mpls">MPLS 概述<a class="anchor" href="#mpls" title="Permanent link"></a></h3>
 <p>MPLS（多协议标签交换）在大型企业中越来越受欢迎。</p>
@@ -116,6 +121,11 @@
 </tbody>
 </table>
 <p><strong>关键认知</strong>：P 路由器<strong>看不到客户的 IP 路由</strong>，它只交换传输标签。这带来一个设计上的重要后果 —— <strong>你的路由策略、ACL、QoS 分类，全部要在 PE 边界做完</strong>，进去以后就没有你的锚点了。</p>
+<figure class="fig">
+<img src="assets/fig/ch09-02-mpls-architecture.svg" alt="9-2 MPLS 架构与转发平面：CE、PE、P 的分工，以及标签的压入、交换与弹出">
+<figcaption>图 9-2 MPLS 架构与转发平面：CE、PE、P 的分工，以及标签的压入、交换与弹出</figcaption>
+</figure>
+
 <h3 id="mpls_2">MPLS 转发平面<a class="anchor" href="#mpls_2" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -178,6 +188,11 @@
 <li><strong>标签 0（IPv4 Explicit NULL）</strong>：倒数第二跳不弹栈，把标签 0 交给出口 PE，让出口 PE 保留 EXP 位做 QoS 决策</li>
 <li><strong>标签 3（Implicit NULL）</strong>：倒数第二跳直接弹栈，出口 PE 收到的是纯 IP 包 —— 这就是 <strong>PHP（Penultimate Hop Popping）</strong></li>
 </ul>
+<figure class="fig">
+<img src="assets/fig/ch09-03-label-stack.svg" alt="9-3 标签的 32 位结构与 PHP 的两种取舍 —— 收到标签 3 就意味着一层栈要被弹掉">
+<figcaption>图 9-3 标签的 32 位结构与 PHP 的两种取舍 —— 收到标签 3 就意味着一层栈要被弹掉</figcaption>
+</figure>
+
 <h4 id="php">PHP 的设计取舍<a class="anchor" href="#php" title="Permanent link"></a></h4>
 <table>
 <thead>
@@ -248,6 +263,11 @@
 </table>
 <p><strong>趋势判断（设计文档里应该写下的判断）</strong>：LDP + RSVP-TE 的双协议栈正在被 SR-MPLS 取代 —— 因为 SR 把"标签分配"和"IGP"合成一个协议，去掉了一个独立的控制平面（LDP）和一个独立的信令（RSVP）。如果客户是新建网络且 5 年内不考虑换厂商，SR 是更低的长期运维成本。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-04-label-protocols.svg" alt="9-4 四种标签分配方式的边界，以及 SR-MPLS 取代 LDP + RSVP 双栈的趋势">
+<figcaption>图 9-4 四种标签分配方式的边界，以及 SR-MPLS 取代 LDP + RSVP 双栈的趋势</figcaption>
+</figure>
+
 <h2 id="mpls_3">MPLS 控制平面组件<a class="anchor" href="#mpls_3" title="Permanent link"></a></h2>
 <h3 id="1-vrf">1. VRF (虚拟路由转发)<a class="anchor" href="#1-vrf" title="Permanent link"></a></h3>
 <p>VRF 是在三层设备级别维护路由隔离的主要机制。每个 PE 为每个客户的每个 VRF 维护独立的路由和转发实例。</p>
@@ -337,6 +357,11 @@
 <blockquote>
 <p>💡 RD 使路由唯一，RT 控制路由分发。VRF 使用 Import RT 决定接受哪些路由。</p>
 </blockquote>
+<figure class="fig">
+<img src="assets/fig/ch09-05-vrf-rd-rt.svg" alt="9-5 VRF 隔离路由、RD 保证唯一、RT 决定收发 —— 多归属站点必须每个 PE 一个 RD">
+<figcaption>图 9-5 VRF 隔离路由、RD 保证唯一、RT 决定收发 —— 多归属站点必须每个 PE 一个 RD</figcaption>
+</figure>
+
 <h3 id="4-mp-bgp-bgp">4. MP-BGP (多协议 BGP)<a class="anchor" href="#4-mp-bgp-bgp" title="Permanent link"></a></h3>
 <p>MP-BGP 使用 VPNv4/VPNv6 地址族在 PE 之间交换 VPN 路由：</p>
 <ul>
@@ -425,6 +450,11 @@
 </tbody>
 </table>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-06-vpnv4-rr.svg" alt="9-6 VPNv4 路由结构与 RR 的必要性，以及 Inter-AS 三个选项的代价对比">
+<figcaption>图 9-6 VPNv4 路由结构与 RR 的必要性，以及 Inter-AS 三个选项的代价对比</figcaption>
+</figure>
+
 <h2 id="pe-ce">PE-CE 路由协议设计<a class="anchor" href="#pe-ce" title="Permanent link"></a></h2>
 <table>
 <thead>
@@ -458,6 +488,11 @@
 </tbody>
 </table>
 <p><strong>选择逻辑</strong>：CE 是客户自己管的设备 → 用客户已有的协议（通常是 OSPF/EIGRP/BGP）；客户不想暴露内部路由 → 用静态 + 默认路由；站点数很多且需要精细策略 → 用 BGP。</p>
+<figure class="fig">
+<img src="assets/fig/ch09-07-pe-ce.svg" alt="9-7 PE-CE 协议选择矩阵：四类协议各自的适用边界">
+<figcaption>图 9-7 PE-CE 协议选择矩阵：四类协议各自的适用边界</figcaption>
+</figure>
+
 <h3 id="ospf-pe-ce">OSPF 作为 PE-CE 的特殊处理<a class="anchor" href="#ospf-pe-ce" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -500,6 +535,11 @@ router ospf 1 vrf CUSTOMER
  area 0 sham-link 10.255.0.1 10.255.0.2 cost 10
 </code></pre>
 <p>前置条件（三条缺一不可）：两个 sham-link 端点 /32 <strong>通过 MP-BGP 互相可达</strong>、位于<strong>同一 OSPF area</strong>、两端 <strong>Domain ID 一致</strong>。</p>
+<figure class="fig">
+<img src="assets/fig/ch09-08-dn-shamlink.svg" alt="9-8 OSPF 作为 PE-CE 时的 DN 位、Domain ID 与 Sham Link 三个机制">
+<figcaption>图 9-8 OSPF 作为 PE-CE 时的 DN 位、Domain ID 与 Sham Link 三个机制</figcaption>
+</figure>
+
 <h3 id="eigrp-soo-site-of-origin">EIGRP SoO (Site of Origin)<a class="anchor" href="#eigrp-soo-site-of-origin" title="Permanent link"></a></h3>
 <blockquote>
 <p>⚠️ 当站点同时有 MPLS VPN 链路和后门链路时，EIGRP SoO 防止路由环路和路由竞速问题。</p>
@@ -535,6 +575,11 @@ router ospf 1 vrf CUSTOMER
 </table>
 <p><strong>设计取舍</strong>：<code>as-override</code> 在 PE 侧配，客户无感，运维成本最低，但<strong>破坏了 AS_PATH 的防环语义</strong>（客户侧的 AS_PATH 长度不再可信）。<code>allowas-in</code> 在 CE 侧配，客户可控，但要求客户改配置。跨运营商场景通常只能选 <code>allowas-in</code>。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-09-soo-asoverride.svg" alt="9-9 SoO、as-override 与 allowas-in 的部署位置与代价 —— 它们只解决环回，不解决次优">
+<figcaption>图 9-9 SoO、as-override 与 allowas-in 的部署位置与代价 —— 它们只解决环回，不解决次优</figcaption>
+</figure>
+
 <h2 id="mpls-l3vpn">MPLS L3VPN 拓扑模型<a class="anchor" href="#mpls-l3vpn" title="Permanent link"></a></h2>
 <table>
 <thead>
@@ -567,6 +612,11 @@ router ospf 1 vrf CUSTOMER
 </tr>
 </tbody>
 </table>
+<figure class="fig">
+<img src="assets/fig/ch09-10-topology-models.svg" alt="9-10 L3VPN 的四种拓扑模型及其各自的扩展性代价">
+<figcaption>图 9-10 L3VPN 的四种拓扑模型及其各自的扩展性代价</figcaption>
+</figure>
+
 <h3 id="rt">RT 怎么设计才不出错（核心方法论）<a class="anchor" href="#rt" title="Permanent link"></a></h3>
 <p><strong>记住一条规则：路由能不能过去，只取决于"接收方的 import RT 是否包含发送方附加的 export RT"。</strong> 与 RD、与 PE、与拓扑完全无关。</p>
 <p>下面用一组真实可用的设计来演示三种拓扑。</p>
@@ -578,6 +628,11 @@ vrf definition CORP
  route-target import 65000:100
 </code></pre>
 <p>所有站点互相 import/export 同一个 RT → 任意两站点互通。简单，但<strong>站点数超过 20~30 后路由与故障域都过大</strong>。</p>
+<figure class="fig">
+<img src="assets/fig/ch09-11-rt-fullmesh.svg" alt="9-11 全互连的统一 RT 方案，以及站点数增长后的路由量与故障域问题">
+<figcaption>图 9-11 全互连的统一 RT 方案，以及站点数增长后的路由量与故障域问题</figcaption>
+</figure>
+
 <h4 id="hub-and-spoke-hub">场景二：Hub-and-Spoke（默认只走 Hub）<a class="anchor" href="#hub-and-spoke-hub" title="Permanent link"></a></h4>
 <pre><code class="language-cfg">! Hub 站点
 vrf definition CORP
@@ -591,6 +646,11 @@ vrf definition CORP
  route-target import 65000:100     ! 只收 Hub 的路由，收不到别的 Spoke
 </code></pre>
 <p>效果：Spoke 只知道 Hub（通常是一条指向 Hub 的默认路由或汇总），Spoke 之间的流量必须经过 Hub。</p>
+<figure class="fig">
+<img src="assets/fig/ch09-12-rt-hubspoke.svg" alt="9-12 Hub-and-Spoke 的 RT 设计：100 给所有人、200 只给 Hub，Spoke 之间自然收不到对方路由">
+<figcaption>图 9-12 Hub-and-Spoke 的 RT 设计：100 给所有人、200 只给 Hub，Spoke 之间自然收不到对方路由</figcaption>
+</figure>
+
 <h4 id="spoke">场景三：Spoke 之间也要互通（最容易配错的一条）<a class="anchor" href="#spoke" title="Permanent link"></a></h4>
 <p>两个方案，各有代价：</p>
 <table>
@@ -617,6 +677,11 @@ vrf definition CORP
 <blockquote>
 <p>⚠️ <strong>最常见的生产事故</strong>：为了让"分部之间能互访"，运维直接给所有 Spoke 加了全局 import RT。当时测试是全通的，几个月后安全审计发现<strong>分部之间的流量完全没经过总部的防火墙</strong> —— RT 是一个"配置上去就再也想不起来"的隐性策略。</p>
 </blockquote>
+<figure class="fig">
+<img src="assets/fig/ch09-13-rt-spoke-mesh.svg" alt="9-13 Spoke 互访的两个方案，以及绕过 Hub 防火墙的典型事故">
+<figcaption>图 9-13 Spoke 互访的两个方案，以及绕过 Hub 防火墙的典型事故</figcaption>
+</figure>
+
 <h3 id="extranet">Extranet 与共享服务<a class="anchor" href="#extranet" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -647,6 +712,11 @@ vrf definition CORP
 <blockquote>
 <p>💡 <strong>设计原则</strong>：Extranet 一律<strong>单向</strong>。双向 import 等于把两个组织的路由域合并，路由环路和策略泄露风险成倍增加。</p>
 </blockquote>
+<figure class="fig">
+<img src="assets/fig/ch09-14-extranet.svg" alt="9-14 Extranet 与共享服务的三种 RT 模型 —— 默认一律单向">
+<figcaption>图 9-14 Extranet 与共享服务的三种 RT 模型 —— 默认一律单向</figcaption>
+</figure>
+
 <h3 id="l3vpn">路由汇总是 L3VPN 可扩展性的关键<a class="anchor" href="#l3vpn" title="Permanent link"></a></h3>
 <p>PE 上每个 VRF 都要保存一份完整路由表。站点数 × 每站点路由数 = PE 的 FIB 压力。</p>
 <table>
@@ -676,6 +746,11 @@ vrf definition CORP
 </tbody>
 </table>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-15-l3vpn-summary.svg" alt="9-15 汇总的三个位置，以及汇总点放错位置造成的黑洞">
+<figcaption>图 9-15 汇总的三个位置，以及汇总点放错位置造成的黑洞</figcaption>
+</figure>
+
 <h2 id="mpls-l2vpn">MPLS L2VPN<a class="anchor" href="#mpls-l2vpn" title="Permanent link"></a></h2>
 <table>
 <thead>
@@ -699,12 +774,22 @@ vrf definition CORP
 </tr>
 </tbody>
 </table>
+<figure class="fig">
+<img src="assets/fig/ch09-16-l2vpn-forms.svg" alt="9-16 三种 L2VPN 形态：VPWS 点到点、VPLS 多点、EVPN">
+<figcaption>图 9-16 三种 L2VPN 形态：VPWS 点到点、VPLS 多点、EVPN</figcaption>
+</figure>
+
 <h3 id="vpls">VPLS 的三个结构性缺陷（为什么不推荐新建）<a class="anchor" href="#vpls" title="Permanent link"></a></h3>
 <ol>
 <li><strong>MAC 学习靠数据面泛洪</strong>：未知单播、广播、组播（BUM）全部泛洪，规模一大，核心带宽被泛洪吃掉</li>
 <li><strong>全连接伪线</strong>：N 个站点需要 N(N-1)/2 条 PW，PE 的 PW 数量随站点数平方增长</li>
 <li><strong>多归属困难</strong>：一个站点双归到两个 PE 时，<strong>必须阻塞一条链路</strong>（防环），无法做 Active/Active，收敛靠 STP 计时器</li>
 </ol>
+<figure class="fig">
+<img src="assets/fig/ch09-17-evpn-vs-vpls.svg" alt="9-17 VPLS 的三个结构性缺陷与 EVPN 的对应解法">
+<figcaption>图 9-17 VPLS 的三个结构性缺陷与 EVPN 的对应解法</figcaption>
+</figure>
+
 <h3 id="evpn-vpls">EVPN 为什么取代 VPLS<a class="anchor" href="#evpn-vpls" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -783,6 +868,11 @@ vrf definition CORP
 <p>💡 <strong>设计选择</strong>：数据中心内部（leaf-spine）几乎一律用 <strong>EVPN + VXLAN</strong>；企业 WAN 二层互联需求（如跨站点 vMotion、跨站点集群心跳）用 <strong>EVPN + MPLS</strong> 或 EVPN over SR。纯 VPLS 只应出现在存量网络里。</p>
 </blockquote>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-18-evpn-multihoming.svg" alt="9-18 同一个 ESI 下的链路可以同时转发 —— EVPN 与 VPLS 最本质的差别">
+<figcaption>图 9-18 同一个 ESI 下的链路可以同时转发 —— EVPN 与 VPLS 最本质的差别</figcaption>
+</figure>
+
 <h2 id="mpls-mpls-te">MPLS 流量工程 (MPLS TE) 与替代路线<a class="anchor" href="#mpls-mpls-te" title="Permanent link"></a></h2>
 <h3 id="te">为什么需要 TE<a class="anchor" href="#te" title="Permanent link"></a></h3>
 <p>IGP 的最短路径算法（SPF）只看拓扑，不看带宽。经典的 <strong>10:1 带宽不匹配</strong>：一条 1G 链路和一条 10G 链路等价（cost 相同），SPF 把流量对半分 —— 1G 那条瞬间拥塞，10G 那条空着。</p>
@@ -818,6 +908,11 @@ vrf definition CORP
 </tr>
 </tbody>
 </table>
+<figure class="fig">
+<img src="assets/fig/ch09-19-mpls-te.svg" alt="9-19 IGP 度量选出的路径与实际带宽需求不匹配，以及 TE 能做的四件事">
+<figcaption>图 9-19 IGP 度量选出的路径与实际带宽需求不匹配，以及 TE 能做的四件事</figcaption>
+</figure>
+
 <h3 id="te_1">TE 的代价（为什么很多企业不上）<a class="anchor" href="#te_1" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -876,6 +971,11 @@ vrf definition CORP
 <p>⚠️ <strong>决策提醒</strong>：如果客户的真实需求是"<strong>重要应用不能受链路劣化影响</strong>"，那 SD-WAN 的多链路 + BFD + 应用感知比 MPLS TE 更直接、更便宜。MPLS TE 的强项是"<strong>在单一运营商核心内做带宽优化</strong>"，业务连续性诉求它解决不了。</p>
 </blockquote>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-20-te-options.svg" alt="9-20 TE 的三条替代路线与选型三问">
+<figcaption>图 9-20 TE 的三条替代路线与选型三问</figcaption>
+</figure>
+
 <h2 id="mtu">封装开销与 MTU：虚拟化设计的第一道坎<a class="anchor" href="#mtu" title="Permanent link"></a></h2>
 <p><strong>所有虚拟化技术都会加封包头。</strong> 设计时如果不预留 MTU，上线后必然出现"能 ping 通、能打开网页、但传大文件失败/SSH 卡死"的诡异故障 —— 因为 PMTUD 依赖 ICMP，而 ICMP 在生产网里常年被 ACL 拦掉。</p>
 <h3 id="_7">常见封装的额外开销<a class="anchor" href="#_7" title="Permanent link"></a></h3>
@@ -930,6 +1030,11 @@ vrf definition CORP
 <li><strong>MPLS</strong>：underlay MTU 要 ≥ <strong>1508</strong>（两个标签）；三个标签要 <strong>1512</strong></li>
 <li><strong>VXLAN</strong>：若内层要支持 1500，underlay MTU 要 ≥ <strong>1550</strong>；如果 underlay 只有 1500，则<strong>内层可用 MTU 只有 1450</strong></li>
 </ul>
+<figure class="fig">
+<img src="assets/fig/ch09-21-encap-mtu.svg" alt="9-21 各种封装的开销与 MTU 换算：1500 的接口在 VXLAN 下只剩 1450">
+<figcaption>图 9-21 各种封装的开销与 MTU 换算：1500 的接口在 VXLAN 下只剩 1450</figcaption>
+</figure>
+
 <h3 id="_8">三种处理方式与取舍<a class="anchor" href="#_8" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -961,6 +1066,11 @@ vrf definition CORP
 <p>⚠️ <strong>设计文档必写的一条</strong>：凡是引入隧道/标签的段落，都要在"IP 地址与 MTU 规划"章节明确 <strong>每段的 MTU 与 MSS 值</strong>，并说明 UDP 流量如何保证。否则上线后第一次故障就是"某些应用偶尔慢"。</p>
 </blockquote>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-22-mtu-methods.svg" alt="9-22 三种 MTU 处理方式，以及 ICMP 被过滤造成的 PMTUD 黑洞">
+<figcaption>图 9-22 三种 MTU 处理方式，以及 ICMP 被过滤造成的 PMTUD 黑洞</figcaption>
+</figure>
+
 <h2 id="software-defined-networks">软件定义网络 (Software-Defined Networks)<a class="anchor" href="#software-defined-networks" title="Permanent link"></a></h2>
 <h3 id="sdn">SDN 的分层模型<a class="anchor" href="#sdn" title="Permanent link"></a></h3>
 <table>
@@ -1023,6 +1133,11 @@ vrf definition CORP
 <blockquote>
 <p>💡 <strong>一个常被误解的点</strong>：SDN <strong>不等于</strong>"转发也集中了"。数据面仍然是每台设备独立硬件转发，SDN 集中的是<strong>控制面策略与配置</strong>。所谓"集中转发"（如某些防火墙集中引流）是额外的服务链设计，不是 SDN 的必然属性。</p>
 </blockquote>
+<figure class="fig">
+<img src="assets/fig/ch09-23-sdn-layers.svg" alt="9-23 SDN 三层模型、南北向与东西向接口，以及控制器自身的高可用">
+<figcaption>图 9-23 SDN 三层模型、南北向与东西向接口，以及控制器自身的高可用</figcaption>
+</figure>
+
 <h3 id="underlay-overlay">Underlay 与 Overlay 的设计边界<a class="anchor" href="#underlay-overlay" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -1061,6 +1176,11 @@ vrf definition CORP
 </tbody>
 </table>
 <p><strong>核心原则</strong>：<strong>Overlay 承担业务与变更，Underlay 保持稳定与简单</strong>。把策略塞进 underlay 是 SDN 项目失败的头号原因。</p>
+<figure class="fig">
+<img src="assets/fig/ch09-24-underlay-overlay.svg" alt="9-24 Underlay 只保证 IP 可达，业务拓扑由 Overlay 决定 —— 这也是排障的分工线">
+<figcaption>图 9-24 Underlay 只保证 IP 可达，业务拓扑由 Overlay 决定 —— 这也是排障的分工线</figcaption>
+</figure>
+
 <h3 id="vxlan">VXLAN 数据平面<a class="anchor" href="#vxlan" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -1094,6 +1214,11 @@ vrf definition CORP
 </table>
 <p><strong>VXLAN 的 ECMP 友好性</strong>：外层 UDP 源端口由内层流的哈希生成，因此 underlay 的 ECMP 能把不同会话分散到不同路径 —— 这是 VXLAN 相比 GRE（无端口熵）的实质优势。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-25-vxlan-dataplane.svg" alt="9-25 VXLAN 的报文结构与 VM-A 到 VM-B 的完整转发路径（那 50 字节开销来自哪里）">
+<figcaption>图 9-25 VXLAN 的报文结构与 VM-A 到 VM-B 的完整转发路径（那 50 字节开销来自哪里）</figcaption>
+</figure>
+
 <h2 id="sd-access-fabric">SD-Access（园区 fabric）<a class="anchor" href="#sd-access-fabric" title="Permanent link"></a></h2>
 <p>Cisco 的 SD-Access 是"<strong>LISP 控制面 + VXLAN 数据面</strong>"的园区实现。</p>
 <h3 id="fabric">四种 fabric 角色<a class="anchor" href="#fabric" title="Permanent link"></a></h3>
@@ -1128,6 +1253,11 @@ vrf definition CORP
 </tr>
 </tbody>
 </table>
+<figure class="fig">
+<img src="assets/fig/ch09-26-sda-fabric.svg" alt="9-26 SD-Access 的四种角色与 fabric 的三条流量路径">
+<figcaption>图 9-26 SD-Access 的四种角色与 fabric 的三条流量路径</figcaption>
+</figure>
+
 <h3 id="_9">与传统园区的关键差异<a class="anchor" href="#_9" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -1206,6 +1336,11 @@ vSmart   →  控制面：OMP 路由 + 集中策略（topology / cflowd / app-ro
 vBond    →  编排面：首次上线认证、分发 vSmart/vManage 信息、NAT 后可达性
 WAN Edge →  数据面：IPsec/GRE 隧道、BFD、QoS、AAR
 </code></pre>
+<figure class="fig">
+<img src="assets/fig/ch09-27-sdwan-planes.svg" alt="9-27 SD-WAN 的三平面、TLOC 三要素与按应用选路的实际过程">
+<figcaption>图 9-27 SD-WAN 的三平面、TLOC 三要素与按应用选路的实际过程</figcaption>
+</figure>
+
 <h3 id="omp">OMP 的三个关键概念<a class="anchor" href="#omp" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -1310,6 +1445,11 @@ WAN Edge →  数据面：IPsec/GRE 隧道、BFD、QoS、AAR
 <blockquote>
 <p>⚠️ <strong>顺序错了会互相覆盖</strong>：Topology 决定"能不能通"，Control Policy 决定"能学到什么路由"，AAR 决定"走哪条"，Data Policy 决定"怎么处理"。把 AAR 写在 Topology 之前，策略不会生效 —— 这是 SD-WAN 排障中最常见的"配置看起来全对但不生效"。</p>
 </blockquote>
+<figure class="fig">
+<img src="assets/fig/ch09-28-policy-layers.svg" alt="9-28 策略的四层结构：配置顺序不能乱，上层覆盖下层">
+<figcaption>图 9-28 策略的四层结构：配置顺序不能乱，上层覆盖下层</figcaption>
+</figure>
+
 <h3 id="sd-wan-vs-dmvpn">SD-WAN vs DMVPN（传统方案）<a class="anchor" href="#sd-wan-vs-dmvpn" title="Permanent link"></a></h3>
 <table>
 <thead>
@@ -1400,6 +1540,11 @@ WAN Edge →  数据面：IPsec/GRE 隧道、BFD、QoS、AAR
 </tbody>
 </table>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-29-decision-tree.svg" alt="9-29 WAN 选型决策树的四个判断，以及混合架构的三个风险">
+<figcaption>图 9-29 WAN 选型决策树的四个判断，以及混合架构的三个风险</figcaption>
+</figure>
+
 <h2 id="_12">实战案例<a class="anchor" href="#_12" title="Permanent link"></a></h2>
 <h3 id="vxlan-ping-ssh">案例一：VXLAN 隧道能 ping 通，但传文件、SSH 登录全卡死<a class="anchor" href="#vxlan-ping-ssh" title="Permanent link"></a></h3>
 <p><strong>场景</strong>：双数据中心通过 VXLAN 打通二层延伸。上线测试：ping 通、网页能打开、数据库连接正常。但运维反馈"SSH 登录后敲命令会卡住几秒才回显，传大文件到一半就断"。</p>
@@ -1440,6 +1585,11 @@ WAN Edge →  数据面：IPsec/GRE 隧道、BFD、QoS、AAR
 </table>
 <p><strong>教训</strong>：<strong>凡是引入封装，MTU 必须在设计阶段写进文档并逐段核实</strong>。测试不能只 ping，要用 <code>-M do</code> 打不同长度的包，并确认 ICMP Type 3 Code 4 在全路径可达（或者干脆禁用 PMTUD 依赖、显式 clamp）。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-30-case-mtu.svg" alt="9-30 案例一：ping 通但传文件卡死 —— MTU 边界落在 1450 与 PMTUD 黑洞">
+<figcaption>图 9-30 案例一：ping 通但传文件卡死 —— MTU 边界落在 1450 与 PMTUD 黑洞</figcaption>
+</figure>
+
 <h3 id="hub-and-spoke-rt">案例二：Hub-and-Spoke 的 RT 配完，"分部之间互访"却通了又断<a class="anchor" href="#hub-and-spoke-rt" title="Permanent link"></a></h3>
 <p><strong>场景</strong>：总部 + 12 个分部，MPLS L3VPN，要求所有分部访问总部系统，<strong>分部之间不允许互访</strong>（安全要求）。上线三个月后，运维为了"临时方便"给两个分部加了互相 import 的 RT，之后又删除。</p>
 <p><strong>现象</strong>：删除 RT 后，这两个分部的路由表里仍有对方路由，ping 仍能通；同时总部的日志显示分部间流量"既走总部又直连"，防火墙策略出现漏判。</p>
@@ -1452,6 +1602,11 @@ WAN Edge →  数据面：IPsec/GRE 隧道、BFD、QoS、AAR
 <p><strong>修复</strong>：PE 上删 RT 后，配合在 PE 的 VRF 内<strong>清除 OSPF 进程并明确 no import</strong>，或等 LSA 自然老化；同时把这条变更纳入变更单，要求验证两端 CE 的 LSDB。</p>
 <p><strong>教训</strong>：<strong>RT 是策略，不是开关</strong>。加 RT 是"放开一条路"，删 RT 不一定立即"封住这条路"，取决于下游协议的收敛机制和定时器。安全隔离类变更必须验证 CE 侧的路由表与 LSDB，而不是只看 PE。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-31-case-rt-residual.svg" alt="9-31 案例二：删掉 RT 之后分部仍然互通 —— OSPF LSA 要老化一小时">
+<figcaption>图 9-31 案例二：删掉 RT 之后分部仍然互通 —— OSPF LSA 要老化一小时</figcaption>
+</figure>
+
 <h3 id="ttl">案例三：双归属站点 + 后门链路，路由翻转与 TTL 逐渐耗尽<a class="anchor" href="#ttl" title="Permanent link"></a></h3>
 <p><strong>场景</strong>：某工厂双 PE 接入 MPLS，同时有一条微波链路直连总部（后门）。设计意图：MPLS 为主，微波为备。实际运行：业务时通时断，<code>traceroute</code> 显示路径在两个出口之间来回变，部分会话 TTL 耗尽。</p>
 <p><strong>排查过程</strong>：</p>
@@ -1476,6 +1631,11 @@ interface GigabitEthernet0/2
 </code></pre>
 <p><strong>教训</strong>：<strong>有后门链路就必须处理"协议优先级"问题</strong>。OSPF 靠 sham-link（把 MPLS 提升为 intra-area）+ Domain ID 一致；EIGRP 靠 SoO + cost community；BGP 靠 SoO + LP。<strong>后门链路不只是备用，它会主动抢流量</strong>。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-32-case-flap.svg" alt="9-32 案例三：Domain ID 不一致导致 BGP 与 OSPF 互搏、TTL 逐渐耗尽">
+<figcaption>图 9-32 案例三：Domain ID 不一致导致 BGP 与 OSPF 互搏、TTL 逐渐耗尽</figcaption>
+</figure>
+
 <h3 id="sd-wan_2">案例四：SD-WAN 上线后语音每小时断一次<a class="anchor" href="#sd-wan_2" title="Permanent link"></a></h3>
 <p><strong>场景</strong>：SD-WAN 双传输（MPLS 主 + 互联网备），语音走 AAR，"丢包 &gt; 1% 或时延 &gt; 150ms 切到备链路"。上线后语音每小时断几秒，且切换频繁。</p>
 <p><strong>排查过程</strong>：</p>
@@ -1514,6 +1674,11 @@ interface GigabitEthernet0/2
 </table>
 <p><strong>教训</strong>：<strong>AAR 不是"配置完就聪明"</strong>。SLA 阈值必须基于<strong>实测分布</strong>设定，并显式设计"切走的条件"和"切回的条件"这两个不对称参数。把阈值设成均值，等于把网络交给随机数。</p>
 <hr />
+<figure class="fig">
+<img src="assets/fig/ch09-33-case-aar-flap.svg" alt="9-33 案例四：132ms 与 165ms 卡在 150ms 阈值两侧来回，形成乒乓切换">
+<figcaption>图 9-33 案例四：132ms 与 165ms 卡在 150ms 阈值两侧来回，形成乒乓切换</figcaption>
+</figure>
+
 <h2 id="_13">设计缺陷<a class="anchor" href="#_13" title="Permanent link"></a></h2>
 <table>
 <thead>

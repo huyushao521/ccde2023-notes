@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t926 d926">
+<title id="t926">SD-Access 的四种角色与园区 fabric 的流量分区</title>
+<desc id="d926">图上是 SD-Access 的角色分工。控制平面节点 CP 运行 LISP，负责维护端点（EID）到位置（RLOC）的映射，相当于园区的"电话簿"；边界节点 Border 负责把 fabric 内部网络与外部网络（传统园区、数据中心、互联网）连接，并在这里做 VRF 与策略转换；边缘节点 Edge 是接入交换机，连接终端并做封装解封装，任何一个接入端口都能承载任意虚拟网络；中间节点 Intermediate 只做 IP 转发，通常是核心交换机。上方是 DNA Center 作为控制器统一下发策略与 fabric 配置。下方画出三种流量：同一 fabric 内两个终端通信（经 CP 查映射后 Edge 之间直接建隧道）；终端访问外部（经 Border）；终端访问数据中心（经 Border 到 DC）。底部列出设计的四个要点：CP 与 Border 必须余双、underlay 用 IS-IS 隔离、策略用 SGT 而不是 VLAN、迁移期需要 fusion 路由器逐步割接。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">SD-Access 把园区拆成四种角色，每一种都是可用性设计的关键点</text>
+<text class="s" x="24" y="48">接入端口不再属于某个 VLAN —— 这是园区网络最大的观念转变</text>
+
+<rect x="24" y="62" width="292" height="92" rx="5" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="lb" x="40" y="82">CP：控制平面节点</text>
+<text class="b" x="40" y="102">跑 LISP，维护 EID 到 RLOC 的映射</text>
+<text class="b" x="40" y="120">相当于园区的"电话簿"</text>
+<text class="r" x="40" y="140">必须双机；映射丢失等于找不到终端</text>
+
+<rect x="334" y="62" width="292" height="92" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="350" y="82" fill="#0f7f73">Border：边界节点</text>
+<text class="b" x="350" y="102">连接 fabric 与外部（园区老网 / DC / 互联网）</text>
+<text class="b" x="350" y="120">在这里做 VRF 与策略转换</text>
+<text class="r" x="350" y="140">外部网络策略不统一时，这里会成为瓶颈</text>
+
+<rect x="644" y="62" width="292" height="92" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="660" y="82" fill="#b45309">Edge / Intermediate</text>
+<text class="b" x="660" y="102">Edge 接终端并封装解封装；Intermediate 只转发</text>
+<text class="b" x="660" y="120">Edge 上的任意端口可承载任意虚拟网络</text>
+<text class="c" x="660" y="140">好处：终端插哪个口都自动进正确的网段</text>
+
+<text class="lb" x="24" y="182">流量三条路径</text>
+<rect x="24" y="192" width="912" height="106" rx="5" fill="#fff" stroke="#dde5f0"/>
+<rect x="46" y="212" width="88" height="34" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="90" y="233" text-anchor="middle">Edge-1</text>
+<rect x="46" y="256" width="88" height="30" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="90" y="275" text-anchor="middle">Edge-2</text>
+<rect x="196" y="222" width="80" height="50" rx="3" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="236" y="243" text-anchor="middle">CP</text>
+<text class="b" x="236" y="260" text-anchor="middle" font-size="8.5">LISP 映射</text>
+<rect x="330" y="222" width="90" height="50" rx="3" fill="#f2f2f5" stroke="#6b7a90"/>
+<text class="n" x="375" y="243" text-anchor="middle">Intermediate</text>
+<text class="b" x="375" y="260" text-anchor="middle" font-size="8.5">只转发</text>
+<rect x="480" y="222" width="90" height="50" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="n" x="525" y="243" text-anchor="middle">Border</text>
+<text class="b" x="525" y="260" text-anchor="middle" font-size="8.5">VRF / 策略</text>
+<rect x="630" y="222" width="120" height="50" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="690" y="243" text-anchor="middle">外部网络</text>
+<text class="b" x="690" y="260" text-anchor="middle" font-size="8.5">老园区 / DC / Internet</text>
+
+<line x1="134" y1="229" x2="194" y2="238" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="q" x="136" y="222" font-size="8.5">① 查映射</text>
+<line x1="134" y1="262" x2="478" y2="262" stroke="#2f6fed" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text class="q" x="300" y="290" font-size="8.5">② Edge 之间直接建隧道（同 fabric 内互访，不经 Border）</text>
+<line x1="276" y1="247" x2="328" y2="247" stroke="#9aa8bd" stroke-width="1.4"/>
+<line x1="420" y1="247" x2="478" y2="247" stroke="#9aa8bd" stroke-width="1.4"/>
+<line x1="570" y1="247" x2="628" y2="247" stroke="#b45309" stroke-width="1.8"/>
+<text class="m" x="576" y="240" font-size="8.5">③ 出 fabric</text>
+<text class="b" x="700" y="290" font-size="8.5">border 与 fusion 并存，逐步割接</text>
+
+<rect x="24" y="312" width="912" height="58" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="332">设计四要点</text>
+<text class="b" x="40" y="352">CP 与 Border 必须冗余部署且分布在不同的物理机框；underlay 用 IS-IS 与独立地址空间，不与业务网段混用；策略以 SGT 表达而不是 VLAN；迁移期保留 fusion 设备逐楼层割接。</text>
+
+<text class="m" x="24" y="392">为什么要用 SGT 而不是 VLAN：VLAN 只有 4094 个且与端口绑定，SGT 是标签随用户走，能做到"同一个口，不同人不同权限"。</text>
+<text class="r" x="24" y="414">代价：SGT 依赖身份源（ISE）与全线设备支持，跨厂商互操作是最大的落地障碍。</text>
+</svg>

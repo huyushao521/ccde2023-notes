@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 450" width="100%" role="img" aria-labelledby="t95 d95">
+<title id="t95">VRF、RD、RT 的分工，以及多归属站点为什么必须每 PE 唯一 RD</title>
+<desc id="d95">上方三张卡片说明分工：VRF 包含独立路由表、独立转发表、独立接口集合与独立协议进程，且只是每跳概念，只在 PE 上存在；RD 是 8 字节，把 IPv4 前缀变成 VPNv4 前缀，解决地址重叠下的唯一性，不控制任何策略；RT 是 8 字节扩展团体，export 决定通告时带什么标签值，import 决定收下的路由能进哪些 VRF，一个 VRF 可以有多个 import 与多个 export，这是 Extranet 与 Hub-and-Spoke 的全部技巧来源。下方拓扑对比多归属站点的两种 RD 设计：两个 PE 用同一个 RD 时，生成的两条 VPNv4 前缀完全相同，BGP 认为它们是同一条路由的两份副本，只能选一条，站点失去双归；改用每 PE 唯一 RD 后，两条前缀不同，PE 可以在 VRF 里保留两条路径做 ECMP 或快速切换。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="450" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">RD 解决"存得下"，RT 解决"发给谁" —— 两件事，永远不要混用</text>
+<text class="s" x="24" y="48">路由不通先比 export/import RT；路由重复先查 RD 唯一性</text>
+
+<rect x="24" y="62" width="288" height="150" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="84">VRF：四个"独立"</text>
+<text class="b" x="40" y="104">独立路由表、独立 FIB/CEF</text>
+<text class="b" x="40" y="122">独立接口集合、独立协议进程</text>
+<text class="k" x="40" y="148">只在 PE 上存在（每跳概念）</text>
+<text class="r" x="40" y="172">CE 侧靠物理接口/子接口隔离</text>
+<text class="r" x="40" y="190">P 侧什么都不靠，它不知道有 VRF</text>
+
+<rect x="336" y="62" width="288" height="150" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="352" y="84" fill="#b45309">RD：8 字节，只做唯一性</text>
+<text class="b" x="352" y="104">10.1.1.0/24 → 65000:1:10.1.1.0/24</text>
+<text class="b" x="352" y="122">Type 0 = AS:NN，Type 1 = IP:NN</text>
+<text class="k" x="352" y="148">不控制策略、不影响选路</text>
+<text class="r" x="352" y="172">三种分配模型：每 VPN、每 PE 每 VPN、</text>
+<text class="r" x="352" y="190">每接口每 VPN（越往后越灵活也越复杂）</text>
+
+<rect x="648" y="62" width="288" height="150" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="664" y="84" fill="#0f7f73">RT：8 字节，只做分发</text>
+<text class="b" x="664" y="104">export：通告时打上的团体值</text>
+<text class="b" x="664" y="122">import：收到后放进哪些 VRF</text>
+<text class="k" x="664" y="148">可以多个 import、多个 export</text>
+<text class="c" x="664" y="172">Extranet / 共享服务 / Hub-Spoke</text>
+<text class="c" x="664" y="190">全部拓扑技巧都来自这一条</text>
+
+<text class="lb" x="24" y="240">多归属站点：为什么必须"每 PE 唯一 RD"</text>
+
+<rect x="24" y="252" width="440" height="140" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="b" x="40" y="272">左侧：两个 PE 用同一个 RD 65000:1</text>
+<ellipse cx="96" cy="316" rx="46" ry="20" fill="#fff" stroke="#9aa8bd"/>
+<text class="n" x="96" y="320" text-anchor="middle">站点 A</text>
+<rect x="184" y="286" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="212" y="304" text-anchor="middle">PE1</text>
+<rect x="184" y="322" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="212" y="340" text-anchor="middle">PE2</text>
+<line x1="142" y1="310" x2="182" y2="299" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="142" y1="322" x2="182" y2="335" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="x" x="256" y="304">65000:1:10.1.1.0/24</text>
+<text class="x" x="256" y="340">65000:1:10.1.1.0/24</text>
+<text class="r" x="40" y="368">两条前缀完全相同 → BGP 当成同一条的两份副本</text>
+<text class="r" x="40" y="384">只能装一条，另一个 PE 的路径被丢弃，双归失效</text>
+
+<rect x="496" y="252" width="440" height="140" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="b" x="516" y="272">右侧：每 PE 各自一个 RD（65000:11 / 65000:12）</text>
+<ellipse cx="568" cy="316" rx="46" ry="20" fill="#fff" stroke="#9aa8bd"/>
+<text class="n" x="568" y="320" text-anchor="middle">站点 A</text>
+<rect x="656" y="286" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="684" y="304" text-anchor="middle">PE1</text>
+<rect x="656" y="322" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="684" y="340" text-anchor="middle">PE2</text>
+<line x1="614" y1="310" x2="654" y2="299" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="614" y1="322" x2="654" y2="335" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="q" x="728" y="304">65000:11:10.1.1.0/24</text>
+<text class="q" x="728" y="340">65000:12:10.1.1.0/24</text>
+<text class="c" x="516" y="368">两条前缀不同 → 对端 VRF 里可以同时存在</text>
+<text class="c" x="516" y="384">ECMP 或主备都成立，双归才真正有用</text>
+
+<rect x="24" y="402" width="912" height="36" rx="4" fill="#f8fbf8" stroke="#b6dcd6"/>
+<text class="c" x="40" y="424">验收口诀：改 RD 后路由分发毫无变化是正常现象；如果"改了 RD 就通/不通了"，说明你在拿 RD 当策略用。</text>
+</svg>

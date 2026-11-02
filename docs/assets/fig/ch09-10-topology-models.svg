@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t910 d910">
+<title id="t910">MPLS L3VPN 的四种拓扑模型：全互连、Hub-and-Spoke、多级 Hub、Extranet</title>
+<desc id="d910">图上是四种拓扑的迷你示意。全互连：五个站点两两直连，任意站点直接通信，路由与故障域随站点数平方增长；Hub-and-Spoke：所有 Spoke 只连 Hub，Spoke 之间流量必须经 Hub，适合需要中心检查防火墙的场景；多级 Hub：区域 Hub 上挂本地 Spoke，再上连中心 Hub，适合大型分层网络，代价是跨区路径要跳两级；Extranet 与共享服务：业务 VRF 与服务 VRF 之间按需导入路由，共享 DNS、DHCP、NTP 或数据中心服务器。下方是四条设计判断：站点数超过 20 到 30 后全互连的路由与故障域都过大；安全要求决定能不能全互连；Spoke 间流量模型决定 Hub 带宽；Extranet 一律单向。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">四种拓扑：连通性需求决定形状，不是反过来</text>
+<text class="s" x="24" y="48">拓扑选错的代价不在配置量，而在"流量绕行"和"故障域扩大"</text>
+
+<rect x="24" y="62" width="222" height="180" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="82" fill="#a32020">全互连 Full Mesh</text>
+<circle cx="70" cy="130" r="15" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<circle cx="135" cy="112" r="15" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<circle cx="200" cy="130" r="15" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<circle cx="100" cy="178" r="15" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<circle cx="170" cy="178" r="15" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="82" y1="122" x2="122" y2="115" stroke="#9aa8bd"/>
+<line x1="148" y1="118" x2="188" y2="124" stroke="#9aa8bd"/>
+<line x1="66" y1="144" x2="92" y2="165" stroke="#9aa8bd"/>
+<line x1="150" y1="136" x2="106" y2="170" stroke="#9aa8bd"/>
+<line x1="152" y1="140" x2="186" y2="140" stroke="#9aa8bd"/>
+<line x1="196" y1="144" x2="178" y2="165" stroke="#9aa8bd"/>
+<line x1="84" y1="135" x2="161" y2="131" stroke="#9aa8bd"/>
+<text class="b" x="40" y="208">任意两点直连，时延最小</text>
+<text class="r" x="40" y="226">代价：站点超 20~30 后路由与故障域过大</text>
+
+<rect x="262" y="62" width="222" height="180" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="278" y="82" fill="#0f7f73">Hub-and-Spoke</text>
+<circle cx="373" cy="128" r="17" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="373" y="132" text-anchor="middle">H</text>
+<circle cx="290" cy="100" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="290" cy="160" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="456" cy="100" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="456" cy="160" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<line x1="301" y1="106" x2="358" y2="120" stroke="#9aa8bd"/>
+<line x1="301" y1="155" x2="358" y2="137" stroke="#9aa8bd"/>
+<line x1="388" y1="120" x2="445" y2="106" stroke="#9aa8bd"/>
+<line x1="388" y1="137" x2="445" y2="155" stroke="#9aa8bd"/>
+<line x1="290" y1="172" x2="456" y2="172" stroke="#e3b7b7" stroke-dasharray="4 3"/>
+<text class="r" x="330" y="188" fill="#a32020">Spoke 间须绕 Hub</text>
+<text class="b" x="278" y="208">适合中心检查（防火墙/IPS）</text>
+<text class="m" x="278" y="226">代价：Hub 带宽与故障单点</text>
+
+<rect x="500" y="62" width="222" height="180" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="516" y="82">多级 Hub-and-Spoke</text>
+<circle cx="611" cy="106" r="15" fill="#f2f2f5" stroke="#6b7a90" stroke-width="1.8"/>
+<text class="n" x="611" y="110" text-anchor="middle">C</text>
+<circle cx="556" cy="152" r="12" fill="#e6f4f1" stroke="#0f7f73"/>
+<circle cx="666" cy="152" r="12" fill="#e6f4f1" stroke="#0f7f73"/>
+<line x1="600" y1="118" x2="564" y2="142" stroke="#9aa8bd"/>
+<line x1="622" y1="118" x2="658" y2="142" stroke="#9aa8bd"/>
+<circle cx="524" cy="200" r="10" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="566" cy="200" r="10" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="656" cy="200" r="10" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="698" cy="200" r="10" fill="#eef3fd" stroke="#2f6fed"/>
+<line x1="550" y1="162" x2="530" y2="191" stroke="#9aa8bd"/>
+<line x1="558" y1="163" x2="564" y2="190" stroke="#9aa8bd"/>
+<line x1="664" y1="163" x2="658" y2="190" stroke="#9aa8bd"/>
+<line x1="672" y1="162" x2="694" y2="191" stroke="#9aa8bd"/>
+<text class="b" x="516" y="226">适合大型分层网络，跨区要跳两级</text>
+
+<rect x="738" y="62" width="198" height="180" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="754" y="82" fill="#b45309">Extranet / 共享服务</text>
+<rect x="756" y="96" width="76" height="28" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="794" y="115" text-anchor="middle">业务 VRF</text>
+<rect x="756" y="140" width="76" height="28" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="794" y="159" text-anchor="middle">服务 VRF</text>
+<line x1="832" y1="110" x2="900" y2="110" stroke="#b45309" stroke-width="1.8"/>
+<line x1="832" y1="154" x2="900" y2="154" stroke="#b45309" stroke-width="1.8" stroke-dasharray="5 3"/>
+<text class="m" x="846" y="104">import</text>
+<text class="m" x="846" y="172">单向</text>
+<text class="b" x="754" y="196">共享 DNS/DHCP/NTP、共享 DC 服务器</text>
+<text class="r" x="754" y="214">双向 import = 两个路由域合并</text>
+<text class="r" x="754" y="230">环路与策略泄露风险成倍增加</text>
+
+<rect x="24" y="256" width="912" height="150" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="40" y="276">四个判断问题，按顺序问完就选定了拓扑</text>
+<text class="b" x="40" y="298">① 任意两个站点都需要直接通信吗？是 → 全互连；否 → 进入下一问</text>
+<text class="b" x="40" y="318">② 是否有中心安全设备必须看到全部站点间流量？是 → Hub-and-Spoke 或部分网状</text>
+<text class="b" x="40" y="338">③ 站点规模超过 50 且地域分散？是 → 多级 Hub，但要算清跨区跳数与时延</text>
+<text class="b" x="40" y="358">④ 是否有第三方或共享服务只需单向访问？是 → Extranet，且一律单向</text>
+<text class="r" x="40" y="382">最常见的错：先按"站点少"选了全互连，三年后站点翻倍，RT 与路由策略已经无法回收。</text>
+</svg>

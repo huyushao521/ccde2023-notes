@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t930 d930">
+<title id="t930">案例一：VXLAN 能 ping 通但传文件卡死 —— MTU 边界 1450 与 PMTUD 黑洞</title>
+<desc id="d930">图上还原案例一的现场。上方是现象：ping 通、网页能打开、数据库连接正常，但 SSH 登录后敲命令卡住几秒才回显，传大文件到一半就断。中间是定位过程与拓扑：站点 A 的服务器 MTU 仍是 1500，经 VXLAN 隧道（开销 50 字节）到站点 B；underlay 链路 MTU 1500，因此内层可用只有 1450。用 ping -s 1450 -M do 通、-s 1473 -M do 不通，把边界锁定在 1450 附近；DF 位置位的大包在 underlay 被丢弃，本应返回的 ICMP type 3 code 4 被核心 ACL 拦掉，于是形成 PMTUD 黑洞。下方是三个修复方案与代价：加大 underlay MTU 到 1550、MSS clamp 1400（只救 TCP，UDP 仍丢）、把内层接口 MTU 调到 1450；以及一条教训。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">案例一：小包全通、大包全断 —— 不是路由问题，是 MTU 问题</text>
+<text class="s" x="24" y="48">只要链路里多了一层封装，就必须重算一次可用 MTU</text>
+
+<rect x="24" y="62" width="440" height="58" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="82" fill="#a32020">现象</text>
+<text class="b" x="40" y="102">ping 通 / 网页能开 / 数据库能连；但 SSH 敲命令卡几秒、大文件传到一半断</text>
+
+<rect x="496" y="62" width="440" height="58" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="516" y="82">定位手法</text>
+<text class="b" x="516" y="102">ping -s 1450 -M do 通；-s 1473 -M do 不通 → 边界在 1450</text>
+
+<text class="lb" x="24" y="150">拓扑与两个数字</text>
+
+<rect x="60" y="164" width="120" height="46" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="n" x="120" y="184" text-anchor="middle">服务器</text>
+<text class="q" x="120" y="200" text-anchor="middle" font-size="8.5">MTU 1500</text>
+
+<rect x="252" y="164" width="96" height="46" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="300" y="184" text-anchor="middle">VTEP-A</text>
+<text class="b" x="300" y="200" text-anchor="middle" font-size="8.5">+50 字节</text>
+
+<rect x="404" y="164" width="120" height="46" rx="4" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="464" y="184" text-anchor="middle">underlay</text>
+<text class="b" x="464" y="200" text-anchor="middle" font-size="8.5">MTU 1500</text>
+
+<rect x="580" y="164" width="96" height="46" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="628" y="184" text-anchor="middle">VTEP-B</text>
+<text class="b" x="628" y="200" text-anchor="middle" font-size="8.5">−50 字节</text>
+
+<rect x="732" y="164" width="120" height="46" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="n" x="792" y="184" text-anchor="middle">客户端</text>
+<text class="q" x="792" y="200" text-anchor="middle" font-size="8.5">MTU 1500</text>
+
+<line x1="180" y1="187" x2="250" y2="187" stroke="#9aa8bd" stroke-width="1.8"/>
+<line x1="348" y1="187" x2="402" y2="187" stroke="#0f7f73" stroke-width="2.4"/>
+<line x1="524" y1="187" x2="578" y2="187" stroke="#0f7f73" stroke-width="2.4"/>
+<line x1="676" y1="187" x2="730" y2="187" stroke="#9aa8bd" stroke-width="1.8"/>
+
+<text class="r" x="380" y="158" font-size="8.5">1500 包 + 50 = 1550 大于 1500 ✗</text>
+
+<rect x="24" y="226" width="440" height="76" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="246" fill="#a32020">黑洞怎么形成</text>
+<text class="b" x="40" y="266">DF 位已置位的大包在 underlay 被丢弃（不能分片）</text>
+<text class="b" x="40" y="284">本应回 ICMP type 3 code 4，被核心 ACL 拦掉</text>
+<text class="r" x="40" y="300">主机永远收不到"需要分片"，只能重传超时</text>
+
+<rect x="496" y="226" width="440" height="76" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="516" y="246" fill="#0f7f73">为什么 SSH 表现为"卡"而不是"断"</text>
+<text class="b" x="516" y="266">登录时服务端发大包（banner / 密钥交换）被丢</text>
+<text class="b" x="516" y="284">客户端重传超时后才降 MSS，于是"几秒后恢复"</text>
+<text class="c" x="516" y="300">这个"卡顿"是最典型的 MTU 症状</text>
+
+<rect x="24" y="314" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="331">修复方案</text>
+<text class="lb" x="280" y="331">配置</text>
+<text class="lb" x="600" y="331">代价</text>
+<rect x="24" y="338" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="356">① 加大 underlay MTU（首选）</text>
+<text class="b" x="280" y="356">核心与互联全部 1550 或 9216</text>
+<text class="r" x="600" y="356">需端到端统一，跨运营商不可控</text>
+<rect x="24" y="364" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="382">② MSS clamp</text>
+<text class="b" x="280" y="382">ip tcp adjust-mss 1400</text>
+<text class="r" x="600" y="382">只救 TCP，UDP（视频 / DNS / VoIP）仍丢</text>
+<rect x="24" y="390" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="408">③ 调小内层 MTU</text>
+<text class="b" x="280" y="408">虚拟机 / 主机网卡设 1450</text>
+<text class="r" x="600" y="408">需改主机配置，不解决其他站点</text>
+</svg>

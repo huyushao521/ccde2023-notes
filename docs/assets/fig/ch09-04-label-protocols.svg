@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t94 d94">
+<title id="t94">四种标签分配方式的对比，以及 SR-MPLS 取代 LDP 加 RSVP 双栈的趋势</title>
+<desc id="d94">上方是四条对照：LDP 跟随 IGP 为每个 IGP 前缀发标签，最简单，只解决到达不解决约束；RSVP-TE 为显式路径的 LSP 发标签，支持带宽预留、亲和属性与快速重路由；BGP 由 PE 之间为 VPN 路由发标签，与 VPN 路由天然绑定；Segment Routing 用 IGP 扩展分发 SID，无需 LDP 与 RSVP，做源路由。下方拓扑对比：左侧是传统双栈，IGP 加 LDP 加 RSVP 三个协议并行，每台设备要维护三套状态；右侧是 SR-MPLS，只有 IGP 一个协议，标签由 IGP 的 SID 直接给出。底部给出趋势判断：新建网络且五年内不换厂商时，SR 的长期运维成本更低，因为去掉了一个控制平面与一个信令协议。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">标签分配协议的核心差别：谁在发标签，以及它知不知道约束</text>
+<text class="s" x="24" y="48">选型不是"哪个新"，而是"你的网需要不需要带宽预留与显式路径"</text>
+
+<rect x="24" y="62" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="79">协议</text>
+<text class="lb" x="180" y="79">谁在发标签</text>
+<text class="lb" x="420" y="79">特点</text>
+<text class="lb" x="700" y="79">适用与代价</text>
+
+<rect x="24" y="86" width="912" height="40" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="111">LDP</text>
+<text class="b" x="180" y="111">跟随 IGP，为每个前缀发</text>
+<text class="b" x="420" y="111">最简单，只解决"到达"</text>
+<text class="r" x="700" y="111">运营商核心、基础 L3VPN；不解决约束</text>
+
+<rect x="24" y="126" width="912" height="40" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="151">RSVP-TE</text>
+<text class="b" x="180" y="151">为显式路径的 LSP 发</text>
+<text class="b" x="420" y="151">带宽预留、亲和属性、FRR</text>
+<text class="m" x="700" y="151">MPLS TE；每跳维护软状态，复杂度高</text>
+
+<rect x="24" y="166" width="912" height="40" fill="#fff" stroke="#e6ecf5"/>
+<text class="k" x="40" y="191">BGP</text>
+<text class="b" x="180" y="191">PE 之间为 VPN 路由发</text>
+<text class="b" x="420" y="191">与 VPN 路由天然绑定</text>
+<text class="c" x="700" y="191">L3VPN 的 VPN 标签；只解决 VRF 区分</text>
+
+<rect x="24" y="206" width="912" height="40" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="40" y="231">SR-MPLS</text>
+<text class="b" x="180" y="231">IGP 扩展（SID）</text>
+<text class="b" x="420" y="231">标签由 IGP 分发，源路由</text>
+<text class="c" x="700" y="231">新建网、大型 SP；去掉了 LDP 与 RSVP</text>
+
+<text class="lb" x="24" y="278">传统双栈 vs 源路由：设备上到底跑几个协议</text>
+
+<rect x="24" y="288" width="440" height="96" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="40" y="308">左侧：IGP + LDP + RSVP 三套并行</text>
+<text class="b" x="40" y="326">PE1 ── P1 ── P2 ── PE2，每台设备都要</text>
+<text class="b" x="40" y="344">维护 IGP 邻接、LDP 会话、RSVP 软状态</text>
+<text class="r" x="40" y="366">故障排查要跨三个协议互相对照，状态不一致是常态</text>
+
+<rect x="496" y="288" width="440" height="96" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="b" x="516" y="308">右侧：只有 IGP（OSPF/IS-IS 带 SID）</text>
+<text class="b" x="516" y="326">PE1 ── P1 ── P2 ── PE2，标签就是 IGP 的 SID</text>
+<text class="b" x="516" y="344">显式路径由控制器算好写成段列表压入包头</text>
+<text class="c" x="516" y="366">一个协议、一个状态源，"标签为什么是这个值"可直接推</text>
+
+<text class="m" x="24" y="272"> </text>
+<text class="m" x="24" y="398"> </text>
+</svg>

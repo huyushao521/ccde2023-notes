@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 450" width="100%" role="img" aria-labelledby="t98 d98">
+<title id="t98">OSPF 作为 PE-CE 时的 DN 位、Domain ID 与 Sham Link 三个机制</title>
+<desc id="d98">上方是 DN 位的三步工作机制：PE 把 BGP 学到的 VPN 路由重分发进 OSPF 时在 LSA 的 Options 字段置 DN 位；另一个 PE 从 VRF 接口收到带 DN 位的 LSA 时拒绝装库也不再重分发回 BGP；结果是路由不会在 BGP 到 OSPF 到 BGP 之间来回震荡。中间是故障机理：同一 OSPF 域的两个站点之间既有 MPLS 链路又有后门链路，如果两端 PE 的 Domain ID 不一致，PE 会把对方发来的 Type 3 LSA 当成不同域的路由重新生成，DN 位失效，形成路由翻转与 TTL 逐渐耗尽的环路。下方是 Sham Link 的拓扑与效果：默认 MPLS 学到的路由是 Inter-Area 或 External，而后门链路是 Intra-Area，OSPF 优先级 Intra 高于 Inter 高于 External，所以 10M 微波链路永远赢过 1G 光纤；Sham Link 在两端 PE 之间建一条 Intra-Area 逻辑链路，把 MPLS 路径伪装成区域内部链路，优先级反转。三条前置条件缺一不可：两端 /32 通过 MP-BGP 互可达、同一 OSPF area、Domain ID 一致。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="450" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">DN 位防的是回流，Sham Link 抢的是优先级 —— 两个问题，两种手段</text>
+<text class="s" x="24" y="48">有后门链路的站点，这两件事不讲清楚，收敛期就是环路期</text>
+
+<rect x="24" y="62" width="440" height="112" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="82">DN 位的三步机制</text>
+<text class="b" x="40" y="102">① PE 把 BGP 路由重分发进 OSPF 时，在 LSA Options 置 DN 位</text>
+<text class="b" x="40" y="120">② 另一 PE 从 VRF 接口收到带 DN 的 LSA → 拒绝装库、不再回灌 BGP</text>
+<text class="b" x="40" y="138">③ 结果：路由不会在 BGP → OSPF → BGP 之间来回震荡</text>
+<text class="c" x="40" y="160">本质：用 LSA 里的一个比特记录"这条路由来自 MPLS"</text>
+
+<rect x="496" y="62" width="440" height="112" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="516" y="82" fill="#a32020">Domain ID 不一致 → DN 位失效</text>
+<text class="b" x="516" y="102">PE 把对方的 Type 3 LSA 当成"另一个 OSPF 域"的路由</text>
+<text class="b" x="516" y="120">重新生成 LSA 并再重分发回 BGP → 形成环路</text>
+<text class="b" x="516" y="138">两端互搏：微波 cost 低一直优选，MPLS 又不断覆盖回来</text>
+<text class="r" x="516" y="160">现象：traceroute 路径来回变，部分会话 TTL 耗尽</text>
+
+<text class="lb" x="24" y="202">拓扑：同一站点既有 MPLS 主链路，又有微波后门</text>
+
+<ellipse cx="96" cy="256" rx="52" ry="22" fill="#fff" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="n" x="96" y="260" text-anchor="middle">站点 A（CE）</text>
+<rect x="212" y="222" width="66" height="28" rx="3" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="245" y="241" text-anchor="middle">PE1</text>
+<rect x="330" y="222" width="60" height="28" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="360" y="241" text-anchor="middle">P</text>
+<rect x="440" y="222" width="66" height="28" rx="3" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="473" y="241" text-anchor="middle">PE2</text>
+<ellipse cx="600" cy="236" rx="56" ry="22" fill="#fff" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="n" x="600" y="240" text-anchor="middle">站点 B（CE）</text>
+
+<line x1="148" y1="250" x2="210" y2="238" stroke="#2f6fed" stroke-width="2"/>
+<line x1="278" y1="236" x2="328" y2="236" stroke="#2f6fed" stroke-width="2"/>
+<line x1="390" y1="236" x2="438" y2="236" stroke="#2f6fed" stroke-width="2"/>
+<line x1="506" y1="238" x2="546" y2="244" stroke="#2f6fed" stroke-width="2"/>
+<text class="q" x="330" y="218">MPLS 1G</text>
+
+<path d="M110 278 C 200 350, 480 350, 580 262" stroke="#a32020" stroke-width="2" fill="none" stroke-dasharray="6 4"/>
+<text class="r" x="300" y="352">后门链路：微波 10M（OSPF cost 低 → 永远是 Intra-Area，稳赢）</text>
+
+<rect x="212" y="288" width="294" height="34" rx="4" fill="#f4fbfa" stroke="#b6dcd6" stroke-dasharray="5 3"/>
+<text class="c" x="226" y="310">Sham Link 10.255.0.1 ←→ 10.255.0.2（area 0，cost 10）</text>
+
+<text class="lb" x="660" y="290">OSPF 的优先级铁律</text>
+<text class="k" x="660" y="310">Intra-Area（Type 1/2）</text>
+<text class="k" x="660" y="328">  &gt; Inter-Area（Type 3）</text>
+<text class="k" x="660" y="346">    &gt; External（Type 5）</text>
+<text class="r" x="660" y="368">所以 10M 微波永远赢过 1G 光纤，除非用 sham-link 反转</text>
+
+<rect x="24" y="390" width="912" height="46" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="40" y="410">Sham Link 三条前置条件缺一不可：两端 /32 通过 MP-BGP 互相可达、位于同一 OSPF area、两端 Domain ID 一致。少一条，sham-link 起不来或不起作用。</text>
+<text class="r" x="40" y="428">验收：show ip ospf interface 看 sham-link 是否 FULL；show ip route vrf 确认走 MPLS 而不是微波。</text>
+</svg>

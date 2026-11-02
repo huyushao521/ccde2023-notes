@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t911 d911">
+<title id="t911">场景一：全互连用统一 RT，以及站点数增长带来的路由与故障域问题</title>
+<desc id="d911">左边是配置：所有站点的 VRF CORP 用同一个 RD 号段，export 与 import 都是 65000:100，因此任意两个站点互通。右边是四个站点的拓扑，PE1 到 PE4 之间通过路由反射器交换 VPNv4 路由，每个 PE 的 VRF 都 import 65000:100，所以每个站点都能看到全部其他站点的明细路由。下方给出规模测算：5 个站点时每个 VRF 需保存 4 份对端明细；20 个站点时是 19 份；50 个站点时是 49 份，且任何一次链路抖动都会让所有 VRF 同时重算。结论是统一 RT 只适合小规模，站点数超过 20 到 30 就要改成 Hub-and-Spoke 或部分网状。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">场景一：全网一个 RT，最简单也最容易失控</text>
+<text class="s" x="24" y="48">"通不通"只看一件事：接收方 import 里有没有发送方的 export</text>
+
+<rect x="24" y="62" width="330" height="112" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="82">配置：全站统一一个 RT</text>
+<text class="q" x="40" y="104">vrf definition CORP</text>
+<text class="q" x="40" y="122">  rd 65000:1</text>
+<text class="q" x="40" y="140">  route-target export 65000:100</text>
+<text class="q" x="40" y="158">  route-target import 65000:100</text>
+
+<text class="b" x="374" y="86">每个站点 export 与 import 同一个 RT，</text>
+<text class="b" x="374" y="104">于是任意两个站点之间都有直达路径。</text>
+<text class="c" x="374" y="128">好处：配置统一、无需为站点差异化</text>
+<text class="r" x="374" y="150">代价：站点数一多，路由与故障域同时放大</text>
+<text class="r" x="374" y="168">且没有人能回答"哪些站点应该互通"</text>
+
+<text class="lb" x="24" y="206">拓扑：四个站点全部 import 65000:100</text>
+
+<rect x="60" y="230" width="110" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="n" x="115" y="255" text-anchor="middle">PE1（站点 1）</text>
+<rect x="60" y="290" width="110" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="n" x="115" y="315" text-anchor="middle">PE2（站点 2）</text>
+<rect x="330" y="230" width="110" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="n" x="385" y="255" text-anchor="middle">PE3（站点 3）</text>
+<rect x="330" y="290" width="110" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="n" x="385" y="315" text-anchor="middle">PE4（站点 4）</text>
+
+<rect x="200" y="258" width="70" height="46" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="235" y="278" text-anchor="middle">RR</text>
+<text class="b" x="235" y="294" text-anchor="middle">VPNv4</text>
+
+<line x1="170" y1="250" x2="200" y2="266" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="170" y1="310" x2="200" y2="296" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="270" y1="266" x2="330" y2="250" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="270" y1="296" x2="330" y2="310" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="300" y1="466" x2="300" y2="466" stroke="#2f6fed"/>
+
+<rect x="470" y="230" width="466" height="104" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="486" y="250" fill="#b45309">规模测算是设计文档必须写的一段</text>
+<text class="b" x="486" y="272">站点 5   → 每个 VRF 存 4 份对端明细</text>
+<text class="b" x="486" y="292">站点 20  → 每个 VRF 存 19 份对端明细</text>
+<text class="b" x="486" y="312">站点 50  → 每个 VRF 存 49 份对端明细</text>
+<text class="r" x="486" y="330">任一次链路抖动，所有 VRF 同时重算 —— 这就是"全域故障"</text>
+
+<text class="m" x="24" y="360">判断标准：站点数超过 20~30，统一 RT 就应当降级为 Hub-and-Spoke 或部分网状，而不是继续加站点。</text>
+<text class="r" x="24" y="382">反面案例：为了"以后可能互通"先统一 RT，三年后没人敢动 —— 因为动一次要评估全网站点。</text>
+</svg>

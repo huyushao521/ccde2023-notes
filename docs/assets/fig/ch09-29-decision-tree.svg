@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t929 d929">
+<title id="t929">企业 WAN 虚拟化选型决策树：合规、SLA、二层需求与存量合同四个判断</title>
+<desc id="d929">图上是决策树的图形化版本。根节点是"企业需要多站点互连"，第一个判断是合规要求是否禁止流量经过公共互联网：是则选 MPLS L3VPN，这是金融、医疗、政务的常见底线；否则进入第二个判断，是否需要应用级 SLA 与多链路自动切换：是则选 Internet 加 SD-WAN 的混合传输；否则进入第三个判断，站点数是否小于 20 且预算紧，是则 DMVPN 或 FlexVPN，否则纯 Internet 的 SD-WAN。旁路上还有一个判断：是否需要跨站点二层（vMotion、集群心跳、老系统），是则选 EVPN over MPLS 或 EVPN-VXLAN，明确不要新建 VPLS。最后一个判断：是否已有 MPLS 存量合同，是则采用混合架构。下方列出混合架构的三个风险：非对称路由导致防火墙丢包、两套策略语义不一致、故障切换顺序不清导致抖动，以及各自的规避办法。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">选型决策树：四个问题按顺序问，答案唯一</text>
+<text class="s" x="24" y="48">先问合规，再问 SLA，再算规模与预算，最后看存量合同 —— 顺序反了就会选出"能配但不该用"的方案</text>
+
+<rect x="330" y="62" width="290" height="34" rx="5" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="k" x="475" y="84" text-anchor="middle">企业需要多站点互连</text>
+
+<line x1="475" y1="96" x2="475" y2="112" stroke="#9aa8bd" stroke-width="1.6"/>
+<rect x="300" y="112" width="350" height="34" rx="5" fill="#fff" stroke="#c3d5f5"/>
+<text class="b" x="475" y="134" text-anchor="middle">① 合规要求：流量不得经过公共互联网？</text>
+
+<line x1="300" y1="129" x2="180" y2="129" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="180" y1="129" x2="180" y2="162" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="r" x="196" y="124" font-size="8.5">是</text>
+<rect x="40" y="162" width="280" height="44" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.6"/>
+<text class="k" x="56" y="182">MPLS L3VPN</text>
+<text class="b" x="56" y="198">金融 / 医疗 / 政务的常见底线</text>
+
+<line x1="475" y1="146" x2="475" y2="166" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="r" x="486" y="160" font-size="8.5">否</text>
+<rect x="300" y="166" width="350" height="34" rx="5" fill="#fff" stroke="#c3d5f5"/>
+<text class="b" x="475" y="188" text-anchor="middle">② 需要应用级 SLA / 多链路自动切换？</text>
+
+<line x1="650" y1="183" x2="770" y2="183" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="770" y1="183" x2="770" y2="216" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="c" x="664" y="178" font-size="8.5">是</text>
+<rect x="640" y="216" width="290" height="44" rx="4" fill="#f4fbfa" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="k" x="656" y="236">Internet + SD-WAN（混合传输）</text>
+<text class="b" x="656" y="252">MPLS 保关键业务 + Internet 保带宽</text>
+
+<line x1="475" y1="200" x2="475" y2="220" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="r" x="486" y="214" font-size="8.5">否</text>
+<rect x="300" y="220" width="350" height="34" rx="5" fill="#fff" stroke="#c3d5f5"/>
+<text class="b" x="475" y="242" text-anchor="middle">③ 站点数 &lt; 20 且预算紧？</text>
+
+<line x1="300" y1="237" x2="180" y2="237" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="180" y1="237" x2="180" y2="270" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="c" x="196" y="232" font-size="8.5">是</text>
+<rect x="40" y="270" width="280" height="44" rx="4" fill="#f4f8ff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="56" y="290">DMVPN / FlexVPN</text>
+<text class="b" x="56" y="306">设备便宜，人力贵；够用就好</text>
+
+<line x1="475" y1="254" x2="475" y2="274" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="r" x="486" y="268" font-size="8.5">否</text>
+<rect x="330" y="274" width="290" height="44" rx="4" fill="#f4f8ff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="346" y="294">SD-WAN（纯 Internet）</text>
+<text class="b" x="346" y="310">站点多、需要分段隔离</text>
+
+<rect x="24" y="330" width="912" height="24" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="347" fill="#b45309">旁路判断：需要跨站点二层（vMotion / 集群心跳 / 老系统）→ EVPN over MPLS 或 EVPN-VXLAN，明确不要新建 VPLS</text>
+
+<rect x="24" y="362" width="912" height="24" rx="3" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="379" fill="#0f7f73">已有 MPLS 存量合同 → 混合架构：MPLS 承载关键业务 + Internet / SD-WAN 承载一般业务与备份（现实中占比最高）</text>
+
+<rect x="24" y="394" width="912" height="58" rx="4" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="40" y="412">混合架构三个风险与规避</text>
+<text class="b" x="40" y="430">非对称路由（去 MPLS 回 Internet）→ 明确每条业务的主备出口，用 LP 或 PBR 固定；两套策略语义不一致 → 统一用前缀 + DSCP 表达意图；切换顺序不清 → 全公司只保留一套探测（BFD 优先）并设 hold-down。</text>
+</svg>

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t927 d927">
+<title id="t927">SD-WAN 的三平面架构、OMP 与 TLOC，以及按应用选路的实际过程</title>
+<desc id="d927">图上是 SD-WAN 的三平面。管理平面：vManage 负责模板、配置下发与监控；控制平面：vSmart 运行 OMP（Overlay Management Protocol）在设备之间交换路由、TLOC 属性与策略；数据平面：vEdge 或 cEdge 之间建立 IPsec 隧道，实际转发流量。TLOC 是"传输位置"标识，由系统 IP、颜色（color，代表链路类型如 biz-internet、mpls、lte）与封装方式组成，同一条目的地路由可以有多条 TLOC 对应不同链路。中间画出三条链路的拓扑：MPLS 10M、宽带 100M、LTE 20M，三条各有一个 color。下方是应用选路过程：语音流量按 SLA 要求低时延低抖动，BFD 持续探测三条链路的时延、抖动与丢包，控制器下发的策略在设备本地执行，选择满足条件的链路；宽带链路时延超标时自动切到 MPLS，超标恢复后切回。底部列出去中心化的关键：策略由控制器下发后由设备本地执行，控制器故障时已下发的策略继续生效。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">SD-WAN 三个平面各管一件事，TLOC 是"链路 + 颜色"的身份标签</text>
+<text class="s" x="24" y="48">控制器故障不影响转发：策略早已下发到设备本地，这是它比传统集中式方案可靠的地方</text>
+
+<rect x="24" y="62" width="292" height="86" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="82">管理平面</text>
+<text class="b" x="40" y="102">vManage：模板、配置下发、监控告警</text>
+<text class="b" x="40" y="120">模板化是核心能力：一条模板批量推到上千站点</text>
+<text class="r" x="40" y="140">风险：模板改错也是批量生效</text>
+
+<rect x="334" y="62" width="292" height="86" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="350" y="82" fill="#0f7f73">控制平面</text>
+<text class="b" x="350" y="102">vSmart + OMP：交换路由、TLOC 属性、策略</text>
+<text class="b" x="350" y="120">OMP 类似 BGP，但带链路质量与颜色</text>
+<text class="r" x="350" y="140">风险：OMP 会话故障时新策略无法下发</text>
+
+<rect x="644" y="62" width="292" height="86" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="660" y="82" fill="#b45309">数据平面</text>
+<text class="b" x="660" y="102">vEdge / cEdge 之间 IPsec 隧道转发</text>
+<text class="b" x="660" y="120">BFD 持续测量时延、抖动、丢包</text>
+<text class="c" x="660" y="140">策略在本地执行，控制器挂了也照常转发</text>
+
+<text class="lb" x="24" y="178">拓扑：分支三条链路，各有 color</text>
+
+<rect x="60" y="196" width="100" height="46" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="110" y="216" text-anchor="middle">分支 cEdge</text>
+<text class="b" x="110" y="232" text-anchor="middle" font-size="8.5">site 1001</text>
+
+<rect x="330" y="188" width="130" height="30" rx="3" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="n" x="395" y="207" text-anchor="middle">MPLS 10M（mpls）</text>
+<rect x="330" y="228" width="130" height="30" rx="3" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="n" x="395" y="247" text-anchor="middle">宽带 100M（biz-internet）</text>
+<rect x="330" y="268" width="130" height="30" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="n" x="395" y="287" text-anchor="middle">LTE 20M（lte）</text>
+
+<rect x="640" y="216" width="110" height="46" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="695" y="236" text-anchor="middle">总部 cEdge</text>
+<text class="b" x="695" y="252" text-anchor="middle" font-size="8.5">site 1002</text>
+
+<line x1="160" y1="212" x2="328" y2="203" stroke="#a32020" stroke-width="1.8"/>
+<line x1="160" y1="222" x2="328" y2="243" stroke="#0f7f73" stroke-width="1.8"/>
+<line x1="160" y1="232" x2="328" y2="283" stroke="#b45309" stroke-width="1.8"/>
+<line x1="460" y1="203" x2="638" y2="228" stroke="#9aa8bd" stroke-width="1.4"/>
+<line x1="460" y1="243" x2="638" y2="238" stroke="#9aa8bd" stroke-width="1.4"/>
+<line x1="460" y1="283" x2="638" y2="248" stroke="#9aa8bd" stroke-width="1.4"/>
+
+<rect x="790" y="188" width="146" height="110" rx="4" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="804" y="206">TLOC 三要素</text>
+<text class="b" x="804" y="226">① 系统 IP</text>
+<text class="b" x="804" y="244">② color（链路类型）</text>
+<text class="b" x="804" y="262">③ 封装（IPsec / GRE）</text>
+<text class="c" x="804" y="282">同一前缀可有多条 TLOC → 多链路选路</text>
+
+<rect x="24" y="310" width="912" height="58" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="330" fill="#0f7f73">应用选路的实际过程（语音为例）</text>
+<text class="b" x="40" y="350">SLA 要求：时延 &lt; 150ms、抖动 &lt; 30ms、丢包 &lt; 1%。BFD 每 100ms 探测三条链路 → 宽带链路抖动 80ms 超标 → 设备本地策略切到 MPLS → 恢复后自动切回。</text>
+
+<text class="m" x="24" y="392">这个决策不做在控制器上：控制器只下发"条件与动作"，测量与切换在设备本地完成，所以切换时间可以做到秒级以内。</text>
+<text class="r" x="24" y="414">设计要点：不要给所有流量都配"最优链路"策略 —— 全部抢占高质量链路等于没有策略，且会让低成本链路永远空跑。</text>
+<text class="c" x="24" y="434">验收：在 vManage 上看各 TLOC 的 BFD 历史质量曲线，而不是只看"是否 UP"。</text>
+</svg>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t93 d93">
+<title id="t93">MPLS 标签的 32 位结构与 PHP 两种模式的对比</title>
+<desc id="d93">上方是 4 字节标签的位级结构：Label 占 20 bit（0 到 1048575，0 到 15 为保留值）、EXP 占 3 bit（现称 TC，映射 IP 的 DSCP）、S 占 1 bit（栈底标志）、TTL 占 8 bit（复制自 IP TTL，用于环路检测与 traceroute）。中间对比两个保留标签：标签 3 是隐式空，倒数第二跳直接弹栈，即 PHP；标签 0 是显式空，倒数第二跳把标签 0 交给出口 PE，让出口 PE 保留 EXP 做 QoS 决策。下方两个拓扑并排对比：左侧启用 PHP，P2 弹栈后 PE2 收到纯 IP 包，EXP 丢失，语音在最后一跳降级为 best effort；右侧禁用 PHP，P2 保留标签 0 交给 PE2，PE2 能按 EXP 做队列调度。底部结论是跨 MPLS 的端到端 QoS 必须先与运营商确认最后一跳是否保留 EXP。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">一个标签只有 32 位，其中 S 位和 TTL 决定了两个常见故障</text>
+<text class="s" x="24" y="48">排障顺序：先看 S 位有没有置错（标签栈解析失败），再看 TTL 有没有被复制（环路检测失效）</text>
+
+<rect x="24" y="62" width="470" height="34" rx="3" fill="#eef3fd" stroke="#c3d5f5"/>
+<text class="lb" x="110" y="84" text-anchor="middle">Label（20 bit）</text>
+<rect x="494" y="62" width="96" height="34" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="542" y="84" text-anchor="middle" fill="#b45309">EXP/TC（3）</text>
+<rect x="590" y="62" width="52" height="34" rx="3" fill="#f8fbf8" stroke="#b6dcd6"/>
+<text class="lb" x="616" y="84" text-anchor="middle" fill="#0f7f73">S（1）</text>
+<rect x="642" y="62" width="90" height="34" rx="3" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="687" y="84" text-anchor="middle" fill="#a32020">TTL（8）</text>
+
+<text class="b" x="24" y="114">0–1048575，0–15 为保留值</text>
+<text class="b" x="494" y="114">映射 IP DSCP，逐跳可改</text>
+<text class="b" x="590" y="114">栈底置 1</text>
+<text class="b" x="642" y="114">复制自 IP TTL</text>
+
+<rect x="24" y="128" width="912" height="66" rx="4" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="40" y="148">两个保留标签，决定 MPLS QoS 能不能做到最后一段</text>
+<text class="r" x="40" y="168">标签 3（Implicit NULL）：倒数第二跳直接弹栈 → PHP。出口 PE 收到纯 IP 包，EXP 消失。</text>
+<text class="c" x="40" y="186">标签 0（Explicit NULL）：倒数第二跳不弹栈，交标签 0 给出口 PE → 出口 PE 仍能看到 EXP 做队列调度。</text>
+
+<text class="lb" x="24" y="222">左：启用 PHP（默认）</text>
+<text class="lb" x="500" y="222" fill="#b45309">右：禁用 PHP（显式空）</text>
+
+<rect x="24" y="232" width="420" height="112" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<rect x="44" y="252" width="56" height="30" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="72" y="271" text-anchor="middle">P1</text>
+<rect x="140" y="252" width="56" height="30" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="168" y="271" text-anchor="middle">P2</text>
+<rect x="240" y="248" width="64" height="38" rx="3" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="272" y="271" text-anchor="middle">PE2</text>
+<rect x="336" y="252" width="72" height="30" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="372" y="271" text-anchor="middle">CE2</text>
+<line x1="100" y1="267" x2="138" y2="267" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="196" y1="267" x2="238" y2="267" stroke="#a32020" stroke-width="1.8"/>
+<line x1="304" y1="267" x2="334" y2="267" stroke="#a32020" stroke-width="1.8"/>
+<text class="q" x="100" y="262">[L100]</text>
+<text class="r" x="192" y="262">弹栈</text>
+<text class="r" x="306" y="262">纯 IP</text>
+<text class="b" x="44" y="302">好处：出口 PE 少一次标签查表，核心最后一跳省一次操作</text>
+<text class="r" x="44" y="320">代价：EXP 丢失 → 最后一跳无法按 MPLS QoS 做拥塞管理</text>
+<text class="r" x="44" y="336">现象：语音"在运营商侧被降级成 best effort"，客户侧无从察觉</text>
+
+<rect x="500" y="232" width="436" height="112" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<rect x="520" y="252" width="56" height="30" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="548" y="271" text-anchor="middle">P1</text>
+<rect x="616" y="252" width="56" height="30" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="644" y="271" text-anchor="middle">P2</text>
+<rect x="716" y="248" width="64" height="38" rx="3" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="748" y="271" text-anchor="middle">PE2</text>
+<rect x="812" y="252" width="72" height="30" rx="3" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="848" y="271" text-anchor="middle">CE2</text>
+<line x1="576" y1="267" x2="614" y2="267" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="672" y1="267" x2="714" y2="267" stroke="#2f6fed" stroke-width="1.8"/>
+<line x1="780" y1="267" x2="810" y2="267" stroke="#a32020" stroke-width="1.8"/>
+<text class="q" x="576" y="262">[L100]</text>
+<text class="q" x="668" y="262">[L0]</text>
+<text class="k" x="782" y="262">纯 IP</text>
+<text class="b" x="520" y="302">好处：出口 PE 能按 EXP 做队列调度；traceroute 能看到最后一跳</text>
+<text class="c" x="520" y="320">代价：多一次标签操作；部分运营商默认不允许客户改</text>
+<text class="c" x="520" y="336">要求：设计文档里明确写"关键业务显式空标签或端到端 DSCP 映射"</text>
+
+<rect x="24" y="356" width="912" height="50" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="40" y="376">验收动作：在 PE2 上 show mpls forwarding-table 看是否还有标签入向；同时抓包确认 EXP 位是否保留。</text>
+<text class="r" x="40" y="394">跨 MPLS 的端到端 QoS，第一句话永远是问运营商："最后一跳保留 EXP 吗？"</text>
+</svg>

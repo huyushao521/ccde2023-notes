@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t925 d925">
+<title id="t925">VXLAN 数据平面：报文封装的四层结构与两个 VM 之间的完整转发路径</title>
+<desc id="d925">上半部分是 VXLAN 报文的封装结构，从外到内：外层以太头 14 字节、外层 IP 头 20 字节（VTEP 环回地址之间）、UDP 头 8 字节（目的端口 4789）、VXLAN 头 8 字节（其中 VNI 占 24 位，可容纳约 1600 万个 VNI）、内层以太头 14 字节，最后是原始 IP 报文。开销合计 50 字节。下半部分是转发路径：VM-A 在 leaf-1 下的 VNI 10001 中，VM-B 在 leaf-3 下同一 VNI；leaf-1 作为 VTEP 收到 VM-A 的帧后，查 VNI 10001 的 MAC 表得到 VM-B 的 MAC 对应的远端 VTEP 地址，用 leaf-1 与 leaf-3 的环回地址做外层封装，经 spine 转发；leaf-3 解封装后按内层目的 MAC 交给 VM-B。中间标注两个关键点：VNI 到 24 位，理论规模远大于 VLAN 的 4094；VTEP 一般部署在 leaf 或主机 vSwitch 上，部署位置决定谁来做封装与策略。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">VXLAN 就是"以太网套在 UDP 里"：外层走三层，内层保留完整二层帧</text>
+<text class="s" x="24" y="48">记住 4789 与 50 字节两个数字，就能回答八成的 VXLAN 排障问题</text>
+
+<text class="lb" x="24" y="74">报文结构（从左到右，由外到内）</text>
+
+<rect x="24" y="86" width="96" height="40" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="b" x="72" y="102" text-anchor="middle">外层以太</text>
+<text class="b" x="72" y="118" text-anchor="middle">14 B</text>
+<rect x="124" y="86" width="96" height="40" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="b" x="172" y="102" text-anchor="middle">外层 IP</text>
+<text class="b" x="172" y="118" text-anchor="middle">20 B</text>
+<rect x="224" y="86" width="96" height="40" rx="3" fill="#f4fbfa" stroke="#0f7f73"/>
+<text class="b" x="272" y="102" text-anchor="middle">UDP</text>
+<text class="b" x="272" y="118" text-anchor="middle">8 B（4789）</text>
+<rect x="324" y="86" width="110" height="40" rx="3" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="b" x="379" y="102" text-anchor="middle">VXLAN</text>
+<text class="b" x="379" y="118" text-anchor="middle">8 B（VNI 24 位）</text>
+<rect x="438" y="86" width="96" height="40" rx="3" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="b" x="486" y="102" text-anchor="middle">内层以太</text>
+<text class="b" x="486" y="118" text-anchor="middle">14 B</text>
+<rect x="538" y="86" width="180" height="40" rx="3" fill="#fff" stroke="#dde5f0"/>
+<text class="b" x="628" y="102" text-anchor="middle">原始 IP 报文（内层 MTU 1450）</text>
+<text class="b" x="628" y="118" text-anchor="middle">保持不变</text>
+
+<text class="r" x="736" y="102">开销合计 50 B</text>
+<text class="c" x="736" y="120">VNI：2^24 ≈ 1600 万</text>
+
+<text class="lb" x="24" y="156">转发路径：VM-A → VM-B（同一 VNI 10001，不同 leaf）</text>
+
+<rect x="40" y="168" width="110" height="46" rx="4" fill="#fdf7f7" stroke="#e3b7b7" stroke-width="1.6"/>
+<text class="n" x="95" y="188" text-anchor="middle">VM-A</text>
+<text class="q" x="95" y="204" text-anchor="middle" font-size="8.5">10.1.1.10</text>
+
+<rect x="196" y="168" width="96" height="46" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="244" y="186" text-anchor="middle">leaf-1</text>
+<text class="b" x="244" y="202" text-anchor="middle" font-size="8.5">VTEP 1.1.1.1</text>
+
+<rect x="330" y="168" width="80" height="46" rx="4" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="370" y="194" text-anchor="middle">spine</text>
+
+<rect x="452" y="168" width="96" height="46" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="1.8"/>
+<text class="n" x="500" y="186" text-anchor="middle">leaf-3</text>
+<text class="b" x="500" y="202" text-anchor="middle" font-size="8.5">VTEP 3.3.3.3</text>
+
+<rect x="586" y="168" width="110" height="46" rx="4" fill="#fdf7f7" stroke="#e3b7b7" stroke-width="1.6"/>
+<text class="n" x="641" y="188" text-anchor="middle">VM-B</text>
+<text class="q" x="641" y="204" text-anchor="middle" font-size="8.5">10.1.1.20</text>
+
+<line x1="150" y1="191" x2="194" y2="191" stroke="#9aa8bd" stroke-width="1.8"/>
+<line x1="292" y1="191" x2="328" y2="191" stroke="#0f7f73" stroke-width="2.4"/>
+<line x1="410" y1="191" x2="450" y2="191" stroke="#0f7f73" stroke-width="2.4"/>
+<line x1="548" y1="191" x2="584" y2="191" stroke="#9aa8bd" stroke-width="1.8"/>
+
+<text class="b" x="300" y="182" font-size="8.5">封装</text>
+<text class="b" x="424" y="182" font-size="8.5">解封装</text>
+
+<text class="c" x="196" y="234">① 收到 VM-A 的帧 → 查 VNI 10001 的 MAC 表 → 得到远端 VTEP 3.3.3.3</text>
+<text class="c" x="196" y="252">② 用 1.1.1.1 → 3.3.3.3 做外层 IP，内层完整保留原以太帧；underlay 只按外层转发</text>
+<text class="c" x="196" y="270">③ leaf-3 剥掉外层，按内层目的 MAC 送给 VM-B；VNI 不同则直接隔离，不做任何互通</text>
+
+<rect x="24" y="286" width="912" height="76" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="306" fill="#b45309">三个必须写进文档的事实</text>
+<text class="b" x="40" y="326">VNI 24 位，规模远超 VLAN 的 4094，但控制面通告量随之增长（MAC 数 × VNI 数是 BGP EVPN 的压力来源）。</text>
+<text class="b" x="40" y="344">VTEP 部署位置决定策略点：在 leaf 上则策略在物理交换机，在主机 vSwitch 上则策略在虚拟化层，两者运维归属不同。</text>
+
+<text class="m" x="24" y="388">MTU 复核：内层 1450 时外层总长 1500；若要求内层 1500，则 underlay 必须 1550 以上（见前图）。</text>
+<text class="r" x="24" y="410">排障起点：show nve peers 看 VTEP 邻居是否 UP；show nve vni 看 VNI 状态；show mac address-table 看 MAC 学在了哪。</text>
+<text class="r" x="24" y="430">ECMP 只哈希外层五元组：同一对 VM 之间的流量只能走一条路径，需要看内层哈希的实现差异。</text>
+</svg>

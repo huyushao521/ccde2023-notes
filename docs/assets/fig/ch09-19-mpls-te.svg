@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 410" width="100%" role="img" aria-labelledby="t919 d919">
+<title id="t919">MPLS TE：IGP 度量选出的路径与实际带宽需求不匹配，以及 TE 能做的四件事</title>
+<desc id="d919">图上是双路径拓扑：站点 A 到站点 B 有两条等价 cost 的路径，上路 10G 已经承载 95% 流量，下路 1G 空闲；IGP 按最短 path 与 ECMP 哈希把一半新流量压到 10G 链路上，导致该链路拥塞而另一条链路闲置。这解释了为什么需要流量工程：IGP 的度量只看拓扑距离，不看带宽利用率。中间列出 TE 能做的四件事：显式路径（约束路径经过或避开指定节点）、带宽预留（为 LSP 预留带宽，让后续 LSP 选路时避开）、亲和属性（链路着属性，LSP 要求或排斥）、快速重路由（FRR 预置备份路径，故障时本地切换）。下方对比三种部署形态：RSVP-TE 逐跳信令、SR Policy 源路由段列表、以及只用 IGP 度量加 ECMP 的"无 TE"方案在带宽不均衡时的失败。底部结论：TE 解决的是"度量与需求脱钩"的问题，代价是多一个控制平面与一个需要持续维护的隧道状态。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="410" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">IGP 度量只认"跳数"，不认"还剩多少带宽" —— TE 存在的唯一理由</text>
+<text class="s" x="24" y="48">当两条路径 cost 相等而带宽差 10 倍时，ECMP 会把一半流量压到已经拥塞的那条</text>
+
+<rect x="60" y="176" width="88" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="104" y="201" text-anchor="middle">PE-A</text>
+<rect x="360" y="176" width="88" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="404" y="201" text-anchor="middle">P</text>
+<rect x="660" y="176" width="88" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="704" y="201" text-anchor="middle">PE-B</text>
+
+<path d="M148 196 C 240 96, 520 96, 660 190" stroke="#a32020" stroke-width="3" fill="none"/>
+<text class="r" x="248" y="106">上路：10G，cost 20，已用 95%</text>
+<path d="M148 200 C 240 300, 520 300, 660 204" stroke="#0f7f73" stroke-width="2" fill="none"/>
+<text class="c" x="248" y="320">下路：1G，cost 20，用 0%（等价 → 分走一半）</text>
+
+<rect x="560" y="112" width="176" height="46" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="x" x="572" y="132" font-size="8.5">结果：10G 链路拥塞</text>
+<text class="x" x="572" y="148" font-size="8.5">而 1G 链路空着</text>
+
+<text class="lb" x="24" y="240">TE 能做的四件事</text>
+<rect x="24" y="250" width="222" height="52" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="k" x="38" y="268">① 显式路径</text>
+<text class="b" x="38" y="286">指定经过或避开某些节点</text>
+<rect x="258" y="250" width="222" height="52" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="k" x="272" y="268">② 带宽预留</text>
+<text class="b" x="272" y="286">为 LSP 预留带宽，后续选路避开</text>
+<rect x="492" y="250" width="222" height="52" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="k" x="506" y="268">③ 亲和属性</text>
+<text class="b" x="506" y="286">链路打标签，LSP 要求或排斥</text>
+<rect x="726" y="250" width="210" height="52" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="k" x="740" y="268">④ 快速重路由 FRR</text>
+<text class="b" x="740" y="286">预置备份路径，故障本地切换</text>
+
+<rect x="24" y="318" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="335">部署形态</text>
+<text class="lb" x="280" y="335">状态维护</text>
+<text class="lb" x="560" y="335">适用</text>
+<rect x="24" y="342" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="360">RSVP-TE 逐跳信令</text>
+<text class="m" x="280" y="360">每跳软状态，路径数乘跳数</text>
+<text class="b" x="560" y="360">需要带宽预留与 FRR 的传统 SP</text>
+<rect x="24" y="368" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="386">SR Policy 段列表</text>
+<text class="c" x="280" y="386">只有控制器与头端，中间无状态</text>
+<text class="b" x="560" y="386">新建网、数据中心与骨干统一</text>
+</svg>

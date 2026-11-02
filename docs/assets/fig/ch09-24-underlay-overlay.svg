@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t924 d924">
+<title id="t924">Underlay 与 Overlay 的边界：物理网只保证 IP 可达，业务拓扑完全由 Overlay 决定</title>
+<desc id="d924">图上是两层网络的分工。下层 Underlay：leaf-spine 拓扑，用 IGP 或 BGP 建立 IP 可达性，只关心"任意两个 VTEP 的环回地址能互通"，特征是无策略、无隔离、路径尽量等价、MTU 要放大。上层 Overlay：VTEP 之间的 VXLAN 隧道，按 VNI 划分租户与业务网段，策略、地址空间、广播域都在这一层定义。中间标注两者的接触点只有三处：VTEP 环回地址的路由、封装后的 MTU、以及 ECMP 哈希对外层五元组的可见性。右侧列出排障分工：业务不通先看 overlay 的 VNI 与 MAC/IP 表；overlay 表正常但不通，再看 underlay 的 VTEP 可达性与 MTU。下方是三条设计约束：underlay 必须做 ECMP 以保证带宽、underlay 必须放大 MTU、underlay 的故障收敛速度决定 overlay 的收敛上限。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">Underlay 只回答一个问题：VTEP 的环回地址能不能互通</text>
+<text class="s" x="24" y="48">它不通，overlay 一定不通；它通了，overlay 也未必通 —— 排障顺序由此确定</text>
+
+<rect x="24" y="62" width="560" height="118" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="82" fill="#0f7f73">Overlay：业务拓扑（VNI、租户、策略、广播域）</text>
+<rect x="60" y="94" width="120" height="32" rx="3" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="120" y="115" text-anchor="middle">VTEP-1</text>
+<rect x="240" y="94" width="120" height="32" rx="3" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="300" y="115" text-anchor="middle">VTEP-2</text>
+<rect x="420" y="94" width="120" height="32" rx="3" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="480" y="115" text-anchor="middle">VTEP-3</text>
+<line x1="180" y1="110" x2="238" y2="110" stroke="#0f7f73" stroke-width="2" stroke-dasharray="6 4"/>
+<line x1="360" y1="110" x2="418" y2="110" stroke="#0f7f73" stroke-width="2" stroke-dasharray="6 4"/>
+<line x1="180" y1="126" x2="418" y2="126" stroke="#0f7f73" stroke-width="1.4" stroke-dasharray="4 4"/>
+<text class="c" x="188" y="142">VXLAN 隧道（VNI 10001 / 10002）</text>
+<text class="c" x="60" y="166">策略、地址空间、广播域都在这一层定义；租户之间在这里隔离</text>
+
+<rect x="24" y="190" width="560" height="86" rx="5" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="lb" x="40" y="210" fill="#4a5a72">Underlay：leaf-spine，只保证 IP 可达</text>
+<rect x="60" y="222" width="90" height="28" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="105" y="241" text-anchor="middle">leaf-1</text>
+<rect x="60" y="262" width="90" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="105" y="280" text-anchor="middle">leaf-2</text>
+<rect x="220" y="222" width="90" height="28" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="265" y="241" text-anchor="middle">spine-1</text>
+<rect x="220" y="262" width="90" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="265" y="280" text-anchor="middle">spine-2</text>
+<line x1="150" y1="236" x2="218" y2="236" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="150" y1="272" x2="218" y2="272" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="150" y1="232" x2="218" y2="276" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="3 3"/>
+<line x1="150" y1="276" x2="218" y2="232" stroke="#9aa8bd" stroke-width="1.2" stroke-dasharray="3 3"/>
+<text class="b" x="340" y="240">无策略、无隔离、尽量 ECMP</text>
+<text class="b" x="340" y="258">MTU 必须放大；收敛速度决定 overlay 上限</text>
+<text class="r" x="340" y="274">underlay 打满 = overlay 全部租户一起抖</text>
+
+<rect x="608" y="62" width="328" height="214" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="624" y="82">两层只有三个接触点</text>
+<text class="b" x="624" y="104">① VTEP 环回地址的路由（underlay 提供）</text>
+<text class="b" x="624" y="126">② 封装后的 MTU（underlay 必须放大）</text>
+<text class="b" x="624" y="148">③ ECMP 哈希（只看外层五元组，内层不可见）</text>
+
+<text class="lb" x="624" y="180">排障分工</text>
+<text class="b" x="624" y="200">业务不通 → 先看 overlay 的 VNI / MAC 表 / IP 表</text>
+<text class="b" x="624" y="220">overlay 正常 → 再看 underlay 的 VTEP 互通与 MTU</text>
+<text class="c" x="624" y="240">顺序颠倒是排障最常犯的错：先查物理，浪费半小时</text>
+<text class="r" x="624" y="262">经验：underlay 用 BGP 时，先用 BGP 表确认 VTEP 前缀</text>
+
+<rect x="24" y="292" width="912" height="52" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="312" fill="#b45309">三条设计约束（做不到就不该上 overlay）</text>
+<text class="b" x="40" y="332">underlay 必须全互通且做 ECMP；underlay 所有链路 MTU 统一放大；underlay 收敛要做到亚秒级，否则 overlay 的多路径优势被抵消。</text>
+
+<text class="m" x="24" y="372">一个常见误解：以为 overlay 能救 underlay。实际上 overlay 只是把问题从"拓扑"转移到"封装与隧道"，底层的带宽与收敛仍然决定体验。</text>
+<text class="r" x="24" y="394">验收：traceroute 从 leaf-1 到 leaf-2 看是否走 spine 的多条路径；ping 带 DF 位 1550 字节确认 MTU。</text>
+<text class="c" x="24" y="412"> </text>
+</svg>

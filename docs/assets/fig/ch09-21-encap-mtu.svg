@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t921 d921">
+<title id="t921">各种封装的开销与 MTU 换算：1500 的接口 MTU 在 VXLAN 下只剩 1450</title>
+<desc id="d921">图上是四层开销条：裸 IP 无额外开销；GRE 4 字节外层 IP 加 4 字节 GRE 头共 24 字节；IPsec 隧道模式外层 IP 20 加 ESP 8 加 IV 与填充约 50 到 70 字节；VXLAN 外层 IP 20 加 UDP 8 加 VXLAN 8 加内层以太头 14 共 50 字节。右侧是换算表：底层 MTU 1500 时，VXLAN 能承载的内层 IP MTU 是 1450；底层 MTU 9000 时，VXLAN 内层可达 8950。所以 1500 的前提下必须把 underlay 调到 1550 以上，否则内层主机只能把 MSS 降到 1450。下方是三个常被忽略的叠加：VXLAN over IPsec 会把两份开销相加；双栈 VXLAN 加 MPLS 标签还会再加 4 到 12 字节；隧道嵌套（GRE over IPsec）能达到 100 字节以上。底部是计算口诀与一个具体数字：所有层开销相加再加内层 MTU 不能超过物理 MTU。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">MTU 是最容易算错、也最容易"只在大包上出错"的一项</text>
+<text class="s" x="24" y="48">ping 小包通、传文件断；SSH 能连、网页打不开 —— 先怀疑 MTU，而不是路由</text>
+
+<text class="lb" x="24" y="76">四种封装的开销（按字节）</text>
+
+<rect x="24" y="88" width="120" height="24" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="b" x="40" y="105">裸 IP</text>
+<rect x="144" y="88" width="420" height="24" fill="#f6f7f9" stroke="#dde5f0"/>
+<text class="n" x="160" y="105">0 字节 —— 基准</text>
+
+<rect x="24" y="122" width="120" height="24" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="b" x="40" y="139">GRE</text>
+<rect x="144" y="122" width="120" height="24" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="r" x="156" y="139">24 字节</text>
+<text class="b" x="280" y="139">外层 IP 20 + GRE 4（不含选项）</text>
+
+<rect x="24" y="156" width="120" height="24" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="b" x="40" y="173">IPsec 隧道模式</text>
+<rect x="144" y="156" width="260" height="24" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="156" y="173">50~70 字节</text>
+<text class="b" x="420" y="173">外层 IP 20 + ESP 8 + IV/填充/认证（依算法）</text>
+
+<rect x="24" y="190" width="120" height="24" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="b" x="40" y="207">VXLAN</text>
+<rect x="144" y="190" width="200" height="24" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="r" x="156" y="207">50 字节</text>
+<text class="b" x="360" y="207">外层 IP 20 + UDP 8 + VXLAN 8 + 内层以太 14</text>
+
+<rect x="24" y="232" width="440" height="112" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="252">换算：底层 MTU 决定内层能有多大</text>
+<text class="b" x="40" y="274">底层 1500 → VXLAN 内层 IP 1450（1500 − 50）</text>
+<text class="b" x="40" y="294">底层 1550 → VXLAN 内层 IP 1500（推荐配置）</text>
+<text class="b" x="40" y="314">底层 9000 → VXLAN 内层 8950（数据中心 Jumbo）</text>
+<text class="r" x="40" y="336">底层不改，就只能让内层主机降 MSS —— 两者必选一个</text>
+
+<rect x="496" y="232" width="440" height="112" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="516" y="252" fill="#a32020">三种叠加，开销会翻倍</text>
+<text class="b" x="516" y="274">VXLAN over IPsec：50 + 70 = 120 字节</text>
+<text class="b" x="516" y="294">VXLAN + MPLS：50 + 4~12 = 54~62 字节</text>
+<text class="b" x="516" y="314">GRE over IPsec 嵌套：可达 100 字节以上</text>
+<text class="r" x="516" y="336">每叠一层，就要重算一次 MTU，不能凭经验估算</text>
+
+<rect x="24" y="356" width="912" height="70" rx="4" fill="#f8fbf8" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="376" fill="#0f7f73">计算口诀（写进设计文档，不要留在脑子里）</text>
+<text class="b" x="40" y="396">内层 MTU + 所有层封装开销 ≤ 物理链路 MTU。例：内层 1500 + VXLAN 50 = 1550 → underlay 接口与沿途所有链路都必须 ≥ 1550。</text>
+<text class="r" x="40" y="416">最容易漏的是"沿途所有链路"：核心配了 1550，汇聚还是 1500，故障只在大包上出现。</text>
+</svg>

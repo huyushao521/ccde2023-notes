@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t920 d920">
+<title id="t920">TE 的代价与三条替代路线：RSVP-TE、SR Policy、以及只调度量加 ECMP</title>
+<desc id="d920">图上是三条路线对比。路线一 RSVP-TE：为每条隧道在每一跳维护软状态，隧道数与路径长度相乘就是状态总量，优势是可以做带宽预留与 FRR，代价是故障时状态重建慢、跨域难。路线二 SR Policy：头端压入段列表，中间节点无状态，只按段列表转发，扩展性好、跨域简单，代价是需要控制器算路与标签栈深度限制。路线三只调 IGP 度量加 ECMP：零额外协议，把宽带链路 cost 调低让流量自然倾斜，适合"两条链路带宽固定且差异明显"的简单场景。下方是选型的三问：是否需要带宽预留（是则 RSVP-TE 或 SR 带带宽约束）；是否跨域（跨域优先 SR）；运维团队是否能维护控制器（否则先做度量调整）。底部结论：TE 的收益是利用率与确定性路径，代价是状态、控制器与排障复杂度。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">TE 的收益是利用率与确定性，代价是状态量与排障复杂度</text>
+<text class="s" x="24" y="48">先问"能不能只调度量"，再问"要不要上 TE" —— 大多数企业网停在第一步就够了</text>
+
+<rect x="24" y="62" width="292" height="176" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="82" fill="#b45309">路线一：RSVP-TE</text>
+<text class="b" x="40" y="102">逐跳信令，每跳维护软状态</text>
+<text class="b" x="40" y="120">状态量 = 隧道数 × 路径跳数</text>
+<text class="c" x="40" y="142">能做：带宽预留、亲和属性、FRR</text>
+<text class="r" x="40" y="164">代价：故障时状态重建慢</text>
+<text class="r" x="40" y="182">跨域几乎做不动</text>
+<text class="x" x="40" y="204">适合：单域骨干、需要硬带宽保证</text>
+<text class="b" x="40" y="224">排障要看每跳 RSVP 状态，链路中间无法定位</text>
+
+<rect x="334" y="62" width="292" height="176" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="350" y="82" fill="#0f7f73">路线二：SR Policy（推荐新建）</text>
+<text class="b" x="350" y="102">头端压入段列表，中间节点无状态</text>
+<text class="b" x="350" y="120">扩展性最好，跨域只依赖 BGP</text>
+<text class="c" x="350" y="142">能做：显式路径、带宽约束、按业务分流</text>
+<text class="r" x="350" y="164">代价：依赖控制器算路</text>
+<text class="r" x="350" y="182">受标签栈深度限制（硬件相关）</text>
+<text class="c" x="350" y="204">适合：DC 与骨干统一、SRv6 演进路线</text>
+<text class="b" x="350" y="224">排障看头端的段列表是否与实际意图一致</text>
+
+<rect x="644" y="62" width="292" height="176" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="660" y="82">路线三：只调度量 + ECMP</text>
+<text class="b" x="660" y="102">把宽带链路 cost 调低，让流量倾斜</text>
+<text class="b" x="660" y="120">零额外协议、零控制器</text>
+<text class="c" x="660" y="142">能做：两条链路带宽差异明显时的简单分流</text>
+<text class="r" x="660" y="164">做不到：带宽预留、按业务选路</text>
+<text class="r" x="660" y="182">哈希不均时仍会打满单条链路</text>
+<text class="m" x="660" y="204">适合：企业双出口、成本敏感</text>
+<text class="b" x="660" y="224">注意：度量是全局的，调低会影响所有流量</text>
+
+<rect x="24" y="256" width="912" height="120" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="276">选型三问，按顺序回答就定下来了</text>
+<text class="b" x="40" y="298">① 是否需要"硬带宽预留"（合同级 SLA、语音专用通道）？否 → 路线三；是 → 继续</text>
+<text class="b" x="40" y="318">② 是否需要跨 IGP 域或跨 AS 的确定性路径？是 → 路线二（SR Policy）</text>
+<text class="b" x="40" y="338">③ 团队能否维护控制器与算路服务（含备份与升级）？否 → 退回路线一或先做度量优化</text>
+<text class="r" x="40" y="362">三条路线都不解决"流量模型本身错了"的问题：先确认业务真的需要这条路径。</text>
+</svg>

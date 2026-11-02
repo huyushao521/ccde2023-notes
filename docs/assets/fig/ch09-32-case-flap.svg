@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t932 d932">
+<title id="t932">案例三：双归属站点加后门链路，Domain ID 不一致导致 BGP 与 OSPF 互搏</title>
+<desc id="d932">图上还原案例三。工厂通过两个 PE 双归属接入 MPLS，同时有一条微波链路直连总部作为后门，设计意图是 MPLS 为主、微波为备。实际运行中业务时通时断，traceroute 显示路径在两个出口之间来回变，部分会话 TTL 耗尽。排查发现两端 PE 的 OSPF Domain ID 不一致，一侧是默认 0.0.0.1，另一侧被手工改过。因为不一致，PE 把对方经 MP-BGP 传来的 Type 3 LSA 当成来自另一个 OSPF 域的路由，重新生成 LSA 并再次重分发回 BGP，形成 BGP 到 OSPF 再到 BGP 的回流，DN 位防环机制失效。微波链路 OSPF cost 低，于是永远是 intra-area 优选，而 MPLS 侧又不断覆盖回来，两端互搏。右侧是修复三件套：两端 Domain ID 统一为 0.0.0.1；用 sham-link（10.255.0.1 到 10.255.0.2，cost 10）把 MPLS 伪装成 intra-area；备份链路显式抬高 cost 到 65535 并用 BFD 快速探测。底部给出教训：有后门链路就必须处理协议优先级问题，后门不只是备用，它会主动抢流量。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">案例三：两端 Domain ID 不一致，DN 位防环机制直接失效</text>
+<text class="s" x="24" y="48">后门链路不是"备用"，它按 OSPF 的优先级规则主动抢流量</text>
+
+<rect x="60" y="70" width="120" height="44" rx="4" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="120" y="90" text-anchor="middle">工厂 CE</text>
+<text class="b" x="120" y="106" text-anchor="middle" font-size="8.5">双归属</text>
+
+<rect x="250" y="70" width="80" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="290" y="95" text-anchor="middle">PE-1</text>
+<rect x="250" y="130" width="80" height="40" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="290" y="155" text-anchor="middle">PE-2</text>
+
+<rect x="390" y="92" width="86" height="46" rx="4" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="433" y="112" text-anchor="middle">MPLS</text>
+<text class="b" x="433" y="128" text-anchor="middle" font-size="8.5">主用</text>
+
+<rect x="536" y="92" width="80" height="46" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="576" y="120" text-anchor="middle">PE-3</text>
+<rect x="676" y="92" width="120" height="46" rx="4" fill="#fdf7f7" stroke="#a32020"/>
+<text class="n" x="736" y="112" text-anchor="middle">总部 CE</text>
+<text class="b" x="736" y="128" text-anchor="middle" font-size="8.5">OSPF area 0</text>
+
+<line x1="180" y1="88" x2="248" y2="88" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="180" y1="98" x2="248" y2="148" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="330" y1="90" x2="388" y2="108" stroke="#2f6fed" stroke-width="2"/>
+<line x1="330" y1="150" x2="388" y2="124" stroke="#2f6fed" stroke-width="2"/>
+<line x1="476" y1="115" x2="534" y2="115" stroke="#2f6fed" stroke-width="2"/>
+<line x1="616" y1="115" x2="674" y2="115" stroke="#9aa8bd" stroke-width="1.8"/>
+
+<path d="M126 114 C 240 210, 560 210, 690 140" stroke="#a32020" stroke-width="2.4" fill="none" stroke-dasharray="7 4"/>
+<text class="r" x="270" y="206">微波后门 10M：OSPF cost 低 → 永远是 intra-area，稳赢 1G 的 MPLS</text>
+
+<rect x="24" y="230" width="470" height="94" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="250" fill="#a32020">互搏的形成过程</text>
+<text class="b" x="40" y="270">① PE-1 的 Domain ID 是 0.0.0.1，PE-3 被手工改成别的值</text>
+<text class="b" x="40" y="288">② PE 把对方 MP-BGP 传来的 Type 3 LSA 当成"另一个 OSPF 域"</text>
+<text class="b" x="40" y="306">③ 重新生成 LSA 并再重分发回 BGP → BGP→OSPF→BGP 回流，DN 位失效</text>
+<text class="r" x="40" y="320">④ 微波路径与 MPLS 路径互相覆盖，traceroute 来回变、TTL 耗尽</text>
+
+<rect x="510" y="230" width="426" height="94" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="526" y="250" fill="#0f7f73">修复三件套（缺一不可）</text>
+<text class="b" x="526" y="270">① 两端统一 domain-id 0.0.0.1</text>
+<text class="b" x="526" y="288">② area 0 sham-link 10.255.0.1 10.255.0.2 cost 10（把 MPLS 提升为 intra-area）</text>
+<text class="b" x="526" y="306">③ 备份链路 ip ospf cost 65535，并用 BFD 快速探测</text>
+<text class="c" x="526" y="320">效果：MPLS 主用、微波只在 MPLS 故障时接管</text>
+
+<rect x="24" y="340" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="357">同一问题的三种协议解法</text>
+<rect x="24" y="364" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="382">OSPF：Domain ID 一致 + sham-link（把 MPLS 伪装成 intra-area）</text>
+<text class="b" x="480" y="382">EIGRP：SoO + cost community；BGP：SoO + LP</text>
+<rect x="24" y="390" width="912" height="26" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="40" y="408">共同点：都要"显式声明哪条是主"，不能指望默认度量替你决定</text>
+</svg>

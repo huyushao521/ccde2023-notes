@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t99 d99">
+<title id="t99">SoO、as-override 与 allowas-in 三种防环机制的部署位置与代价</title>
+<desc id="d99">上半部分说明 SoO 的工作机制：PE 把 EIGRP 路由重分发进 BGP 时附加 SoO 扩展团体（AS:nn 或 IP:nn，通常用站点标识），另一侧 PE 把 BGP 路由重分发回 EIGRP 时，若发现 SoO 等于本站点配置的 SoO 就拒绝，因为这条路由本来就是自己发出去的。EIGRP 还有 cost community 机制，在后门链路更近但更差的场景下强制优选 MPLS。下半部分是 BGP PE-CE 的三把钥匙拓扑：客户站点双归到同一运营商的两个 PE 且客户 AS 相同，PE 发出路由时把客户 AS 加进 AS_PATH，另一个 PE 再发给客户时客户看到自己的 AS 而丢弃。左侧解法是 PE 侧配 as-override 把客户 AS 替换成运营商 AS，客户无感但破坏了 AS_PATH 防环语义；右侧解法是客户侧配 allowas-in，客户可控但需要客户改配置。底部表格对比三种场景与对应解法。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">三条防环线索：SoO 管后门、as-override 管 AS 重叠、allowas-in 是客户侧备选</text>
+<text class="s" x="24" y="48">同一个物理现象（多一条链路），在三种协议里要配三个不同的机制</text>
+
+<rect x="24" y="62" width="440" height="120" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="82" fill="#0f7f73">SoO（Site of Origin）三步</text>
+<text class="b" x="40" y="102">① PE 把 EIGRP 路由重分发进 BGP 时附加 SoO 团体</text>
+<text class="b" x="40" y="120">② 对端 PE 回灌 EIGRP 时比对 SoO 与本站点值</text>
+<text class="b" x="40" y="138">③ 相等就拒绝 —— "这条路由本来就是我发出去的"</text>
+<text class="c" x="40" y="160">补充：cost community 可在"后门更近但更差"时强制优选 MPLS</text>
+<text class="c" x="40" y="176">BGP 侧也用它：bgp dmzlink-bw 还能做带宽感知</text>
+
+<rect x="496" y="62" width="440" height="120" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="516" y="82">三把钥匙对照表</text>
+<text class="b" x="516" y="102">双归同一运营商 + 客户 AS 相同 → as-override / allowas-in</text>
+<text class="b" x="516" y="120">客户与运营商 AS 号冲突 → 同上</text>
+<text class="b" x="516" y="138">站点有后门链路且两端是 BGP → SoO</text>
+<text class="r" x="516" y="160">共同点：都在"重分发/通告"这一刻动手，不是数据面过滤</text>
+<text class="r" x="516" y="176">所以它们都改不了既有会话，只影响新路由</text>
+
+<text class="lb" x="24" y="206">拓扑：客户 AS 65001 双归到运营商 AS 65000 的两个 PE</text>
+
+<ellipse cx="92" cy="262" rx="50" ry="22" fill="#fff" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="n" x="92" y="266" text-anchor="middle">CE（AS 65001）</text>
+<rect x="214" y="230" width="62" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="245" y="248" text-anchor="middle">PE1</text>
+<rect x="214" y="272" width="62" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="245" y="290" text-anchor="middle">PE2</text>
+<line x1="142" y1="256" x2="212" y2="243" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="142" y1="270" x2="212" y2="285" stroke="#9aa8bd" stroke-width="1.6"/>
+<line x1="276" y1="243" x2="360" y2="243" stroke="#2f6fed" stroke-width="2"/>
+<line x1="276" y1="285" x2="360" y2="285" stroke="#2f6fed" stroke-width="2"/>
+<rect x="360" y="232" width="70" height="64" rx="4" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="n" x="395" y="258" text-anchor="middle">P 网</text>
+<text class="b" x="395" y="276" text-anchor="middle">AS 65000</text>
+
+<rect x="470" y="230" width="212" height="80" rx="4" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="x" x="484" y="250">不加处理：PE2 发给 CE 的路由</text>
+<text class="x" x="484" y="268">AS_PATH = 65000 65001</text>
+<text class="r" x="484" y="290">CE 看到自己的 AS 在路径里 → 直接丢弃</text>
+<text class="r" x="484" y="306">结果：双归的备链路学不到路由</text>
+
+<rect x="700" y="230" width="236" height="36" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="714" y="253">解法 A：PE 侧 as-override（客户无感）</text>
+<rect x="700" y="272" width="236" height="38" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="m" x="714" y="288">代价：客户 AS_PATH 不再可信，</text>
+<text class="m" x="714" y="304">防环语义被破坏</text>
+
+<rect x="24" y="330" width="912" height="76" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="lb" x="40" y="350">解法 B：客户侧 allowas-in</text>
+<text class="b" x="40" y="370">在 CE 上允许自己的 AS 出现一次（neighbor x.x.x.x allowas-in 1），客户自主可控，但要求客户修改配置，且次数写错就等于放开环。</text>
+<text class="r" x="40" y="392">跨运营商场景通常只能选 allowas-in —— 你没有权限改对端 PE 的配置。</text>
+</svg>

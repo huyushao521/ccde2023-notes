@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t918 d918">
+<title id="t918">EVPN 多归属：ESI All-Active、DF 选举与 MAC 双归通告的拓扑</title>
+<desc id="d918">图上是 EVPN 多归属的完整拓扑。左侧是双归服务器或交换机，通过两条链路分别接到 PE1 与 PE2，这两条链路配置同一个 ESI（Ethernet Segment Identifier，如 00:11:22:33:44:55:66:77:88:99），代表同一台主机的同一段网络。PE1 与 PE2 各自用 RT-1 Ethernet A-D 通告 ESI，用 RT-4 Ethernet Segment 参与 DF（Designated Forwarder）选举，用 RT-2 通告学到的 MAC 并带上 ESI 与别名信息。右侧是远端 PE3：它看到同一个 MAC 有两条路径但 ESI 相同，于是把它当作等价路径做多活转发，而不是像 VPLS 那样只留一条并阻塞另一条。BUM 流量只有 DF 转发，避免重复。下方标注收敛过程：一条链路断开时，PE 只需撤销对应的 A-D 路由，PE3 立即切换到另一条路径，无需等待 STP 计时器，收敛从秒级降到百毫秒以内。底部说明 ESI 设计的三条要点：ESI 必须与物理链路解耦、同一站点的两条链路必须同 ESI、跨厂商时确认 A-D 与 DF 选举的支持程度。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">EVPN 多归属：同一个 ESI 的链路可以同时转发，这是它与 VPLS 最本质的差别</text>
+<text class="s" x="24" y="48">VPLS 靠阻塞防环，EVPN 靠控制面协商 —— 一个浪费带宽，一个不浪费</text>
+
+<ellipse cx="96" cy="196" rx="62" ry="26" fill="#fff" stroke="#9aa8bd" stroke-width="1.8"/>
+<text class="n" x="96" y="194" text-anchor="middle">双归服务器 / ToR</text>
+<text class="q" x="96" y="210" text-anchor="middle">MAC 00:aa:bb</text>
+
+<rect x="212" y="150" width="96" height="44" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="260" y="170" text-anchor="middle">PE1</text>
+<text class="q" x="260" y="186" text-anchor="middle" font-size="8.5">ESI 00:11:22…</text>
+
+<rect x="212" y="212" width="96" height="44" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="260" y="232" text-anchor="middle">PE2</text>
+<text class="q" x="260" y="248" text-anchor="middle" font-size="8.5">ESI 00:11:22…</text>
+
+<line x1="158" y1="186" x2="210" y2="174" stroke="#2f6fed" stroke-width="2"/>
+<line x1="158" y1="206" x2="210" y2="228" stroke="#2f6fed" stroke-width="2"/>
+<text class="b" x="150" y="150" font-size="8.5">两条链路</text>
+<text class="b" x="150" y="162" font-size="8.5">同一 ESI</text>
+
+<rect x="376" y="170" width="86" height="60" rx="4" fill="#e6f4f1" stroke="#0f7f73" stroke-width="2"/>
+<text class="n" x="419" y="192" text-anchor="middle">RR</text>
+<text class="b" x="419" y="208" text-anchor="middle" font-size="8.5">BGP EVPN</text>
+<text class="c" x="419" y="222" text-anchor="middle" font-size="8.5">EVI 100</text>
+
+<line x1="308" y1="172" x2="374" y2="190" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="308" y1="234" x2="374" y2="212" stroke="#0f7f73" stroke-width="1.6"/>
+
+<rect x="560" y="170" width="96" height="60" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="n" x="608" y="192" text-anchor="middle">PE3</text>
+<text class="b" x="608" y="208" text-anchor="middle" font-size="8.5">远端</text>
+<text class="c" x="608" y="222" text-anchor="middle" font-size="8.5">EVI 100</text>
+<line x1="462" y1="196" x2="558" y2="196" stroke="#0f7f73" stroke-width="1.6" stroke-dasharray="5 3"/>
+
+<rect x="700" y="120" width="236" height="150" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="714" y="140" fill="#0f7f73">PE3 看到的路由</text>
+<text class="b" x="714" y="160">RT-2 MAC 00:aa:bb</text>
+<text class="q" x="726" y="176" font-size="8.5">路径 1 → PE1（ESI 0011）</text>
+<text class="q" x="726" y="192" font-size="8.5">路径 2 → PE2（ESI 0011）</text>
+<text class="c" x="714" y="212">ESI 相同 → 视为等价多活，两条都用</text>
+<text class="b" x="714" y="232">RT-1 A-D 用来快速撤销</text>
+<text class="b" x="714" y="248">RT-4 用来做 DF 选举（BUM 只由 DF 转发）</text>
+<text class="r" x="714" y="266" font-size="8.5">VPLS 在这里只能留一条并阻塞另一条</text>
+
+<rect x="24" y="290" width="912" height="60" rx="4" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="310" fill="#b45309">收敛过程：一条链路断开时发生了什么</text>
+<text class="b" x="40" y="330">PE1 撤销它的 RT-1 A-D 路由 → PE3 从转发表里删掉这条路径 → 流量立刻走 PE2，不经过 STP 阻塞与转发延迟，实测百毫秒以内。</text>
+
+<text class="m" x="24" y="372">ESI 设计三条要点：ESI 必须与物理链路解耦（同一站点的两条链路共用同一 ESI）；同站点必须同 ESI，否则变成两个独立多归属；跨厂商要确认 A-D 与 DF 选举的支持程度。</text>
+<text class="c" x="24" y="394">验收：show evpn ethernet-segment 看到 ESI 与 DF 状态；show l2vpn evpn route type 2 看到同一 MAC 的两条路径。</text>
+<text class="r" x="24" y="416">常见错误：ESI 配成链路级唯一，于是两条路径不被认作同一段，多活退化成主备甚至环路。</text>
+</svg>

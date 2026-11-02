@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t96 d96">
+<title id="t96">VPNv4 路由结构、RR 的必要性与 Inter-AS 三种选项</title>
+<desc id="d96">上方是 VPNv4 路由的组成：RD 8 字节加 IPv4 4 字节构成 12 字节前缀，后面跟 3 字节标签字段（20 bit）、一个或多个 8 字节 RT 扩展团体、下一跳与 MED、Local Preference、AS_PATH 等属性。中间是规模测算：PE 数量增加时 full mesh iBGP 会话按 N(N-1)/2 增长，50 个 PE 就是 1225 条会话，因此 VPNv4 必须用路由反射器，每集群两台冗余，RR 应当是纯控制面设备，绝不能兼作 PE。下方并排三个小拓扑对比 Inter-AS 的三种选项：Option A 是 ASBR 之间背靠背的 VRF 互连，每 VPN 一个 VRF，扩展性最差；Option B 是 ASBR 之间跑 MP-eBGP 交换 VPNv4，ASBR 要保存全部 VPN 路由；Option C 是 RR 之间多跳 MP-eBGP，ASBR 只转发，扩展性最好但需要标签保留与 BGP LSP。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">VPNv4 = RD + 前缀 + 标签 + RT，PE 之间靠它交换"哪个 VRF 里的哪条路由"</text>
+<text class="s" x="24" y="48">一条路由带走了三样东西：唯一性（RD）、转发指令（标签）、分发策略（RT）</text>
+
+<rect x="24" y="62" width="912" height="30" rx="3" fill="#eef3fd" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="82">RD（8B）</text>
+<text class="lb" x="180" y="82">IPv4 前缀（4B）</text>
+<text class="lb" x="380" y="82">VPN 标签（3B / 20bit）</text>
+<text class="lb" x="560" y="82">RT 扩展团体（每个 8B，可多个）</text>
+<text class="lb" x="780" y="82">下一跳 / MED / LP / AS_PATH</text>
+<rect x="24" y="92" width="912" height="26" fill="#fff" stroke="#dde5f0"/>
+<text class="b" x="40" y="110">65000:1</text>
+<text class="b" x="180" y="110">10.1.1.0/24</text>
+<text class="b" x="380" y="110">由 MP-BGP 分配</text>
+<text class="b" x="560" y="110">65000:100</text>
+<text class="b" x="780" y="110">PE1 的环回地址</text>
+
+<text class="lb" x="24" y="146">规模算术：为什么 VPNv4 必须用 RR</text>
+<rect x="24" y="156" width="440" height="120" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="b" x="40" y="176">PE 数  会话数 N(N-1)/2</text>
+<text class="b" x="40" y="196">   5        10</text>
+<text class="b" x="40" y="214">  10        45</text>
+<text class="b" x="40" y="232">  50      1225</text>
+<text class="b" x="40" y="250"> 100      4950</text>
+<text class="r" x="40" y="270">每条会话都要维护策略、定时器与内存，不可扩展</text>
+
+<rect x="496" y="156" width="440" height="120" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="516" y="176">RR 设计六条（写进设计文档）</text>
+<text class="b" x="516" y="196">每集群 2 台冗余；放 P 网侧或客户自建</text>
+<text class="b" x="516" y="214">单独启用 address-family vpnv4</text>
+<text class="b" x="516" y="232">RR 默认不改下一跳（它不进数据面）</text>
+<text class="b" x="516" y="250">多集群显式配 Cluster ID，别用 Router ID</text>
+<text class="r" x="516" y="270">RR 兼作 PE 是陷阱：CPU 被反射打满会连带转发</text>
+
+<text class="lb" x="24" y="300">Inter-AS 三个选项：ASBR 上到底存不存 VPN 路由</text>
+<rect x="24" y="310" width="292" height="106" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="k" x="40" y="330">Option A：VRF 背靠背</text>
+<line x1="60" y1="356" x2="130" y2="356" stroke="#9aa8bd" stroke-width="1.6"/>
+<rect x="46" y="346" width="14" height="20" fill="#eef3fd" stroke="#2f6fed"/>
+<rect x="130" y="346" width="14" height="20" fill="#eef3fd" stroke="#2f6fed"/>
+<line x1="144" y1="356" x2="280" y2="356" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="b" x="40" y="380">每 VPN 一个 VRF，ASBR 之间走普通 IP</text>
+<text class="r" x="40" y="398">扩展性最差：VPN 数 × 站点数就是 VRF 数</text>
+
+<rect x="330" y="310" width="292" height="106" rx="5" fill="#fff" stroke="#dde5f0"/>
+<text class="k" x="346" y="330">Option B：ASBR 跑 MP-eBGP</text>
+<line x1="366" y1="356" x2="436" y2="356" stroke="#2f6fed" stroke-width="2"/>
+<rect x="352" y="346" width="14" height="20" fill="#eef3fd" stroke="#2f6fed"/>
+<rect x="436" y="346" width="14" height="20" fill="#eef3fd" stroke="#2f6fed"/>
+<line x1="450" y1="356" x2="586" y2="356" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="b" x="346" y="380">ASBR 交换 VPNv4，不需要每 VPN 一个 VRF</text>
+<text class="m" x="346" y="398">代价：ASBR 存全部 VPN 路由，需 next-hop-self + LSP</text>
+
+<rect x="636" y="310" width="300" height="106" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="652" y="330" fill="#0f7f73">Option C：RR 之间多跳 MP-eBGP</text>
+<line x1="672" y1="356" x2="742" y2="356" stroke="#b6dcd6" stroke-width="1.6" stroke-dasharray="4 3"/>
+<rect x="658" y="346" width="14" height="20" fill="#f6f7f9" stroke="#9aa8bd"/>
+<rect x="742" y="346" width="14" height="20" fill="#f6f7f9" stroke="#9aa8bd"/>
+<line x1="756" y1="356" x2="900" y2="356" stroke="#0f7f73" stroke-width="2"/>
+<text class="b" x="652" y="380">ASBR 只转发，不存 VPN 路由；RR 之间直接建会话</text>
+<text class="c" x="652" y="398">代价：要 label retention + BGP LSP，配置与排障最复杂</text>
+</svg>

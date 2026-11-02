@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420" width="100%" role="img" aria-labelledby="t933 d933">
+<title id="t933">案例四：SD-WAN 语音每小时断一次 —— 阈值落在波动带中间的乒乓切换</title>
+<desc id="d933">图上还原案例四。SD-WAN 双传输，MPLS 为主、互联网为备，语音走 AAR，规则是丢包大于 1% 或时延大于 150ms 就切到备链路。上线后语音每小时断几秒，切换频繁。vManage 的 AAR 日志显示每小时在两个 TLOC 之间来回切 20 到 40 次。原因是 MPLS 链路时延实测在 130 到 165ms 之间波动，P95 为 168ms，而阈值设成 150ms 正好落在波动带中间，越过就切、回落就切回；加上 AAR 的 hold-down 与 backoff 默认值很短，形成乒乓。图中画出一条时延波动曲线与 150ms 阈值线的交叠区域。右侧给出四条修复：阈值按 P95 而非均值设定（实测 168 → 设 200ms）；拉开 hold-down，切走要快（几秒）、切回要慢（几分钟）；优先用丢包与抖动做主判据，语音对时延容忍度更高；关键站点保留 MPLS 专线承载语音，AAR 只做兜底。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+  .x{font:9.5px "Segoe UI",sans-serif;fill:#a32020}
+</style>
+
+<rect x="0" y="0" width="960" height="420" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">案例四：把阈值设成均值，等于把网络交给随机数</text>
+<text class="s" x="24" y="48">AAR 的"切走"和"切回"必须是两个不对称的参数</text>
+
+<text class="lb" x="24" y="72">MPLS 链路时延实测曲线（横轴为时间）与 150ms 阈值</text>
+
+<rect x="24" y="82" width="600" height="150" rx="4" fill="#fff" stroke="#dde5f0"/>
+<line x1="44" y1="200" x2="604" y2="200" stroke="#dde5f0"/>
+<line x1="44" y1="110" x2="604" y2="110" stroke="#a32020" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text class="r" x="548" y="106">阈值 150ms</text>
+
+<path d="M44 170 L74 156 L104 140 L134 118 L164 134 L194 106 L224 128 L254 150 L284 120 L314 100 L344 138 L374 158 L404 122 L434 146 L464 112 L494 142 L524 130 L554 152 L584 118 L604 134"
+      stroke="#2f6fed" stroke-width="2" fill="none"/>
+<text class="b" x="44" y="222">波动区间 130–165ms，P95 = 168ms</text>
+<text class="r" x="300" y="222">曲线频繁穿过阈值 → 每小时切 20~40 次</text>
+
+<rect x="24" y="236" width="600" height="24" rx="3" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="x" x="40" y="253">乒乓机理：越线就切走 → 回落立即切回（hold-down 默认很短）→ 再越线 → 再切</text>
+
+<rect x="648" y="82" width="288" height="178" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="664" y="102" fill="#0f7f73">修复四条</text>
+<text class="b" x="664" y="124">① 阈值按 P95 而非均值：168 → 设 200ms</text>
+<text class="b" x="664" y="146">② 拉开 hold-down：切走快（几秒），切回慢（几分钟）</text>
+<text class="b" x="664" y="168">③ 主判据换成丢包与抖动（语音更敏感）</text>
+<text class="b" x="664" y="190">④ 关键站点保 MPLS 专线承载语音，AAR 只兜底</text>
+<text class="c" x="664" y="216">核心思想：阈值要落在"分布之外"，不是"分布之中"</text>
+<text class="r" x="664" y="242">不改阈值只调 hold-down，只会把"频繁断"变成"长时间断"</text>
+
+<rect x="24" y="276" width="912" height="24" rx="3" fill="#eef3fd"/>
+<text class="lb" x="40" y="293">排查顺序（案例里实际走过的四步）</text>
+<rect x="24" y="300" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="318">① 看 vManage 的 AAR 日志切换次数：每小时 20~40 次 → 确认是乒乓，不是"链路真坏"</text>
+<rect x="24" y="326" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="344">② 看 BFD 历史：时延偶发跳到 160ms，属于运营商侧抖动，不是持续劣化</text>
+<rect x="24" y="352" width="912" height="26" fill="#fff" stroke="#e6ecf5"/>
+<text class="b" x="40" y="370">③ 对比阈值与实测分布：150ms 正好在 130–165 的中间 → 命中根因</text>
+<rect x="24" y="378" width="912" height="26" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="40" y="396">④ 改法：阈值提到 200ms + 切回 hold-down 拉长 + 主判据换丢包与抖动 → 语音不再断</text>
+
+<text class="r" x="24" y="418">教训：AAR 不是"配完就聪明"，SLA 阈值必须基于实测分布设定，并显式区分切走与切回两个参数。</text>
+</svg>

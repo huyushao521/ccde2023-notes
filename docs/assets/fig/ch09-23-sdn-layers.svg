@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t923 d923">
+<title id="t923">SDN 三层模型与南北向、东西向接口，以及控制器自身的高可用设计</title>
+<desc id="d923">图上是 SDN 的三层结构。最上层是应用层：业务意图、策略、编排，例如"财务系统只能访问财务服务器"这类陈述性需求。中间是控制层：把意图翻译成设备配置或流表，维护全网拓扑与状态，典型实现是 DNA Center、SD-WAN 的 vSmart、NSX Manager。最下层是转发层：交换机、路由器、vSwitch 只按下发结果转发。层间接口：上层到控制层是北向接口，通常是 REST API 或模板；控制层到转发层是南向接口，可能是 NETCONF、OpenFlow、gNMI、CLI 模板。右侧是东西向：多台控制器之间需要同步状态，否则分区故障后策略不一致。下方是控制器高可用设计四条：至少三节点集群、配置与状态定期备份、升级窗口与设备版本兼容矩阵、控制器故障时的降级运行模式（设备上是否保留最后一份配置）。底部结论：SDN 把复杂性从每台设备搬到了一处，但也把故障点集中到了一处。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">SDN 只有三层，但"故障谁负责"这条线必须画清楚</text>
+<text class="s" x="24" y="48">凡是"配置是控制器推的"，第一件事就是确认设备本地还有没有可用配置</text>
+
+<rect x="24" y="62" width="600" height="42" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="82" fill="#b45309">应用层 / 编排</text>
+<text class="b" x="40" y="98">业务意图："财务只能访问财务服务器"、"分支优先走宽带"</text>
+
+<line x1="324" y1="104" x2="324" y2="120" stroke="#9aa8bd" stroke-width="1.8"/>
+<text class="m" x="336" y="118">北向接口（REST / 模板 / 声明式 API）</text>
+
+<rect x="24" y="122" width="600" height="52" rx="5" fill="#eef3fd" stroke="#2f6fed" stroke-width="1.8"/>
+<text class="lb" x="40" y="142">控制层 / 控制器</text>
+<text class="b" x="40" y="158">把意图翻译成配置或流表；维护全网拓扑与状态；DNA Center、vSmart、NSX Manager</text>
+<text class="c" x="40" y="168"> </text>
+
+<line x1="324" y1="174" x2="324" y2="190" stroke="#9aa8bd" stroke-width="1.8"/>
+<text class="m" x="336" y="188">南向接口（NETCONF / gNMI / OpenFlow / CLI 模板）</text>
+
+<rect x="24" y="192" width="600" height="52" rx="5" fill="#f6f7f9" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="lb" x="40" y="212" fill="#4a5a72">转发层 / 设备</text>
+<text class="b" x="40" y="230">交换机、路由器、vSwitch：只按下发结果转发，不再自己算策略</text>
+
+<rect x="648" y="62" width="288" height="52" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="664" y="80" fill="#0f7f73">东西向接口</text>
+<text class="b" x="664" y="98">多台控制器之间同步状态，否则分区后策略不一致</text>
+
+<rect x="648" y="122" width="288" height="122" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="664" y="142" fill="#a32020">控制器高可用四条</text>
+<text class="b" x="664" y="162">① 至少三节点集群，不要单机</text>
+<text class="b" x="664" y="180">② 配置与状态定期备份，并演练恢复</text>
+<text class="b" x="664" y="198">③ 记录设备版本兼容矩阵</text>
+<text class="b" x="664" y="216">④ 明确降级模式：控制器挂了设备还能不能转发</text>
+<text class="r" x="664" y="236">第 ④ 条如果答案是"不能"，这就是全网单点</text>
+
+<rect x="24" y="262" width="912" height="76" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="282">一个真实的降级问题清单（上线前必须逐条回答）</text>
+<text class="b" x="40" y="302">控制器重启期间，新设备能否上线？已有设备能否重新加载配置？策略变更是否全部被拒绝并给出明确错误？</text>
+<text class="b" x="40" y="320">如果设备上只有"指向控制器"的配置而没有本地配置，控制器故障等于全网失去可管理性。</text>
+
+<text class="m" x="24" y="366">SDN 把复杂性从"每台设备"搬到了"一处" —— 好处是策略一致，代价是故障集中。</text>
+<text class="r" x="24" y="388">评审时的第一个问题永远是："控制器全挂 30 分钟，业务还通吗？"</text>
+<text class="c" x="24" y="412">验收：手工关掉控制器，观察设备是否继续转发、告警是否在 1 分钟内出现、恢复后配置是否自动回同步。</text>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t916 d916">
+<title id="t916">三种 L2VPN 形态：VPWS 点对点、VPLS 多点、EVPN 下一代方案</title>
+<desc id="d916">图上是三种 L2VPN 的形态对比。VPWS 是两个站点之间的点对点二层伪线，等同于一虚空网线，一端进入的帧原样从另一端出来，不学习其他站点的 MAC。VPLS 是多点到多点的二层服务，等价于一台虚拟交换机，所有站点在同一个广播域内，N 个站点需要 N 乘 N 减一除以 2 条伪线。EVPN 是基于 BGP 的下一代 L2VPN，控制面用 BGP 学习并通告 MAC，数据面用 VXLAN 或 MPLS 封装。下方三个小拓扑分别画出三者：VPWS 一条线、VPLS 全互连的伪线网、EVPN 每 PE 只与 RR 建一条 BGP 会话。底部结论：新建二层延伸一律用 EVPN，VPLS 只应出现在存量网络里。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">L2VPN 只回答一个问题：两端之间要不要保留二层（广播域）</text>
+<text class="s" x="24" y="48">要保留就得接受它的全部副作用：泛洪、环路、多归属阻塞</text>
+
+<rect x="24" y="62" width="292" height="184" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="82">VPWS（E-Line）</text>
+<text class="b" x="40" y="102">点对点二层伪线 = 一根虚拟网线</text>
+<text class="b" x="40" y="120">一端进、另一端出，不参与多点学习</text>
+<rect x="46" y="136" width="70" height="30" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="81" y="156" text-anchor="middle">CE-A</text>
+<rect x="224" y="136" width="70" height="30" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="259" y="156" text-anchor="middle">CE-B</text>
+<line x1="116" y1="151" x2="222" y2="151" stroke="#2f6fed" stroke-width="2"/>
+<text class="c" x="150" y="145">PW</text>
+<text class="c" x="40" y="192">好处：最简单，无泛洪、无环路</text>
+<text class="m" x="40" y="210">代价：站点数一多就是 N 条点对点，无多点能力</text>
+<text class="b" x="40" y="232">典型：跨站点 vMotion、老系统专线延伸</text>
+
+<rect x="334" y="62" width="292" height="184" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="350" y="82" fill="#a32020">VPLS（E-LAN）</text>
+<text class="b" x="350" y="102">多点到多点 = 一台虚拟交换机</text>
+<text class="b" x="350" y="120">所有站点同一广播域，BUM 全泛洪</text>
+<circle cx="396" cy="160" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="480" cy="146" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<circle cx="564" cy="160" r="12" fill="#eef3fd" stroke="#2f6fed"/>
+<line x1="407" y1="156" x2="469" y2="149" stroke="#a32020"/>
+<line x1="491" y1="150" x2="553" y2="156" stroke="#a32020"/>
+<line x1="404" y1="166" x2="556" y2="166" stroke="#a32020" stroke-dasharray="4 3"/>
+<text class="r" x="350" y="196">伪线数 = N(N-1)/2，PE 数量平方增长</text>
+<text class="r" x="350" y="214">多归属必须阻塞一条链路，无法 Active/Active</text>
+<text class="m" x="350" y="232">结论：存量可留，新建不要选</text>
+
+<rect x="644" y="62" width="292" height="184" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="660" y="82" fill="#0f7f73">EVPN（下一代）</text>
+<text class="b" x="660" y="102">控制面 BGP 学 MAC，数据面 VXLAN/MPLS</text>
+<text class="b" x="660" y="120">MAC 不走数据面泛洪，靠 RT-2 通告</text>
+<rect x="700" y="140" width="70" height="30" rx="3" fill="#e6f4f1" stroke="#0f7f73"/>
+<text class="n" x="735" y="160" text-anchor="middle">RR</text>
+<rect x="660" y="186" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="688" y="204" text-anchor="middle">PE1</text>
+<rect x="740" y="186" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="768" y="204" text-anchor="middle">PE2</text>
+<rect x="820" y="186" width="56" height="26" rx="3" fill="#eef3fd" stroke="#2f6fed"/>
+<text class="n" x="848" y="204" text-anchor="middle">PE3</text>
+<line x1="728" y1="170" x2="700" y2="184" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="742" y1="170" x2="766" y2="184" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="756" y1="170" x2="830" y2="184" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="c" x="660" y="234">每 PE 只与 RR 一条会话，规模可控</text>
+
+<rect x="24" y="266" width="912" height="52" rx="5" fill="#fdf9f3" stroke="#e6cfa8"/>
+<text class="lb" x="40" y="286" fill="#b45309">设计选择的三句话</text>
+<text class="b" x="40" y="306">数据中心内部（leaf-spine）几乎一律 EVPN + VXLAN；企业 WAN 二层互联（跨站点 vMotion、集群心跳）用 EVPN + MPLS 或 EVPN over SR。</text>
+
+<text class="m" x="24" y="344">为什么"二层延伸"的需求要先被质询：只要保留二层，就必然保留泛洪域、环路风险与多归属阻塞。</text>
+<text class="r" x="24" y="364">先问"业务到底需要二层相邻，还是只需要同子网" —— 后者用 L3VPN 加 Anycast 网关即可，成本低一个数量级。</text>
+<text class="c" x="24" y="386">验收：show l2vpn evpn mac all 应当能看到所有 MAC 都是控制面学到的，而不是靠泛洪积累。</text>
+</svg>

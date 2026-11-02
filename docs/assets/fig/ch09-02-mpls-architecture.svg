@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="100%" role="img" aria-labelledby="t92 d92">
+<title id="t92">MPLS 架构组件与转发平面：CE、PE、P 的分工与两层标签的压入交换弹出</title>
+<desc id="d92">上半部分是 MPLS 的三种设备角色：CE 是客户边缘，只与 PE 交换路由，不知道 MPLS 的存在；PE 是提供商边缘，维护 VRF、跑 MP-BGP 交换 VPN 路由，负责压入与弹出标签；P 是核心节点，只做标签交换，完全不看客户的 IP 路由。下半部分是转发路径拓扑：CE1 送出的普通 IP 包在 PE1 被压入内层 VPN 标签与外层传输标签，P1 与 P2 只交换外层标签，PE2 弹出外层标签并保留 VPN 标签交给 CE2。右侧标注了两个设计后果：P 设备上没有任何客户锚点，所以路由策略、ACL、QoS 分类必须在 PE 边界做完；标签每层 4 字节，两层就是 8 字节，要提前算进 MTU。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .n{font:9.5px "Segoe UI",sans-serif;fill:#1a2233}
+  .q{font:9.5px "Segoe UI",sans-serif;fill:#0f7f73}
+</style>
+
+<rect x="0" y="0" width="960" height="400" fill="#fbfcfe"/>
+<text class="h" x="24" y="30">三种角色各看一层：CE 看 IP，PE 看 VRF，P 只看标签</text>
+<text class="s" x="24" y="48">这张图决定了你的策略能放在哪里 —— 放错位置，进了 P 网就再也回不来</text>
+
+<rect x="24" y="62" width="288" height="94" rx="5" fill="#fdf7f7" stroke="#e3b7b7"/>
+<text class="lb" x="40" y="82" fill="#a32020">CE（客户边缘）</text>
+<text class="b" x="40" y="102">客户自己的设备，与 PE 交换路由</text>
+<text class="b" x="40" y="120">完全不知道 MPLS / 标签存在</text>
+<text class="c" x="40" y="140">你的策略在这里最自由，但只覆盖本侧</text>
+
+<rect x="336" y="62" width="288" height="94" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="352" y="82">PE（提供商边缘）</text>
+<text class="b" x="352" y="102">维护 VRF、跑 MP-BGP 交换 VPN 路由</text>
+<text class="b" x="352" y="120">压入 / 弹出标签的唯一位置</text>
+<text class="c" x="352" y="140">ACL、QoS 分类、RT 策略都必须在这一圈做完</text>
+
+<rect x="648" y="62" width="288" height="94" rx="5" fill="#f6f7f9" stroke="#9aa8bd"/>
+<text class="lb" x="664" y="82" fill="#4a5a72">P（提供商节点）</text>
+<text class="b" x="664" y="102">只做标签交换，换的是外层传输标签</text>
+<text class="b" x="664" y="120">看不到客户的 IP 路由，也没有 VRF</text>
+<text class="r" x="664" y="140">你的任何策略在这里都没有锚点</text>
+
+<text class="lb" x="24" y="184">转发路径：一次压入、两跳交换、一次弹出</text>
+
+<rect x="40" y="200" width="84" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.8"/>
+<text class="n" x="82" y="225" text-anchor="middle">CE1</text>
+<rect x="184" y="196" width="88" height="48" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="228" y="216" text-anchor="middle">PE1</text>
+<text class="c" x="228" y="233" text-anchor="middle">压入两层标签</text>
+<rect x="332" y="200" width="76" height="40" rx="4" fill="#f6f7f9" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="n" x="370" y="225" text-anchor="middle">P1</text>
+<rect x="468" y="200" width="76" height="40" rx="4" fill="#f6f7f9" stroke="#9aa8bd" stroke-width="1.6"/>
+<text class="n" x="506" y="225" text-anchor="middle">P2</text>
+<rect x="604" y="196" width="88" height="48" rx="4" fill="#eef3fd" stroke="#2f6fed" stroke-width="2"/>
+<text class="n" x="648" y="216" text-anchor="middle">PE2</text>
+<text class="c" x="648" y="233" text-anchor="middle">弹出外层</text>
+<rect x="752" y="200" width="84" height="40" rx="4" fill="#fdf7f7" stroke="#a32020" stroke-width="1.8"/>
+<text class="n" x="794" y="225" text-anchor="middle">CE2</text>
+
+<line x1="124" y1="220" x2="182" y2="220" stroke="#a32020" stroke-width="1.8"/>
+<line x1="272" y1="220" x2="330" y2="220" stroke="#2f6fed" stroke-width="2"/>
+<line x1="408" y1="220" x2="466" y2="220" stroke="#2f6fed" stroke-width="2"/>
+<line x1="544" y1="220" x2="602" y2="220" stroke="#2f6fed" stroke-width="2"/>
+<line x1="692" y1="220" x2="750" y2="220" stroke="#a32020" stroke-width="1.8"/>
+
+<text class="k" x="124" y="212">纯 IP 包</text>
+<text class="q" x="290" y="212">[L100 | L200]</text>
+<text class="q" x="426" y="212">[L100 | L300]</text>
+<text class="q" x="562" y="212">[L100 | L400]</text>
+<text class="k" x="694" y="212">只剩 IP 包</text>
+
+<rect x="40" y="258" width="912" height="60" rx="4" fill="#f8fbf8" stroke="#b6dcd6"/>
+<text class="lb" x="56" y="278" fill="#0f7f73">标签栈的两个位置，各有各的语义</text>
+<text class="b" x="56" y="298">外层传输标签（栈顶）＝标识"怎么到对端 PE"，由 LDP 或 SR 分配，P 设备只换这一层；内层 VPN 标签（栈底）＝标识"到对端哪个 VRF"，由 MP-BGP 携带，只在 PE 上看。</text>
+<text class="r" x="56" y="312">每个标签 4 字节：两个标签 8 字节 → underlay MTU 至少 1508；三个标签 12 字节 → 1512。</text>
+
+<text class="m" x="24" y="342">设计后果一：端到端 QoS 的最后一个决策点是 PE2 —— 它能不能看到 EXP，取决于 PHP 是否弹栈（见下节）。</text>
+<text class="m" x="24" y="362">设计后果二：跨 P 网的 traceroute 只能看到 PE 之后的跳数，排障时不要指望 P 设备给你答案。</text>
+<text class="r" x="24" y="384">一句话：PE 是你能放策略的最后一块地，P 网里没有你的锚点。</text>
+</svg>
