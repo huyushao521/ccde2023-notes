@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 456" width="100%" role="img" aria-labelledby="t1524 d1524">
+<title id="t1524">虚拟防火墙多上下文拓扑：各上下文策略独立但会话表与 CPU 共享，一个上下文被打满会拖垮全部</title>
+<desc id="d1524">图上方是一台物理防火墙切成四个上下文：生产、访客、OT 与管理，每个上下文有独立的路由表、策略与 NAT，但共用同一份会话表、CPU 与内存，物理接口以 trunk 子接口方式分配到各上下文。虚线标出共享资源池，标注单上下文的会话数上限其实是"整机上限被抢占"而不是独立额度。图中部是事故过程：访客上下文被扫描或蠕虫感染，并发会话从 2 万涨到 60 万，占满整机会话表，导致生产上下文新建连接全部失败，表现为"生产业务时通时不通而防火墙 CPU 才 40%"。底部给出四条设计动作：为每个上下文设置最大并发会话限制、把表项使用率纳入监控与告警、按业务等级分配带宽与新建速率、以及高风险上下文使用独立物理设备或独立虚拟防火墙实例。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="456" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">虚拟防火墙：上下文把"策略"隔开了，但没有把"资源"隔开</text>
+<text class="s" x="24" y="48">一台物理防火墙切 4 份 → 策略独立、会话表与 CPU 共享</text>
+
+<rect x="120" y="70" width="700" height="150" rx="8" fill="#fff8ee" stroke="#b45309" stroke-width="1.6"/>
+<text class="k" x="470" y="90" text-anchor="middle">一台物理防火墙（共享：会话表 1M 项 · CPU · 内存 · 出口带宽）</text>
+
+<rect x="140" y="102" width="150" height="60" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="215" y="122" text-anchor="middle">上下文-生产</text>
+<text class="t" x="215" y="138" text-anchor="middle">独立策略/NAT</text>
+<text class="t" x="215" y="152" text-anchor="middle">会话 ≈ 30 万</text>
+<rect x="310" y="102" width="150" height="60" rx="4" fill="#fff5f5" stroke="#a32020" stroke-width="1.4"/>
+<text class="b" x="385" y="122" text-anchor="middle">上下文-访客</text>
+<text class="t" x="385" y="138" text-anchor="middle">独立策略/NAT</text>
+<text class="t" x="385" y="152" text-anchor="middle">会话 60 万（被打满）</text>
+<rect x="480" y="102" width="150" height="60" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="555" y="122" text-anchor="middle">上下文-OT</text>
+<text class="t" x="555" y="138" text-anchor="middle">独立策略/NAT</text>
+<text class="t" x="555" y="152" text-anchor="middle">会话 ≈ 5 万</text>
+<rect x="650" y="102" width="150" height="60" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="725" y="122" text-anchor="middle">上下文-管理</text>
+<text class="t" x="725" y="138" text-anchor="middle">独立策略/NAT</text>
+<text class="t" x="725" y="152" text-anchor="middle">会话 ≈ 1 万</text>
+
+<rect x="140" y="176" width="660" height="34" rx="4" fill="#fff" stroke="#f0c9c9"/>
+<text class="r" x="154" y="198">共享池：会话表 96 万 / 100 万（96%）→ 新建连接被丢弃，即便 CPU 只用了 40%</text>
+
+<rect x="40" y="70" width="66" height="150" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="73" y="132" text-anchor="middle">trunk</text>
+<text class="t" x="73" y="148" text-anchor="middle">子接口</text>
+<line x1="106" y1="120" x2="140" y2="120" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="106" y1="140" x2="140" y2="140" stroke="#7f8fb0" stroke-width="1.2"/>
+
+<rect x="832" y="70" width="96" height="150" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="880" y="132" text-anchor="middle">共享出口</text>
+<text class="t" x="880" y="148" text-anchor="middle">互联网/WAN</text>
+
+<!-- 事故过程 -->
+<text class="k" x="24" y="248">事故过程（真实案例形态）</text>
+<rect x="24" y="256" width="216" height="76" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="38" y="276">T+0　访客网被扫描</text>
+<text class="b" x="38" y="294">并发会话 2 万 → 60 万</text>
+<text class="b" x="38" y="312">每连接都建表，表项暴涨</text>
+<rect x="252" y="256" width="216" height="76" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="266" y="276">T+3 min　共享表满</text>
+<text class="b" x="266" y="294">全部上下文新建连接失败</text>
+<text class="b" x="266" y="312">已建连接仍然正常</text>
+<rect x="480" y="256" width="216" height="76" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="494" y="276">T+10 min　误判</text>
+<text class="b" x="494" y="294">CPU 40%，被判断"不是防火墙"</text>
+<text class="b" x="494" y="312">排查方向转向服务器</text>
+<rect x="708" y="256" width="228" height="76" rx="4" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="722" y="276">真正的指标</text>
+<text class="b" x="722" y="294">show conn count / 表项使用率</text>
+<text class="b" x="722" y="312">show resource usage 各上下文</text>
+
+<rect x="24" y="344" width="912" height="100" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="40" y="364">四条设计动作（把共享风险变成可管理风险）</text>
+<text class="b" x="40" y="384">① 给每个上下文设最大并发会话数与新建速率上限（不要让访客能抢生产的表项）</text>
+<text class="b" x="40" y="402">② 监控指标改为"表项使用率 + 新建失败率"，而不是只看 CPU 与内存</text>
+<text class="b" x="40" y="420">③ 出口带宽按上下文做 QoS，避免访客占满上行</text>
+<text class="b" x="40" y="438">④ 高风险域（访客、DMZ、BYOD）用独立物理设备或独立虚拟实例，别与生产共用会话表</text>
+</svg>

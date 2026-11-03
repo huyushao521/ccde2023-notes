@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1532 d1532">
+<title id="t1532">mGRE 隔离后能 ping 通却打不开网页的 MTU 故障</title>
+<desc id="d1532">图上半是 mGRE 隧道拓扑：终端经接入交换机到 hub 站点，再经 mGRE 隧道到远端隔离网段与文件服务器。链路标注三处 MTU：终端侧 1500、隧道口 1400、底层链路 1500；一个 1500 字节的原始数据包加上 24 字节 GRE 头变成 1524 字节，超过隧道口 1400，在置位不分片标志时被直接丢弃。图下半用三个阶段的报文尺寸对比解释现象：32 字节的 ping 正常、几百字节的认证与登录请求正常、1400 字节以上的下载数据被静默丢弃，因此表现为"能登录不能下载"。右侧给出三条修复措施：隧道口设 MTU 1400、在隧道口做 TCP MSS 钳制 1360、放行必要的 ICMP 不可达以便路径 MTU 发现生效。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a32" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#2f6fed"/>
+  </marker>
+  <marker id="a32r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#a32020"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">能 ping 通、能登录、下载卡死 —— 十有八九是 MTU</text>
+<text class="s" x="24" y="48">mGRE 隧道把 1500 字节的以太网 MTU 变成了 1400 字节，而终端与服务器都以为还有 1500</text>
+
+<!-- 拓扑 -->
+<rect x="24" y="62" width="600" height="196" rx="6" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="38" y="82">拓扑与三处 MTU</text>
+
+<rect x="38" y="96" width="96" height="34" rx="4" fill="#f7f9fd" stroke="#8fa8d0"/>
+<text class="b" x="86" y="117" text-anchor="middle">终端 PC</text>
+<text class="t" x="86" y="144" text-anchor="middle">MTU 1500</text>
+
+<rect x="164" y="96" width="104" height="34" rx="4" fill="#f7f9fd" stroke="#8fa8d0"/>
+<text class="b" x="216" y="117" text-anchor="middle">接入 / Hub 路由器</text>
+<text class="t" x="216" y="144" text-anchor="middle">隧道口 MTU 1500(默认)</text>
+
+<rect x="298" y="96" width="150" height="34" rx="4" fill="#fffdf8" stroke="#b45309" stroke-width="1.6"/>
+<text class="m" x="373" y="117" text-anchor="middle">mGRE 隧道（NHRP）</text>
+<text class="m" x="373" y="144" text-anchor="middle">实际可用 1400</text>
+
+<rect x="478" y="96" width="126" height="34" rx="4" fill="#f7f9fd" stroke="#8fa8d0"/>
+<text class="b" x="541" y="117" text-anchor="middle">远端分支</text>
+<text class="t" x="541" y="144" text-anchor="middle">MTU 1500</text>
+
+<line x1="134" y1="113" x2="164" y2="113" stroke="#2f6fed" stroke-width="2" marker-end="url(#a32)"/>
+<line x1="268" y1="113" x2="298" y2="113" stroke="#2f6fed" stroke-width="2" marker-end="url(#a32)"/>
+<line x1="448" y1="113" x2="478" y2="113" stroke="#2f6fed" stroke-width="2" marker-end="url(#a32)"/>
+
+<text class="b" x="38" y="176">1500 B 数据 + 24 B GRE/IP 头 = 1524 B</text>
+<text class="r" x="38" y="192">1524 &gt; 1400 → DF 置位时直接丢弃，只有 ICMP 不可达（常被 ACL 拦）</text>
+<text class="b" x="38" y="214">底层链路 MTU 仍是 1500 —— 所以"物理链路没问题"的检查结论是对的，问题在封装</text>
+<text class="b" x="38" y="234">TCP MSS 默认按出接口 MTU 计算 = 1460，而隧道只能过 1360</text>
+
+<!-- 三阶段 -->
+<rect x="644" y="62" width="292" height="196" rx="6" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="658" y="82" fill="#a32020">为什么"能登录不能下载"</text>
+
+<rect x="658" y="92" width="264" height="26" rx="3" fill="#fff" stroke="#cfe8e3"/>
+<text class="c" x="670" y="109">① ping 32–1400 B → 通</text>
+<line x1="658" y1="126" x2="922" y2="126" stroke="#eef2f8"/>
+
+<rect x="658" y="132" width="264" height="26" rx="3" fill="#fff" stroke="#cfe8e3"/>
+<text class="c" x="670" y="149">② 认证/登录 HTTP POST 小包 → 通</text>
+<line x1="658" y1="166" x2="922" y2="166" stroke="#eef2f8"/>
+
+<rect x="658" y="172" width="264" height="30" rx="3" fill="#f3e3e3" stroke="#a32020" stroke-width="1.4"/>
+<text class="r" x="670" y="185">③ 文件下载 1460 B 段 → 静默丢弃</text>
+<text class="r" x="670" y="197">表现：进度条 0%，浏览器最终超时</text>
+
+<text class="b" x="658" y="222">用户描述永远是"网页打不开"，</text>
+<text class="b" x="658" y="238">不会说"大于某个字节的包不通"</text>
+
+<!-- 修复 -->
+<rect x="24" y="272" width="912" height="92" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="292" fill="#0f7f73">三条修复（必须同时做，缺一条还会复现）</text>
+
+<rect x="38" y="302" width="286" height="50" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="50" y="320">① 隧道口显式设 MTU</text>
+<text class="b" x="50" y="338">interface tunnel 0 / ip mtu 1400</text>
+
+<rect x="336" y="302" width="286" height="50" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="348" y="320">② 钳制 TCP MSS</text>
+<text class="b" x="348" y="338">ip tcp adjust-mss 1360（隧道口）</text>
+
+<rect x="634" y="302" width="288" height="50" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="646" y="320">③ 放行 ICMP 不可达</text>
+<text class="b" x="646" y="338">让 PMTUD 能工作，而不是靠运气</text>
+
+<!-- 底部 -->
+<text class="t" x="24" y="390">排查顺序：先 ping -l 1472 -f 二分找到能通的最大尺寸 → 再看 ip mtu 与 ip tcp adjust-mss → 最后才怀疑应用</text>
+<text class="t" x="24" y="408">这条经验适用于所有封装：GRE 24 B、IPsec 视模式 50–70 B、VXLAN 50 B、PPP/PPPoE 8 B —— 每加一层封装就要减一次 MTU</text>
+<text class="t" x="24" y="426">设计阶段写法：在表 7「容量与功率表」旁加一列"封装开销与 MTU"，把它当成和带宽同级的参数</text>
+<text class="t" x="24" y="444">记住：ping 通只证明 32 字节通；真正的验证是"用业务报文大小的包、带 DF 标志、双向都测"</text>
+</svg>

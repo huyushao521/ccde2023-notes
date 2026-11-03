@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t159 d159">
+<title id="t159">三种接入模型的八维对照表与网络侧收敛时间预算条形对比</title>
+<desc id="d159">表格从设计灵活性、网关位置、跨机箱聚合、收敛、运维复杂度、故障域、升级风险、地址消耗八个维度对比多层 STP、路由接入、交换机集群三种模型。多层 STP 灵活性有限、网关在分布层、不支持跨机箱聚合、收敛慢、运维复杂、故障域大、单台升级风险低、地址消耗低；路由接入不支持跨多台接入扩展 VLAN、网关在接入层、靠三层 ECMP、收敛最快、运维中等、故障域最小、地址消耗较高；交换机集群支持 mLAG、网关在分布层、收敛稍慢于路由接入、运维最省、故障域为整组、地址消耗低。底部条形图对比网络侧收敛：多层 STP 3 到 18 秒，集群小于 1.5 秒，路由接入小于 1 秒，而主机与上层应用的恢复时间 0 到 300 秒不可控，所以网络侧优化再多也压不住应用侧。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .hd{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">三种接入模型的对照表：没有一项叫"更好"，只有"在这一格上更合适"</text>
+<text class="s" x="24" y="48">蓝色标题为维度，绿字为该维度下的优势项，红字为需要写进设计文档的代价</text>
+
+<!-- 表头 -->
+<rect x="24" y="62" width="912" height="26" fill="#1f4fc0"/>
+<text class="hd" x="38" y="80" fill="#fff">维度</text>
+<text class="hd" x="238" y="80" fill="#fff">多层 STP</text>
+<text class="hd" x="470" y="80" fill="#fff">路由接入</text>
+<text class="hd" x="702" y="80" fill="#fff">交换机集群</text>
+
+<g>
+  <rect x="24" y="88" width="912" height="24" fill="#fff"/>
+  <text class="b" x="38" y="105">设计灵活性</text>
+  <text class="b" x="238" y="105">有限（受 STP 拓扑约束）</text>
+  <text class="b" x="470" y="105">有限（跨接入 L2 需覆盖）</text>
+  <text class="c" x="702" y="105">高（逻辑单机，物理双活）</text>
+
+  <rect x="24" y="112" width="912" height="24" fill="#f7f9fd"/>
+  <text class="b" x="38" y="129">网关位置</text>
+  <text class="b" x="238" y="129">分布层（FHRP）</text>
+  <text class="c" x="470" y="129">接入层（SVI 即网关）</text>
+  <text class="b" x="702" y="129">分布层（可为逻辑网关）</text>
+
+  <rect x="24" y="136" width="912" height="24" fill="#fff"/>
+  <text class="b" x="38" y="153">跨机箱聚合</text>
+  <text class="r" x="238" y="153">不支持</text>
+  <text class="r" x="470" y="153">不支持（靠 L3 ECMP 替代）</text>
+  <text class="c" x="702" y="153">支持（vPC / MLAG）</text>
+
+  <rect x="24" y="160" width="912" height="24" fill="#f7f9fd"/>
+  <text class="b" x="38" y="177">收敛速度</text>
+  <text class="r" x="238" y="177">最慢（STP + FHRP 叠加）</text>
+  <text class="c" x="470" y="177">最快（IGP + BFD）</text>
+  <text class="c" x="702" y="177">快（&lt;1.5 s）</text>
+
+  <rect x="24" y="184" width="912" height="24" fill="#fff"/>
+  <text class="b" x="38" y="201">运维复杂度</text>
+  <text class="r" x="238" y="201">高（STP 与 FHRP 两套）</text>
+  <text class="b" x="470" y="201">中（需要路由设计能力）</text>
+  <text class="c" x="702" y="201">低（单管理面）</text>
+
+  <rect x="24" y="208" width="912" height="24" fill="#f7f9fd"/>
+  <text class="b" x="38" y="225">故障域</text>
+  <text class="r" x="238" y="225">最大（整个 STP 域）</text>
+  <text class="c" x="470" y="225">最小（单台接入交换机）</text>
+  <text class="m" x="702" y="225">中（整组为一域）</text>
+
+  <rect x="24" y="232" width="912" height="24" fill="#fff"/>
+  <text class="b" x="38" y="249">升级风险</text>
+  <text class="c" x="238" y="249">低（单台滚动）</text>
+  <text class="c" x="470" y="249">低（单台滚动）</text>
+  <text class="r" x="702" y="249">高（整组同时中断）</text>
+
+  <rect x="24" y="256" width="912" height="24" fill="#f7f9fd"/>
+  <text class="b" x="38" y="273">地址消耗</text>
+  <text class="c" x="238" y="273">低（VLAN 可跨设备复用）</text>
+  <text class="r" x="470" y="273">高（每配线间每业务一子网）</text>
+  <text class="c" x="702" y="273">低</text>
+</g>
+
+<!-- 收敛预算 -->
+<text class="k" x="24" y="308">网络侧收敛预算（决定"用户感知多少秒"的那部分）</text>
+<line x1="230" y1="320" x2="230" y2="404" stroke="#c8d2e0" stroke-width="1"/>
+<text class="t" x="196" y="322">0 s</text>
+<text class="t" x="500" y="322">10 s</text>
+<text class="t" x="770" y="322">20 s</text>
+<line x1="510" y1="318" x2="510" y2="404" stroke="#eef1f6" stroke-width="1"/>
+<line x1="790" y1="318" x2="790" y2="404" stroke="#eef1f6" stroke-width="1"/>
+
+<text class="b" x="24" y="340">多层 STP</text>
+<rect x="230" y="330" width="540" height="14" rx="3" fill="#a32020" opacity="0.85"/>
+<text class="r" x="782" y="341">3–18 s（RSTP 优化后 2–5 s）</text>
+
+<text class="b" x="24" y="364">交换机集群</text>
+<rect x="230" y="354" width="45" height="14" rx="3" fill="#b45309" opacity="0.85"/>
+<text class="m" x="288" y="365">&lt;1.5 s</text>
+
+<text class="b" x="24" y="388">路由接入</text>
+<rect x="230" y="378" width="30" height="14" rx="3" fill="#0f7f73" opacity="0.85"/>
+<text class="c" x="272" y="389">&lt;1 s（BFD 50 ms 级可达）</text>
+
+<text class="r" x="24" y="414">对照：主机与上层应用恢复 0–300 s 不可控 —— 网络侧从 18 s 优化到 1 s，用户仍可能等 2 分钟</text>
+<rect x="24" y="422" width="912" height="24" rx="4" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="38" y="439">选型的正确姿势：先定"用户能接受多少秒"，再倒推哪一层需要压到多少 —— 而不是先选一个模型</text>
+</svg>

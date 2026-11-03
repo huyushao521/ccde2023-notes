@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="100%" role="img" aria-labelledby="t1539 d1539">
+<title id="t1539">共享服务中心情景：12 个地址重叠的业务域、MPLS VPN 承载与五类隔离证据链</title>
+<desc id="d1539">图上半是逻辑架构：MPLS 或 EVPN 核心向上连接共享服务 VRF，承载 DNS、NTP、监控与文件服务，只允许业务域单向访问共享服务；核心下方连接 12 个业务 VRF，每个都使用相同的十点零点零点零斜杠八重叠地址、互不可见，每个域配备一对虚拟防火墙上下文与 VRF-Aware NAT；核心另一侧连接生产与访客两个出口 VRF，NAT 地址池按域分配。图下半是五类隔离证据链：设计证据为十二乘十二的 RT 导入导出矩阵、配置证据为自动化导出与基线比对、主动探测为每域向其余十一个域的探针发起访问且结果全部失败、流量证据为按 VRF 维度统计的跨域流量应为零、日志证据为防火墙拒绝日志留存一百八十天。底部结论指出隔离的证明不是"我们配了 VRF"，而是"每季度用一百三十二条探测证明它不通"。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a39" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#0f7f73"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="470" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">情景三：12 个业务域、地址全部重叠、出口要共享</text>
+<text class="s" x="24" y="48">重叠地址不重编址 —— 靠 VRF 承载 + 只在访问共享服务时做 NAT</text>
+
+<!-- 共享服务 VRF -->
+<rect x="228" y="62" width="504" height="34" rx="5" fill="#f4fbfa" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="k" x="480" y="84" text-anchor="middle" fill="#0f7f73">共享服务 VRF（DNS / NTP / 监控 / 文件）— 只允许"域 → 共享"单向</text>
+
+<!-- 12 域 -->
+<g>
+  <rect x="24" y="112" width="150" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+  <text class="b" x="99" y="130" text-anchor="middle">VRF-01</text>
+  <text class="m" x="99" y="144" text-anchor="middle">10.0.0.0/8</text>
+  <rect x="184" y="112" width="150" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+  <text class="b" x="259" y="130" text-anchor="middle">VRF-02</text>
+  <text class="m" x="259" y="144" text-anchor="middle">10.0.0.0/8</text>
+  <rect x="344" y="112" width="150" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+  <text class="b" x="419" y="130" text-anchor="middle">VRF-03</text>
+  <text class="m" x="419" y="144" text-anchor="middle">10.0.0.0/8</text>
+  <rect x="504" y="112" width="150" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+  <text class="b" x="579" y="130" text-anchor="middle">VRF-04 …</text>
+  <text class="m" x="579" y="144" text-anchor="middle">10.0.0.0/8</text>
+  <rect x="664" y="112" width="150" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+  <text class="b" x="739" y="130" text-anchor="middle">VRF-12</text>
+  <text class="m" x="739" y="144" text-anchor="middle">10.0.0.0/8</text>
+</g>
+<line x1="99" y1="112" x2="380" y2="96" stroke="#0f7f73" stroke-width="1.4" marker-end="url(#a39)"/>
+<line x1="259" y1="112" x2="440" y2="96" stroke="#0f7f73" stroke-width="1.4" marker-end="url(#a39)"/>
+<line x1="579" y1="112" x2="520" y2="96" stroke="#0f7f73" stroke-width="1.4" marker-end="url(#a39)"/>
+<line x1="739" y1="112" x2="580" y2="96" stroke="#0f7f73" stroke-width="1.4" marker-end="url(#a39)"/>
+<text class="t" x="24" y="170">12 个域地址完全相同、互不可见；每域一对虚拟防火墙上下文（与 VRF 一一对齐）+ VRF-Aware NAT</text>
+
+<!-- MPLS 核心 -->
+<rect x="228" y="184" width="504" height="32" rx="5" fill="#eef4ff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="480" y="205" text-anchor="middle">MPLS VPN（MP-BGP + RR）或 EVPN 核心 — 12 VRF + 1 共享 + 1 管理</text>
+<line x1="480" y1="156" x2="480" y2="184" stroke="#2f6fed" stroke-width="1.6"/>
+
+<!-- 出口 -->
+<rect x="760" y="184" width="176" height="32" rx="5" fill="#fffdf8" stroke="#b45309" stroke-width="1.6"/>
+<text class="m" x="848" y="205" text-anchor="middle">出口 VRF（生产/访客）</text>
+<line x1="732" y1="200" x2="760" y2="200" stroke="#b45309" stroke-width="1.6"/>
+<text class="t" x="748" y="232" text-anchor="middle">NAT 池按域分配</text>
+
+<!-- 五类证据 -->
+<text class="lb" x="24" y="252" fill="#0f7f73">合规不是"配了 VRF"，是五类证据都拿得出来</text>
+
+<rect x="24" y="262" width="172" height="88" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="n" x="34" y="280">① 设计证据</text>
+<text class="b" x="34" y="298">12×12 RT 导入</text>
+<text class="b" x="34" y="312">导出矩阵，全部</text>
+<text class="b" x="34" y="326">"禁止" + 变更记录</text>
+<text class="c" x="34" y="344">证明设计意图</text>
+
+<rect x="204" y="262" width="172" height="88" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="n" x="214" y="280">② 配置证据</text>
+<text class="b" x="214" y="298">自动导出每台 PE</text>
+<text class="b" x="214" y="312">的 VRF/RT/import</text>
+<text class="b" x="214" y="326">map 与基线比对</text>
+<text class="c" x="214" y="344">证明未被篡改</text>
+
+<rect x="384" y="262" width="172" height="88" rx="4" fill="#fff" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="n" x="394" y="280" fill="#0f7f73">③ 主动探测</text>
+<text class="b" x="394" y="298">每域 Agent 周期</text>
+<text class="b" x="394" y="312">向其余 11 域探针</text>
+<text class="b" x="394" y="326">发起 TCP/UDP/ICMP</text>
+<text class="c" x="394" y="344">132 条全失败 = 最有说服力</text>
+
+<rect x="564" y="262" width="172" height="88" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="n" x="574" y="280">④ 流量证据</text>
+<text class="b" x="574" y="298">NetFlow/遥测按</text>
+<text class="b" x="574" y="312">VRF 统计跨域</text>
+<text class="b" x="574" y="326">流量应为 0</text>
+<text class="c" x="574" y="344">证明运行时无泄漏</text>
+
+<rect x="744" y="262" width="192" height="88" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="n" x="754" y="280">⑤ 日志证据</text>
+<text class="b" x="754" y="298">12 个防火墙上下文</text>
+<text class="b" x="754" y="312">拒绝日志留存</text>
+<text class="b" x="754" y="326">180 天，抽样审计</text>
+<text class="c" x="754" y="344">满足合规留存要求</text>
+
+<!-- 底部 -->
+<rect x="24" y="366" width="912" height="40" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="38" y="384" fill="#0f7f73">一句话记住这个场景</text>
+<text class="b" x="38" y="400">隔离的证明不是"我们配了 VRF"，而是"我们每季度用 132 条探测（12 × 11）证明它不通" —— 能被审计复现的才叫隔离</text>
+
+<text class="t" x="24" y="424">为什么不用 12 套物理网络：12 倍设备、机柜、电力、光纤与人力，CAPEX 与 OPEX 会吃掉集中化的全部收益</text>
+<text class="t" x="24" y="442">前提条件（必须写进"风险与未决项"）：团队 20 人中至少有 1 人能独立排障 MPLS/EVPN，否则单点依赖本身就是新缺陷</text>
+<text class="t" x="24" y="460">与情景一对照：那里只有 2 个隔离域、预算紧、无人懂 MPLS → 选 VRF-Lite；这里 12 个域、地址重叠、有 1 名 MPLS 经验者 → 选 MPLS VPN</text>
+</svg>

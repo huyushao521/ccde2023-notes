@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t1523 d1523">
+<title id="t1523">服务虚拟化的三种服务访问模型：每 VN 独立服务节点、共享服务边界、以及服务链</title>
+<desc id="d1523">三个并列小拓扑。模型 A 是每 VN 一台独立防火墙（或用多上下文），隔离最强、成本最高，适合合规要求严格的 PCI 或 OT 场景；模型 B 是共享服务边界，所有 VN 通过各自的子接口或子网汇聚到同一对防火墙的不同上下文，成本低但需要严格防止 VRF 之间的路由泄漏；模型 C 是服务链，流量按顺序经过负载均衡、防火墙、入侵防御，任何一环不对称都会导致回程失败。底部给出选择依据：隔离强度要求、成本约束、以及是否允许共享故障点；并强调无论选哪种，都必须先画出回程路径图，因为 80% 的服务虚拟化事故是回程不对称。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">服务虚拟化的三种模型：防火墙到底"在哪一层"接入，决定后面所有事故</text>
+<text class="s" x="24" y="48">模型选错的典型症状：策略写完了但回程不通，或者一个 VN 的出问题拖垮全部</text>
+
+<!-- A -->
+<rect x="24" y="62" width="290" height="216" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="82" fill="#0f7f73">A：每 VN 独立服务节点</text>
+<rect x="46" y="92" width="76" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="84" y="109" text-anchor="middle">VRF-生产</text>
+<rect x="46" y="126" width="76" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="84" y="143" text-anchor="middle">VRF-访客</text>
+<rect x="46" y="160" width="76" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="84" y="177" text-anchor="middle">VRF-OT</text>
+<rect x="176" y="92" width="110" height="26" rx="3" fill="#fff" stroke="#0f7f73" stroke-width="1.4"/>
+<text class="t" x="231" y="109" text-anchor="middle">防火墙 #1</text>
+<rect x="176" y="126" width="110" height="26" rx="3" fill="#fff" stroke="#0f7f73" stroke-width="1.4"/>
+<text class="t" x="231" y="143" text-anchor="middle">防火墙 #2</text>
+<rect x="176" y="160" width="110" height="26" rx="3" fill="#fff" stroke="#0f7f73" stroke-width="1.4"/>
+<text class="t" x="231" y="177" text-anchor="middle">防火墙 #3</text>
+<line x1="122" y1="105" x2="176" y2="105" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="122" y1="139" x2="176" y2="139" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="122" y1="173" x2="176" y2="173" stroke="#7f8fb0" stroke-width="1.3"/>
+<text class="c" x="38" y="208">隔离最强、故障不扩散</text>
+<text class="r" x="38" y="226">成本最高（设备、许可、机柜、运维 ×N）</text>
+<text class="b" x="38" y="244">适用：PCI、OT、强合规隔离</text>
+<text class="m" x="38" y="264">变体：一台物理防火墙多上下文（省硬件，但共命运）</text>
+
+<!-- B -->
+<rect x="335" y="62" width="290" height="216" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="349" y="82" fill="#b45309">B：共享服务边界</text>
+<rect x="357" y="92" width="76" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="395" y="109" text-anchor="middle">VRF-生产</text>
+<rect x="357" y="126" width="76" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="395" y="143" text-anchor="middle">VRF-访客</text>
+<rect x="357" y="160" width="76" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="395" y="177" text-anchor="middle">VRF-OT</text>
+<rect x="487" y="104" width="120" height="70" rx="4" fill="#fff" stroke="#b45309" stroke-width="1.6"/>
+<text class="k" x="547" y="128" text-anchor="middle">防火墙（多上下文）</text>
+<text class="t" x="547" y="144" text-anchor="middle">共享一对物理设备</text>
+<text class="t" x="547" y="160" text-anchor="middle">共享出口与带宽</text>
+<line x1="433" y1="105" x2="487" y2="120" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="433" y1="139" x2="487" y2="139" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="433" y1="173" x2="487" y2="158" stroke="#7f8fb0" stroke-width="1.3"/>
+<text class="c" x="349" y="208">成本与运维最省，策略集中</text>
+<text class="r" x="349" y="226">共命运：一次故障 = 全部 VN 断网</text>
+<text class="b" x="349" y="244">适用：访客/IoT/分支共享出口</text>
+<text class="m" x="349" y="264">护栏：明确各上下文的路由表与默认路由</text>
+
+<!-- C -->
+<rect x="646" y="62" width="290" height="216" rx="6" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="662" y="82">C：服务链（Service Chaining）</text>
+<rect x="668" y="92" width="80" height="26" rx="3" fill="#fff" stroke="#8aa9e8"/>
+<text class="t" x="708" y="109" text-anchor="middle">负载均衡</text>
+<rect x="756" y="92" width="70" height="26" rx="3" fill="#fff" stroke="#8aa9e8"/>
+<text class="t" x="791" y="109" text-anchor="middle">防火墙</text>
+<rect x="834" y="92" width="80" height="26" rx="3" fill="#fff" stroke="#8aa9e8"/>
+<text class="t" x="874" y="109" text-anchor="middle">IPS/代理</text>
+<line x1="748" y1="105" x2="756" y2="105" stroke="#2f6fed" stroke-width="1.6"/>
+<line x1="826" y1="105" x2="834" y2="105" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="t" x="668" y="88">去程</text>
+<rect x="668" y="132" width="80" height="26" rx="3" fill="#fff" stroke="#8aa9e8"/>
+<text class="t" x="708" y="149" text-anchor="middle">回程？</text>
+<rect x="756" y="132" width="70" height="26" rx="3" fill="#fff" stroke="#a32020"/>
+<text class="t" x="791" y="149" text-anchor="middle">状态表</text>
+<rect x="834" y="132" width="80" height="26" rx="3" fill="#fff" stroke="#8aa9e8"/>
+<text class="t" x="874" y="149" text-anchor="middle">回程出口</text>
+<path d="M668 145 L662 145 L662 176 L874 176 L874 158" fill="none" stroke="#a32020" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text class="r" x="700" y="192">回程必须原路返回：绕行就被会话表丢弃</text>
+<text class="c" x="662" y="212">收益：策略按业务顺序组合，可审计</text>
+<text class="r" x="662" y="230">风险：每一环都要对称，否则 90% 大文件失败</text>
+<text class="b" x="662" y="248">适用：DMZ、对外业务、需要多级检查的场景</text>
+<text class="m" x="662" y="266">实现：PBR / 策略路由 / VASI / 服务插入</text>
+
+<rect x="24" y="292" width="912" height="38" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="40" y="316">80% 的服务虚拟化事故不是策略写错，而是回程不对称：去程走 A 路径，回程被 IGP 选到 B 路径，有状态设备直接丢包。</text>
+
+<rect x="24" y="336" width="912" height="106" rx="6" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="356">选择依据（按顺序问三个问题）</text>
+<text class="b" x="40" y="376">① 是否允许共用故障点？不允许 → 模型 A；允许 → 模型 B。</text>
+<text class="b" x="40" y="396">② 是否需要多级检查（负载均衡 + 防火墙 + IPS）？需要 → 模型 C，并当场画出回程箭头。</text>
+<text class="b" x="40" y="416">③ 服务节点放在哪个 VRF 里？放 VRF 内 → 所有 VN 都要有自己的一对接口；放 VRF 外 → 必须有 VRF 泄漏点（第 6 节）。</text>
+<text class="m" x="40" y="434">收尾动作：把"去程 + 回程 + 故障切换后的回程"三条路径都画进设计文档，评审时必须能指着图说清每一个包的走向。</text>
+</svg>

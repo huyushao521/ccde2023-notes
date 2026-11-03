@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1535 d1535">
+<title id="t1535">设计取舍的统一判据：代价发生在变更时还是故障时</title>
+<desc id="d1535">图核心是一个二维象限，横轴表示代价发生的时机，从左侧的可控变更时到右侧的不可控故障时；纵轴表示影响范围，从上方的局部到下方的全网。四个象限里分别标注了典型选择：左上为路由接入、按楼拆子网、模板化扩容等好的取舍；左下为汇聚层插入服务、核心做 NAT 等风险最高的取舍；右上为交换机集群、大二层等可控但需流程配合的取舍；右下为双主、广播风暴、非对称回程等必须消除的取舍。图底部用一个天平图对比"把代价放在变更时"与"把代价放在故障时"的价值差异，并列出五条可操作的判断问题：是否会扩大故障域、是否引入了隐式的状态耦合、是否依赖人工保证一致性、扩容成本是否线性、回退是否需要停机。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">一条判据过滤掉 80% 的错误取舍</text>
+<text class="s" x="24" y="48">"这个选择的代价，发生在变更时，还是发生在故障时？" —— 能放在变更时的，一律放过去</text>
+
+<!-- 象限 -->
+<rect x="120" y="66" width="700" height="240" rx="4" fill="#fff" stroke="#dbe3ee"/>
+<line x1="470" y1="66" x2="470" y2="306" stroke="#c9d6ea"/>
+<line x1="120" y1="186" x2="820" y2="186" stroke="#c9d6ea"/>
+
+<text class="k" x="470" y="62" text-anchor="middle">影响范围：局部 ↑ ／ 全网 ↓（此为上下翻转）</text>
+<text class="k" x="470" y="324" text-anchor="middle">← 变更时（可控）                    故障时（不可控）→</text>
+
+<!-- 左上 -->
+<rect x="130" y="76" width="326" height="100" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="144" y="94">✓ 首选：代价在变更时、影响局部</text>
+<text class="b" x="144" y="112">路由接入（换 IGP 快收敛，代价=改造窗口）</text>
+<text class="b" x="144" y="128">按楼拆子网（代价=地址规划）</text>
+<text class="b" x="144" y="144">按模板扩容（代价=模板维护）</text>
+<text class="b" x="144" y="160">汇总 + stub（代价=初始设计）</text>
+
+<!-- 左下 -->
+<rect x="130" y="196" width="326" height="100" rx="4" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="r" x="144" y="214">✗ 最差：代价在故障时、影响全局</text>
+<text class="b" x="144" y="232">核心层做 ACL / NAT / 服务插入</text>
+<text class="b" x="144" y="248">单 VLAN 跨多楼承载 2,000 终端</text>
+<text class="b" x="144" y="264">peer-link 与 keepalive 同路径</text>
+<text class="b" x="144" y="280">fusion router 导入 permit all</text>
+
+<!-- 右上 -->
+<rect x="484" y="76" width="326" height="100" rx="4" fill="#fffdf8" stroke="#e3c795"/>
+<text class="m" x="498" y="94">△ 可接受：代价局部、但时点不可控</text>
+<text class="b" x="498" y="112">交换机集群 / 堆叠（双主要靠流程避免）</text>
+<text class="b" x="498" y="128">虚拟防火墙多上下文（限额靠监控）</text>
+<text class="b" x="498" y="144">MPLS VPN / VXLAN（协议依赖技能）</text>
+<text class="b" x="498" y="160">NFV（性能确定性靠容量验证）</text>
+
+<!-- 右下 -->
+<rect x="484" y="196" width="326" height="100" rx="4" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="r" x="498" y="214">✗ 必须消除：故障时才暴露的全局风险</text>
+<text class="b" x="498" y="232">非对称回程（服务链只画去程）</text>
+<text class="b" x="498" y="248">多 ABR 同时汇总（故障后次优）</text>
+<text class="b" x="498" y="264">VRF 当防火墙用（合规失效）</text>
+<text class="b" x="498" y="280">未演练的双主切换顺序</text>
+
+<!-- 天平 -->
+<rect x="24" y="336" width="440" height="106" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="356" fill="#0f7f73">把代价放在变更时</text>
+<line x1="150" y1="330" x2="150" y2="360" stroke="#0f7f73" stroke-width="2"/>
+<line x1="80" y1="360" x2="220" y2="360" stroke="#0f7f73" stroke-width="2.4"/>
+<text class="c" x="60" y="376">可排期、可测试、可回退</text>
+<text class="c" x="60" y="392">有变更窗口与验收用例</text>
+<text class="c" x="60" y="408">团队有准备时间</text>
+<text class="c" x="60" y="424">用户可提前通知</text>
+
+<rect x="496" y="336" width="440" height="106" rx="6" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="510" y="356" fill="#a32020">把代价放在故障时</text>
+<line x1="630" y1="330" x2="630" y2="360" stroke="#a32020" stroke-width="2"/>
+<line x1="560" y1="360" x2="700" y2="360" stroke="#a32020" stroke-width="2.4"/>
+<text class="r" x="540" y="376">深夜被叫醒、无回退点</text>
+<text class="r" x="540" y="392">排障顺序靠猜（先重启什么？）</text>
+<text class="r" x="540" y="408">影响面与业务量成正比</text>
+<text class="r" x="540" y="424">每次"修好"都可能是巧合</text>
+</svg>

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 450" width="100%" role="img" aria-labelledby="t1530 d1530">
+<title id="t1530">园区收敛预算表：六类故障的目标时间与检测机制对比</title>
+<desc id="d1530">图用横向时间条对比六类故障的收敛目标，横轴零点在左侧，满刻度二十秒。前三条是链路与设备级故障，目标都在一秒以内，手段是 BFD 乘三加 IGP 快速 SPF 加汇总，实测约零点四到零点六秒；第四条是网关 FHRP 切换，目标是两秒以内，靠毫秒定时器加延迟抢占；第五条是无线漫游，目标是语音场景一百毫秒以内，需要 802.11r、k、v 与控制器优化；第六条是服务节点切换，目标三秒以内，允许会话重建。最下方用一条红色长条对比传统 STP 收敛需要三到十八秒，说明为什么二层模型无法满足前三条目标。结论区指出收敛目标必须写进设计文档的验收表，每条目标都要对应一个可注入的故障和一条验证命令。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="450" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">收敛预算：每条目标都要能对应一次故障注入</text>
+<text class="s" x="24" y="48">横轴 0–20 秒（非线性示意）；"目标"是设计要求，"实测"是验收结果，两者必须分别留档</text>
+
+<!-- 刻度 -->
+<line x1="216" y1="286" x2="920" y2="286" stroke="#dbe3ee"/>
+<line x1="216" y1="70" x2="216" y2="286" stroke="#dbe3ee"/>
+<line x1="392" y1="70" x2="392" y2="286" stroke="#e9eef8"/>
+<line x1="568" y1="70" x2="568" y2="286" stroke="#e9eef8"/>
+<line x1="744" y1="70" x2="744" y2="286" stroke="#e9eef8"/>
+<line x1="920" y1="70" x2="920" y2="286" stroke="#e9eef8"/>
+<text class="t" x="216" y="300" text-anchor="middle">0 s</text>
+<text class="t" x="392" y="300" text-anchor="middle">5 s</text>
+<text class="t" x="568" y="300" text-anchor="middle">10 s</text>
+<text class="t" x="744" y="300" text-anchor="middle">15 s</text>
+<text class="t" x="920" y="300" text-anchor="middle">20 s</text>
+
+<!-- 行 1 -->
+<text class="k" x="24" y="86">接入上行单链路断</text>
+<text class="t" x="24" y="99">目标 &lt;1 s</text>
+<rect x="216" y="76" width="16" height="20" rx="2" fill="#0f7f73"/>
+<line x1="232" y1="86" x2="290" y2="86" stroke="#0f7f73" stroke-width="1" stroke-dasharray="2 2"/>
+<text class="c" x="296" y="89">实测 0.45 s = BFD×3(150 ms) + SPF(50 ms) + 队列</text>
+
+<!-- 行 2 -->
+<text class="k" x="24" y="124">分布交换机单台宕</text>
+<text class="t" x="24" y="137">目标 &lt;1 s</text>
+<rect x="216" y="114" width="20" height="20" rx="2" fill="#0f7f73"/>
+<line x1="236" y1="124" x2="290" y2="124" stroke="#0f7f73" stroke-width="1" stroke-dasharray="2 2"/>
+<text class="c" x="296" y="127">实测 0.6 s，前提：汇总点不产生黑洞路由</text>
+
+<!-- 行 3 -->
+<text class="k" x="24" y="162">核心单链路断</text>
+<text class="t" x="24" y="175">目标 &lt;1 s</text>
+<rect x="216" y="152" width="12" height="20" rx="2" fill="#0f7f73"/>
+<text class="c" x="296" y="165">实测 0.3 s = ECMP 剔除 + BFD，双向都要检测</text>
+
+<!-- 行 4 -->
+<text class="k" x="24" y="200">网关 FHRP 切换</text>
+<text class="t" x="24" y="213">目标 &lt;2 s</text>
+<rect x="216" y="190" width="48" height="20" rx="2" fill="#2f6fed"/>
+<line x1="264" y1="200" x2="290" y2="200" stroke="#2f6fed" stroke-width="1" stroke-dasharray="2 2"/>
+<text class="lb" x="296" y="203">150 ms×3 检测 + 抢占延迟 300 s（防抖动，不占收敛）</text>
+
+<!-- 行 5 -->
+<text class="k" x="24" y="238">服务节点切换</text>
+<text class="t" x="24" y="251">目标 &lt;3 s</text>
+<rect x="216" y="228" width="76" height="20" rx="2" fill="#b45309"/>
+<text class="m" x="298" y="241">允许会话重建：健康检查 1 s×2 + 状态同步 + 引流切换</text>
+
+<!-- 行 6 无线 -->
+<text class="k" x="24" y="276">无线漫游（语音）</text>
+<text class="r" x="24" y="289">目标 &lt;100 ms</text>
+<rect x="216" y="266" width="4" height="20" rx="2" fill="#a32020"/>
+<text class="r" x="230" y="279">100 ms 在这张图上几乎看不见 —— 这就是它最容易"没达标却没人发现"的原因</text>
+
+<!-- STP 对比 -->
+<text class="lb" x="24" y="330" fill="#a32020">对照：传统 STP 收敛</text>
+<rect x="216" y="316" width="106" height="20" rx="2" fill="#d9a3a3"/>
+<text class="r" x="228" y="330">3 s（RSTP 单点）</text>
+<rect x="322" y="316" width="528" height="20" rx="2" fill="#f3e3e3" stroke="#e8c4c4"/>
+<text class="r" x="334" y="330">18 s（PVST+ 默认：Max Age 20 s 级联 / 侦听学习转发）</text>
+<text class="b" x="216" y="352">同一条链路上，二层的收敛时间比三层高 1–2 个数量级 —— 这就是"路由接入"存在的唯一理由</text>
+
+<!-- 结论 -->
+<rect x="24" y="366" width="912" height="46" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="38" y="384" fill="#0f7f73">目标 → 检测 → 验证：三段都要写进文档</text>
+<text class="b" x="38" y="400">示例：接入上行断｜目标 &lt;1 s｜检测 BFD×3｜验证 = 拔纤后连续 ping 统计丢包数 ≤ 5 个；没有第三段的"目标"只是愿望</text>
+
+<text class="t" x="24" y="432">"没演练过的高可用等于不存在" —— 收敛目标比任何拓扑图都更需要验收数据支撑</text>
+</svg>

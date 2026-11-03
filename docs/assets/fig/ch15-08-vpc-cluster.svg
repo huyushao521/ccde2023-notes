@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="100%" role="img" aria-labelledby="t158 d158">
+<title id="t158">接入模型三：交换机集群（vPC / MLAG）的物理视图、逻辑视图与双主成因</title>
+<desc id="d158">上半部分是物理视图：两台分布交换机 Dist-A 与 Dist-B 之间有一条 peer-link（两条 10G 捆绑）和一条经过管理交换机的 peer-keepalive 心跳；两台接入交换机各自把两条上行分别接到 Dist-A 与 Dist-B，形成跨机箱 port-channel，两条同时转发。单归的接入交换机（orphan 端口）只接在 Dist-B 上，peer-link 一断它的流量立刻挂起。下半部分是逻辑视图：两台设备对外呈现为一台逻辑交换机，只有一个管理面、一个控制面。右边是双主事故的成因链：施工把 peer-link 与 keepalive 走同一根光纤，光纤被拔后两侧都认为对端已死，双双升为 Active，造成网关 IP 冲突、ARP 与广播风暴互灌、以及约 8 分钟人工排查。底部给出三条铁律：peer-link 与 keepalive 必须物理分离、orphan 端口要单独评审、集群按一个故障域规划升级窗口。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="470" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">模型三：交换机集群 —— 物理两台、逻辑一台，代价是"命运相关"</text>
+<text class="s" x="24" y="48">双活的收益来自跨机箱链路捆绑；双主的风险来自控制面心跳的可达性</text>
+
+<!-- 物理视图 -->
+<text class="lb" x="24" y="74">物理视图</text>
+<rect x="60" y="84" width="150" height="48" rx="5" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="135" y="104" text-anchor="middle">Dist-A</text>
+<text class="t" x="135" y="120" text-anchor="middle">vPC peer / MLAG</text>
+<rect x="300" y="84" width="150" height="48" rx="5" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="375" y="104" text-anchor="middle">Dist-B</text>
+<text class="t" x="375" y="120" text-anchor="middle">vPC peer / MLAG</text>
+<line x1="210" y1="98" x2="300" y2="98" stroke="#2f6fed" stroke-width="4"/>
+<text class="c" x="214" y="92">peer-link 2×10G（承载所有跨机箱单播与广播）</text>
+
+<rect x="180" y="152" width="150" height="34" rx="4" fill="#fff" stroke="#c8d2e0"/>
+<text class="t" x="255" y="173" text-anchor="middle">管理/带外网络</text>
+<line x1="135" y1="132" x2="200" y2="152" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="375" y1="132" x2="310" y2="152" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text class="m" x="392" y="150">peer-keepalive（必须与 peer-link 物理分离）</text>
+
+<rect x="60" y="222" width="150" height="44" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="135" y="240" text-anchor="middle">接入-1</text>
+<text class="t" x="135" y="256" text-anchor="middle">双归，两条都转发</text>
+<rect x="300" y="222" width="150" height="44" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="375" y="240" text-anchor="middle">接入-2</text>
+<text class="t" x="375" y="256" text-anchor="middle">双归，两条都转发</text>
+<line x1="105" y1="132" x2="105" y2="222" stroke="#2f6fed" stroke-width="2.2"/>
+<line x1="165" y1="132" x2="165" y2="222" stroke="#2f6fed" stroke-width="2.2"/>
+<line x1="345" y1="132" x2="345" y2="222" stroke="#2f6fed" stroke-width="2.2"/>
+<line x1="405" y1="132" x2="405" y2="222" stroke="#2f6fed" stroke-width="2.2"/>
+
+<rect x="238" y="300" width="140" height="44" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="k" x="308" y="318" text-anchor="middle">单归接入（orphan）</text>
+<text class="r" x="308" y="334" text-anchor="middle">peer-link 断 → 端口挂起</text>
+<line x1="375" y1="266" x2="330" y2="300" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+
+<text class="c" x="60" y="372">收益：两条上行全转发（利用率 ~100%）· 一个管理面 · 收敛 &lt;1.5 s · 传统 L2 保留</text>
+<text class="r" x="60" y="392">限制：不支持跨多台接入扩展 VLAN（vPC 只两成员）· 集群本身是一个故障域</text>
+
+<!-- 逻辑视图 + 双主 -->
+<rect x="500" y="64" width="200" height="180" rx="6" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="516" y="84">逻辑视图</text>
+<rect x="524" y="100" width="152" height="60" rx="6" fill="#fff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="600" y="122" text-anchor="middle">一台逻辑交换机</text>
+<text class="t" x="600" y="138" text-anchor="middle">单控制面 · 单网关</text>
+<text class="t" x="600" y="152" text-anchor="middle">单管理 IP</text>
+<rect x="540" y="176" width="120" height="26" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="600" y="193" text-anchor="middle">接入（双归）</text>
+<line x1="600" y1="160" x2="600" y2="176" stroke="#7f8fb0" stroke-width="1.4"/>
+<text class="b" x="516" y="222">对 STP/FHRP 透明：接入侧只知道"有两个根"</text>
+<text class="b" x="516" y="238">排障要同时看逻辑与物理两张图</text>
+
+<rect x="716" y="64" width="220" height="180" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="732" y="84" fill="#a32020">双主事故链</text>
+<text class="r" x="732" y="104">① 施工把 peer-link 与</text>
+<text class="r" x="744" y="118">keepalive 走同一根光纤</text>
+<text class="r" x="732" y="140">② 光纤被拔 → 两条心跳</text>
+<text class="r" x="744" y="154">同时中断</text>
+<text class="r" x="732" y="176">③ 两侧都认为对端已死</text>
+<text class="r" x="732" y="198">④ 双双升 Active → 网关</text>
+<text class="r" x="744" y="212">IP 冲突 + 广播风暴互灌</text>
+<text class="m" x="732" y="232">实测：约 8 min 人工介入</text>
+
+<rect x="24" y="408" width="912" height="48" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="k" x="40" y="428">三条铁律</text>
+<text class="b" x="110" y="428">① peer-link 与 keepalive 走不同物理路径（不同板卡/不同光纤/不同楼层）</text>
+<text class="b" x="40" y="446">② orphan 端口单独评审：它不享受双活收益，却承受双主风险　③ 集群按一个故障域排升级窗口，一次升级就是一次整组中断</text>
+</svg>

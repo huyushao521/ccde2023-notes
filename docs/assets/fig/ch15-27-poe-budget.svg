@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 450" width="100%" role="img" aria-labelledby="t1527 d1527">
+<title id="t1527">PoE 预算按 af 计算导致 AP 反复重启的事故链</title>
+<desc id="d1527">图分左右两栏。左栏是正确做法：48 口接入交换机，20 个 802.3at AP 每个 30 瓦加 20 台话机每个 7 瓦，共 740 瓦，含 20% 余量需要 890 瓦，因此选 1100 瓦电源，功率条显示余量充足。右栏是事故做法：按 af 的 15.4 瓦预算，计划值只有 448 瓦，选 740 瓦电源看似刚好够用；实际 AP 协商成 at 后需 600 瓦加 140 瓦共 740 瓦，正好顶到电源上限，加上余量必然超出，结果是后上线的 AP 拿到 power denied 反复重启。下方给出 T+0、T+15 分钟到 T+2 小时的时间线，说明为什么这类问题总在上线后才暴露，并给出查证命令 show power inline 与 show power inline module。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="450" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">PoE 预算算错的代价：不是断电，是"后上线的 AP 一直重启"</text>
+<text class="s" x="24" y="48">功率不够时交换机不会罢工，它会挑最后协商的那几个端口拒绝供电</text>
+
+<!-- 左：正确 -->
+<rect x="24" y="62" width="444" height="230" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="82" fill="#0f7f73">正确：按协商上限（at 30 W）算，再加 20% 余量</text>
+
+<rect x="38" y="94" width="120" height="30" rx="3" fill="#fff" stroke="#0f7f73" stroke-width="1.4"/>
+<text class="b" x="98" y="113" text-anchor="middle">20 × AP(at) = 600 W</text>
+<rect x="166" y="94" width="120" height="30" rx="3" fill="#fff" stroke="#b6dcd6"/>
+<text class="b" x="226" y="113" text-anchor="middle">20 × 话机 = 140 W</text>
+<rect x="294" y="94" width="160" height="30" rx="3" fill="#fffdf8" stroke="#e3c795"/>
+<text class="m" x="374" y="113" text-anchor="middle">合计 740 W × 1.2 = 890 W</text>
+
+<!-- 功率条 -->
+<rect x="38" y="142" width="416" height="26" rx="3" fill="#e6efe9" stroke="#cfded6"/>
+<rect x="38" y="142" width="280" height="26" rx="3" fill="#8fc4bd"/>
+<rect x="318" y="142" width="56" height="26" fill="#e3c795"/>
+<rect x="374" y="142" width="80" height="26" rx="3" fill="#fff" stroke="#e4eaf3"/>
+<text class="k" x="46" y="159">740 W 实际负载</text>
+<text class="m" x="322" y="159">余量 150</text>
+<text class="b" x="400" y="159" text-anchor="middle">未用</text>
+<line x1="418" y1="136" x2="418" y2="174" stroke="#a32020" stroke-width="1.4" stroke-dasharray="3 2"/>
+<text class="r" x="418" y="186" text-anchor="middle">1100 W 电源</text>
+
+<text class="b" x="38" y="210">选型规则：电源额定 ≥ PoE 预算 × 1.2，且单电源故障后另一路仍能带全部 AP</text>
+<text class="b" x="38" y="228">双电源时按"一路满载"校验，不是按两路均分校验</text>
+<text class="c" x="38" y="252">结果：所有 AP 在最大功率下稳定协商，802.3bt 升级还有余量</text>
+<text class="b" x="38" y="274">校验命令：show power inline / show power inline module 1</text>
+
+<!-- 右：事故 -->
+<rect x="492" y="62" width="444" height="230" rx="6" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="506" y="82" fill="#a32020">事故：按 af 15.4 W 做预算，实际协商成 at 30 W</text>
+
+<rect x="506" y="94" width="130" height="30" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="571" y="113" text-anchor="middle">计划 20×15.4 = 308 W</text>
+<rect x="644" y="94" width="130" height="30" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="709" y="113" text-anchor="middle">话机 140 W</text>
+<rect x="782" y="94" width="140" height="30" rx="3" fill="#fff" stroke="#a32020" stroke-width="1.4"/>
+<text class="r" x="852" y="113" text-anchor="middle">计划 448 W &lt; 740 W</text>
+
+<rect x="506" y="142" width="416" height="26" rx="3" fill="#f3e3e3" stroke="#e8c4c4"/>
+<rect x="506" y="142" width="416" height="26" rx="3" fill="#d9a3a3"/>
+<text class="k" x="514" y="159" fill="#5c1414">实际需求 740 W = 电源上限 740 W（余量为 0）</text>
+<text class="r" x="530" y="186">第 21 个 AP 起协商失败：POWER_DENIED，AP 上电→掉电→再上电</text>
+
+<rect x="506" y="200" width="416" height="30" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="r" x="518" y="219">日志只有一行 %ILPOWER-3-CONTROLLER_PORT: power denied，没有"预算不足"提示</text>
+
+<text class="b" x="506" y="252">为什么按 af 算：招标书里 AP 参数写的是"典型功耗 12 W"</text>
+<text class="b" x="506" y="270">为什么实际是 at：AP 启动后按最大能力协商，不看你的预算表</text>
+
+<!-- 时间线 -->
+<text class="lb" x="24" y="316" fill="#b45309">事故时间线 —— 为什么它总在"上线那一天"才暴露</text>
+<line x1="40" y1="352" x2="920" y2="352" stroke="#dbe3ee" stroke-width="2"/>
+<circle cx="80" cy="352" r="5" fill="#2f6fed"/>
+<text class="k" x="80" y="340" text-anchor="middle">T+0</text>
+<text class="b" x="80" y="374" text-anchor="middle">AP 全部挂上</text>
+<text class="b" x="80" y="388" text-anchor="middle">功率已超预算</text>
+
+<circle cx="300" cy="352" r="5" fill="#b45309"/>
+<text class="k" x="300" y="340" text-anchor="middle">T+15 min</text>
+<text class="b" x="300" y="374" text-anchor="middle">部分 AP 反复重启</text>
+<text class="b" x="300" y="388" text-anchor="middle">报"信号弱"而非"断电"</text>
+
+<circle cx="530" cy="352" r="5" fill="#b45309"/>
+<text class="k" x="530" y="340" text-anchor="middle">T+40 min</text>
+<text class="b" x="530" y="374" text-anchor="middle">现场换位置、加 AP</text>
+<text class="b" x="530" y="388" text-anchor="middle">问题被"改善"但未解决</text>
+
+<circle cx="760" cy="352" r="5" fill="#a32020"/>
+<text class="k" x="760" y="340" text-anchor="middle">T+2 h</text>
+<text class="b" x="760" y="374" text-anchor="middle">查 show power inline</text>
+<text class="b" x="760" y="388" text-anchor="middle">才发现 Available 为 0</text>
+
+<line x1="880" y1="352" x2="920" y2="352" stroke="#a32020" stroke-width="2" marker-end="none"/>
+<text class="r" x="900" y="340" text-anchor="middle">根治</text>
+<text class="r" x="900" y="374" text-anchor="middle">换 1100 W</text>
+<text class="r" x="900" y="388" text-anchor="middle">或减 AP 数</text>
+
+<text class="t" x="24" y="424">设计文档写法：把"每口最大功率 × 供电概率"和"电源额定值"同时写进表 7「容量与功率表」，验收时用 show power inline 实测比对，而不是等用户报障</text>
+</svg>

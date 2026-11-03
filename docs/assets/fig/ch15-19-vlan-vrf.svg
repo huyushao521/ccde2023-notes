@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1519 d1519">
+<title id="t1519">路径隔离技术一：端到端 VLAN 加 VRF 逐跳配置的拓扑，以及漏配一跳导致的概率性不通</title>
+<desc id="d1519">拓扑是从接入交换机经分布、核心、再到 DC 侧分布与防火墙的五跳路径，每一个跳点都必须同时具备 VLAN 与 VRF 配置，任何一跳漏配都会造成"只在特定路径上不通"的概率性故障。图中主路径每个跳点标绿色对勾，备用路径在核心设备上标红色叉号，说明当主路径故障切换后备用路径不通，表现为"白天正常、故障后恢复不了"。底部给出该技术的量化特征：运维工作量等于设备数乘以 VRF 数；故障特征是概率性与路径相关；适用规模通常不超过三段且 VRF 数量少；以及三条降低风险的做法：用配置模板保证每跳一致、用端到端 ping 矩阵验证每个 VRF 的每条路径、以及把 VLAN 与 VRF 的对应表写进设计文档。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">技术一：端到端 VLAN + VRF —— 每一跳都要配，漏一跳就是幽灵故障</text>
+<text class="s" x="24" y="48">它的隔离是"配出来的"，不是"协议保证的"；这是它与 MPLS/EVPN 的根本区别</text>
+
+<!-- 主路径 -->
+<text class="lb" x="24" y="72">主路径（全部跳点已配 VLAN + VRF）</text>
+<rect x="30" y="82" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="95" y="100" text-anchor="middle">接入</text>
+<text class="t" x="95" y="116" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<rect x="188" y="82" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="253" y="100" text-anchor="middle">分布</text>
+<text class="t" x="253" y="116" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<rect x="346" y="82" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="411" y="100" text-anchor="middle">核心</text>
+<text class="t" x="411" y="116" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<rect x="504" y="82" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="569" y="100" text-anchor="middle">DC 分布</text>
+<text class="t" x="569" y="116" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<rect x="662" y="82" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="727" y="100" text-anchor="middle">防火墙（上下文）</text>
+<text class="t" x="727" y="116" text-anchor="middle">VRF-A 进出接口</text>
+<line x1="160" y1="105" x2="188" y2="105" stroke="#0f7f73" stroke-width="2"/>
+<line x1="318" y1="105" x2="346" y2="105" stroke="#0f7f73" stroke-width="2"/>
+<line x1="476" y1="105" x2="504" y2="105" stroke="#0f7f73" stroke-width="2"/>
+<line x1="634" y1="105" x2="662" y2="105" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="166" y="99">✓</text>
+<text class="c" x="324" y="99">✓</text>
+<text class="c" x="482" y="99">✓</text>
+<text class="c" x="640" y="99">✓</text>
+
+<!-- 备用路径 -->
+<text class="lb" x="24" y="160" fill="#a32020">备用路径（核心那一跳漏了 VRF 绑定）</text>
+<rect x="30" y="170" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="95" y="188" text-anchor="middle">接入</text>
+<text class="t" x="95" y="204" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<rect x="188" y="170" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="253" y="188" text-anchor="middle">分布-B</text>
+<text class="t" x="253" y="204" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<rect x="346" y="170" width="130" height="46" rx="4" fill="#fff5f5" stroke="#a32020" stroke-width="1.6"/>
+<text class="k" x="411" y="188" text-anchor="middle">核心-B</text>
+<text class="r" x="411" y="204" text-anchor="middle">VLAN 110 存在，VRF 缺</text>
+<rect x="504" y="170" width="130" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="569" y="188" text-anchor="middle">DC 分布-B</text>
+<text class="t" x="569" y="204" text-anchor="middle">VLAN 110 ⇄ VRF-A</text>
+<line x1="160" y1="193" x2="188" y2="193" stroke="#a32020" stroke-width="2"/>
+<line x1="318" y1="193" x2="346" y2="193" stroke="#a32020" stroke-width="2"/>
+<line x1="476" y1="193" x2="504" y2="193" stroke="#a32020" stroke-width="1.4" stroke-dasharray="6 4"/>
+<text class="r" x="482" y="210">✕</text>
+<text class="r" x="20" y="238">表现：主路径正常时一切正常；主路径故障切换后，只有 VRF-A 的业务不通，其他 VRF 都通 ——</text>
+<text class="r" x="20" y="256">于是被误判成"服务器问题"或"应用问题"，平均定位 2–4 小时。</text>
+<text class="m" x="20" y="276">同类陷阱：VRF 配了但 SVI 里没绑；绑了但中继 allowed VLAN 漏了；allowed 了但 ARP 代理没配。</text>
+
+<!-- 量化特征 -->
+<rect x="24" y="292" width="440" height="152" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="38" y="312" fill="#b45309">量化特征（写进设计文档）</text>
+<text class="b" x="38" y="332">运维工作量 = 设备数 × VRF 数（本例 5 × 4 = 20 处绑定）</text>
+<text class="b" x="38" y="350">故障特征：概率性、路径相关，常规巡检查不出</text>
+<text class="b" x="38" y="368">扩展上限：通常 ≤ 3 段设备、≤ 5 个 VRF</text>
+<text class="b" x="38" y="386">优点：不引入任何封装，MTU 与 QoS 无额外开销</text>
+<text class="b" x="38" y="404">缺点：隔离由配置保证，人一多必然漂移</text>
+<text class="m" x="38" y="428">判断：如果 VRF 数量会超过 5 个或跨越 WAN，就换技术</text>
+
+<rect x="496" y="292" width="440" height="152" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="510" y="312" fill="#0f7f73">三条降低风险的做法</text>
+<text class="b" x="510" y="332">① 模板化：所有设备用同一份"VLAN ⇄ VRF 绑定表"生成</text>
+<text class="b" x="510" y="350">② 验证矩阵：每个 VRF 每条路径都要有 ping/流量探针</text>
+<text class="b" x="510" y="368">③ 设计文档里画出"隔离域走向图"，标出每跳的绑定</text>
+<text class="c" x="510" y="392">验收标准：拔掉任意一条上行，每个 VRF 都能在 1 个包内恢复</text>
+<text class="c" x="510" y="410">做不到这条，说明还有跳点没配齐</text>
+<text class="m" x="510" y="432">延伸阅读：第 9 章的 VRF/RT 与第 16 章的 VXLAN 都把这件事交给协议</text>
+
+<rect x="24" y="454" width="912" height="0" fill="none"/>
+</svg>

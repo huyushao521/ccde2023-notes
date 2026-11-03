@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t1518 d1518">
+<title id="t1518">命运共享的放大效应：一次物理故障如何同时打掉 6 个虚拟网络，以及多租户带来的配置矩阵膨胀</title>
+<desc id="d1518">左边是命运共享：一台物理设备承载 6 个虚拟网络（生产、办公、访客、OT、研发、管理），一块板卡、一路电源或一次软件升级都会让 6 个虚拟网络同时中断；单看每个虚拟网络可用性 99.9%，组合起来的"任何一次故障影响面"被放大 6 倍。图中标注放大公式：故障影响面 = 物理故障概率 × VN 数量 × 每个 VN 的终端数。右边是多租户的复杂度：12 个 VRF 分布在 6 台设备上，配置一致性校验点等于 72 处，加上 RBAC 角色与变更审批链；漏一处就形成"某个 VRF 只在某条路径上不通"的幽灵故障。底部给出三条对策：把关键 VN 分布在不同的物理边界、给每类 VN 单独定义恢复时间目标、以及用模板与自动化做 72 处一致性校验。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">虚拟化不是"免费的隔离"—— 它把多个业务绑到同一份硬件命运上</text>
+<text class="s" x="24" y="48">隔离度上去了，故障相关性也上去了；两者必须同时写进设计文档</text>
+
+<!-- 左：命运共享 -->
+<rect x="24" y="62" width="440" height="272" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="38" y="82" fill="#a32020">命运共享：1 个物理故障 → 6 个 VN 同时断</text>
+
+<rect x="60" y="94" width="368" height="86" rx="5" fill="#fff" stroke="#d98c8c" stroke-width="1.6"/>
+<text class="k" x="244" y="112" text-anchor="middle">同一台物理设备（一块板卡 / 一路电源 / 一次升级）</text>
+<rect x="76" y="122" width="98" height="26" rx="3" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="125" y="139" text-anchor="middle">VN 生产</text>
+<rect x="184" y="122" width="98" height="26" rx="3" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="233" y="139" text-anchor="middle">VN 办公</text>
+<rect x="292" y="122" width="98" height="26" rx="3" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="341" y="139" text-anchor="middle">VN 访客</text>
+<rect x="76" y="152" width="98" height="22" rx="3" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="125" y="167" text-anchor="middle">VN OT</text>
+<rect x="184" y="152" width="98" height="22" rx="3" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="233" y="167" text-anchor="middle">VN 研发</text>
+<rect x="292" y="152" width="98" height="22" rx="3" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="t" x="341" y="167" text-anchor="middle">VN 管理</text>
+
+<text class="r" x="60" y="204">单 VN 可用性 99.9% → 6 个 VN 绑在一起后，</text>
+<text class="r" x="60" y="222">"任意一次故障的影响面" = 物理故障 × 6 × 每个 VN 终端数</text>
+<text class="m" x="60" y="246">实测案例：一次板卡故障 → 生产、OT、访客同时断，</text>
+<text class="m" x="60" y="264">OT 恢复最慢（无备份，需现场更换）</text>
+
+<text class="c" x="38" y="292">对策一：关键 VN 分布在不同物理边界（不同机箱/机房）</text>
+<text class="c" x="38" y="310">对策二：按 VN 级别分别定义 RTO 与备份策略</text>
+<text class="b" x="38" y="328">判断：VRF 数量增加时，先问"这些 VN 允许同时中断吗"</text>
+
+<!-- 右：配置矩阵 -->
+<rect x="496" y="62" width="440" height="272" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="510" y="82" fill="#b45309">多租户复杂度：12 VRF × 6 设备 = 72 处一致性校验</text>
+
+<g>
+  <rect x="524" y="94" width="392" height="20" fill="#eef1f6"/>
+  <text class="t" x="530" y="108">VRF \ 设备</text>
+  <text class="t" x="640" y="108">SW-1</text>
+  <text class="t" x="700" y="108">SW-2</text>
+  <text class="t" x="760" y="108">SW-3</text>
+  <text class="t" x="820" y="108">SW-4</text>
+  <text class="t" x="878" y="108">…6 台</text>
+</g>
+<g>
+  <rect x="524" y="114" width="392" height="18" fill="#fff"/>
+  <text class="t" x="530" y="127">VRF-01 生产</text>
+  <rect x="636" y="117" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="696" y="117" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="756" y="117" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="816" y="117" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="876" y="117" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="524" y="132" width="392" height="18" fill="#f7f9fd"/>
+  <text class="t" x="530" y="145">VRF-02 办公</text>
+  <rect x="636" y="135" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="696" y="135" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="756" y="135" width="20" height="12" fill="#a32020" opacity="0.9"/>
+  <rect x="816" y="135" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="876" y="135" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="524" y="150" width="392" height="18" fill="#fff"/>
+  <text class="t" x="530" y="163">VRF-03 访客</text>
+  <rect x="636" y="153" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="696" y="153" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="756" y="153" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="816" y="153" width="20" height="12" fill="#e8a33d" opacity="0.9"/>
+  <rect x="876" y="153" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="524" y="168" width="392" height="18" fill="#f7f9fd"/>
+  <text class="t" x="530" y="181">VRF-04 OT</text>
+  <rect x="636" y="171" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="696" y="171" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="756" y="171" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="816" y="171" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="876" y="171" width="20" height="12" fill="#0f7f73" opacity="0.8"/>
+  <rect x="524" y="186" width="392" height="18" fill="#fff"/>
+  <text class="t" x="530" y="199">… 共 12 个</text>
+  <text class="t" x="636" y="199">…</text>
+  <text class="t" x="696" y="199">…</text>
+  <text class="t" x="756" y="199">…</text>
+  <text class="t" x="816" y="199">…</text>
+  <text class="t" x="876" y="199">…</text>
+</g>
+<text class="c" x="524" y="222">绿 = 已配且一致　橙 = 配置存在但策略不同　红 = 漏配</text>
+<text class="r" x="524" y="242">红色那一格的表现：只有"办公网经 SW-3 的路径"不通，</text>
+<text class="r" x="524" y="258">换条路径就好了 —— 典型的幽灵故障</text>
+<text class="b" x="524" y="278">再叠上 RBAC：谁能改哪个 VRF、谁审批、谁复核</text>
+<text class="m" x="524" y="298">12 × 6 = 72 处校验，人工做必然有遗漏</text>
+<text class="c" x="524" y="318">对策：模板化 + 自动化校验 + 变更前生成"预期配置 diff"</text>
+
+<rect x="24" y="348" width="912" height="34" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="369">设计动作：给每个 VN 写一行"允许同时中断吗？"—— 答案写在表格里的项目，才允许共用同一份物理边界。</text>
+<rect x="24" y="388" width="912" height="52" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="40" y="408">常见错误：把 OT/工控网和生产网放进同一台设备的不同 VRF，理由是"已经隔离了"。隔离的是流量，没隔离的是故障。</text>
+<text class="b" x="40" y="428">正确做法：先按"能否同时中断"分池，再在池内做 VRF 切分；池间保持物理或至少机箱级独立。</text>
+</svg>

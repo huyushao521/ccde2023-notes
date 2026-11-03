@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 456" width="100%" role="img" aria-labelledby="t1514 d1514">
+<title id="t1514">OSPF 多 ABR 汇总造成的次优路径：同楼两台主机因为 /16 汇总绕到核心再回来</title>
+<desc id="d1514">拓扑是楼 A 与楼 B 各有一对分布交换机充当 ABR，两台 ABR 都向骨干区域注入聚合路由（楼 A 注入 10.1.0.0/16，楼 B 注入 10.2.0.0/16），楼 A 内部有 10.1.1.0/24 与 10.1.2.0/24 两个部门子网，两台 ABR 之间另有一条楼间直连链路。楼 A 的两台主机互访时，因为两条明细被 /16 汇总覆盖，选路只看聚合路由的开销，结果流量走出楼 A 到核心、再绕回另一台 ABR，时延从直连的 2 ms 变成 68 ms。右侧给出三种解法：收紧汇总粒度或使用 not-advertise、把同楼两个 ABR 放进同一区域并保留明细、或为关键前缀配置虚链路/直连回退。底部说明为什么"汇总一定有次优"以及什么情况下可以接受。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="456" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">汇总的代价：同一个楼里的两台主机，可能因为 /16 互相绕到核心再回来</text>
+<text class="s" x="24" y="48">汇总 buys 稳定性与规模，pays 次优路径 —— 这笔交易必须有人签字</text>
+
+<!-- 拓扑 -->
+<rect x="24" y="62" width="620" height="300" rx="6" fill="#fff" stroke="#dfe6ef"/>
+<rect x="250" y="76" width="170" height="42" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="335" y="94" text-anchor="middle">骨干区域 / 核心</text>
+<text class="t" x="335" y="110" text-anchor="middle">Area 0 · 只看到两条 /16</text>
+
+<rect x="60" y="164" width="170" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="145" y="182" text-anchor="middle">楼A-ABR1</text>
+<text class="c" x="145" y="198" text-anchor="middle">注入 10.1.0.0/16</text>
+<rect x="290" y="164" width="170" height="46" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="375" y="182" text-anchor="middle">楼A-ABR2</text>
+<text class="c" x="375" y="198" text-anchor="middle">注入 10.1.0.0/16</text>
+<rect x="60" y="248" width="170" height="46" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="145" y="266" text-anchor="middle">楼B-ABR1</text>
+<text class="c" x="145" y="282" text-anchor="middle">注入 10.2.0.0/16</text>
+<rect x="290" y="248" width="170" height="46" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="375" y="266" text-anchor="middle">楼B-ABR2</text>
+<text class="c" x="375" y="282" text-anchor="middle">注入 10.2.0.0/16</text>
+
+<line x1="145" y1="118" x2="145" y2="164" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="375" y1="118" x2="375" y2="164" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="145" y1="118" x2="145" y2="248" stroke="#c8d2e0" stroke-width="1.2"/>
+<line x1="475" y1="118" x2="475" y2="248" stroke="#c8d2e0" stroke-width="1.2"/>
+<line x1="180" y1="118" x2="460" y2="118" stroke="#c8d2e0" stroke-width="1.2"/>
+
+<line x1="230" y1="210" x2="290" y2="210" stroke="#b45309" stroke-width="2" stroke-dasharray="6 4"/>
+<text class="m" x="232" y="228">楼间直连 2 ms</text>
+
+<rect x="76" y="238" width="94" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="123" y="255" text-anchor="middle">10.1.1.0/24</text>
+<rect x="330" y="238" width="94" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="377" y="255" text-anchor="middle">10.1.2.0/24</text>
+<line x1="123" y1="210" x2="123" y2="238" stroke="#c8d2e0" stroke-width="1.2"/>
+<line x1="377" y1="210" x2="377" y2="238" stroke="#c8d2e0" stroke-width="1.2"/>
+
+<path d="M123 264 L123 292 L377 292 L377 264" fill="none" stroke="#a32020" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text class="r" x="170" y="308">主机互访实际路径：出楼 → 核心 → 另一台 ABR → 回到本楼</text>
+<text class="r" x="170" y="326">时延 68 ms（直连只要 2 ms），且占用核心与 WAN 带宽</text>
+<text class="b" x="60" y="348">根因：/16 汇总把 10.1.1.0/24 与 10.1.2.0/24 都覆盖了，ABR 只能用 /16 判断出口</text>
+
+<!-- 解法 -->
+<rect x="660" y="62" width="276" height="300" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="674" y="82" fill="#0f7f73">三种解法（按性价比排序）</text>
+<text class="k" x="674" y="104">① 收紧汇总粒度</text>
+<text class="b" x="674" y="120">按"同楼同出口"聚合，不同出口的</text>
+<text class="b" x="674" y="134">前缀不合并；或对特定前缀</text>
+<text class="b" x="674" y="148">not-advertise，逼它保留明细</text>
+<text class="k" x="674" y="172">② 让同楼两台 ABR 同区域</text>
+<text class="b" x="674" y="188">同区域内明细照常泛洪，</text>
+<text class="b" x="674" y="202">汇总只在出区域时才发生</text>
+<text class="k" x="674" y="226">③ 关键前缀保明细</text>
+<text class="b" x="674" y="242">语音/视频/工控等低时延网段</text>
+<text class="b" x="674" y="256">不参与汇总，代价是条目更多</text>
+<text class="m" x="674" y="282">不要用"调开销"掩盖问题：</text>
+<text class="m" x="674" y="298">开销是全局的，会连带影响其他流量</text>
+<text class="m" x="674" y="318">正确顺序：先看汇总边界，再谈度量</text>
+<text class="c" x="674" y="344">次优可接受的情形：跨园区或跨 WAN，</text>
+<text class="c" x="674" y="358">绕行代价远小于拓扑稳定性收益</text>
+
+<rect x="24" y="374" width="912" height="34" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="395">设计动作：画一张"汇总边界图"，标出每条聚合路由覆盖了哪些出口；凡是一条聚合覆盖两个以上出口的地方，都要做时延测算。</text>
+
+<rect x="24" y="414" width="912" height="34" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="40" y="435">验收办法：上线后用两台主机的实际 ping/traceroute 验证，不要只看路由表"该通的都通" —— 通与快是两件事。</text>
+</svg>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t155 d155">
+<title id="t155">二层与三层模型的选择依据在业务维度，以及低估 OPEX 导致的"总成本反超"</title>
+<desc id="d155">上半部分两张卡片对照：倾向二层模型的条件是远程分支或小型园区、扩展潜力低、CAPEX 是硬约束、无并购扩张计划、团队偏二层、单楼或紧邻多楼；倾向三层模型的条件是区域总部或主园区、扩展潜力高、长期 OPEX 与可演进性优先、有并购与快速扩张、有专职网络团队熟悉 IGP、多楼与多分布块。下半部分是成本曲线：只买最便宜的二层方案初期总成本低，但在扩展点之后因为推倒重来与双倍运维而陡升；一次性做对的三层方案初期更高但线性增长，两条曲线在扩展点之后交叉。底部给出 Gold Plating 的四条判据，说明哪些未来需求可以进入设计输入。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">二层还是三层：原书把判据放在业务维度，而不是技术维度</text>
+<text class="s" x="24" y="48">六个维度里没有一个是"哪个协议更先进"</text>
+
+<rect x="24" y="64" width="440" height="168" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="86" fill="#0f7f73">倾向二层模型（Collapsed Core）</text>
+<text class="b" x="40" y="108">· 站点类型：远程分支、小型园区</text>
+<text class="b" x="40" y="128">· 扩展潜力：低（小站点很少需要三层）</text>
+<text class="b" x="40" y="148">· 成本约束：CAPEX 是硬约束，少买设备</text>
+<text class="b" x="40" y="168">· 业务计划：无扩张、无并购</text>
+<text class="b" x="40" y="188">· 运维团队：人少，技能偏二层</text>
+<text class="b" x="40" y="208">· 楼栋与距离：单楼或紧邻多楼</text>
+<text class="c" x="40" y="226">前提：功能块 ≤ 3，且未来两年不会新增块</text>
+
+<rect x="496" y="64" width="440" height="168" rx="6" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="512" y="86">倾向三层模型</text>
+<text class="b" x="512" y="108">· 站点类型：区域总部、主园区</text>
+<text class="b" x="512" y="128">· 扩展潜力：高（可能大幅增长）</text>
+<text class="b" x="512" y="148">· 成本视角：长期 OPEX 与可演进性更重要</text>
+<text class="b" x="512" y="168">· 业务计划：有并购、快速扩张、新业务</text>
+<text class="b" x="512" y="188">· 运维团队：有专职网络团队、熟悉 IGP</text>
+<text class="b" x="512" y="208">· 楼栋与距离：多楼、跨园区光纤、多分布块</text>
+<text class="c" x="512" y="226">前提：块 &gt; 3 或块间互访关系复杂</text>
+
+<!-- 成本曲线 -->
+<rect x="24" y="244" width="912" height="136" rx="6" fill="#fff" stroke="#dfe6ef"/>
+<text class="lb" x="40" y="266">总拥有成本（CAPEX + 改造 + 运维）随时间/规模的变化</text>
+<line x1="80" y1="360" x2="900" y2="360" stroke="#c8d2e0" stroke-width="1.2"/>
+<line x1="80" y1="276" x2="80" y2="360" stroke="#c8d2e0" stroke-width="1.2"/>
+<text class="t" x="806" y="374">时间 / 业务规模</text>
+<text class="t" x="42" y="272">成本</text>
+
+<polyline points="90,336 520,336 600,300 880,286" fill="none" stroke="#0f7f73" stroke-width="2"/>
+<polyline points="90,312 380,304 640,292 880,262" fill="none" stroke="#a32020" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="620" cy="296" r="4" fill="#b45309"/>
+<text class="m" x="630" y="288">扩展点：改造窗口 + 双倍运维在这里爆发</text>
+<text class="c" x="100" y="326">二层：初期最低</text>
+<text class="r" x="700" y="256">二层：扩展后反超</text>
+<text class="r" x="560" y="310">三层：线性、可预测</text>
+
+<!-- Gold plating 判据 -->
+<text class="k" x="24" y="402">"为明天而建"的边界：未来需求要进设计输入，至少满足一条</text>
+<rect x="24" y="410" width="218" height="34" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="b" x="36" y="431">① 已写进预算或规划文件</text>
+<rect x="252" y="410" width="218" height="34" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="b" x="264" y="431">② 物理约束（布线 10–15 年）</text>
+<rect x="480" y="410" width="218" height="34" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="b" x="492" y="431">③ 不可逆决策（地址/AS/命名）</text>
+<rect x="708" y="410" width="216" height="34" rx="4" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="b" x="720" y="431">④ 合规要求的隔离或留存</text>
+</svg>

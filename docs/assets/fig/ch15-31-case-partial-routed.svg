@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1531 d1531">
+<title id="t1531">路由接入只做一半：接入层有了 SVI 但分布层仍有网关，收敛没变快</title>
+<desc id="d1531">图左是声称已经改成路由接入的拓扑：终端连到接入交换机，接入交换机上有 SVI，但上行仍是二层 trunk；分布层同样保留该 VLAN 的 SVI 并运行 HSRP，同时还是 STP 根桥。结果是出现两个网关，ARP 与 FHRP 仍然生效，STP 仍然参与转发，收敛时间仍是三到十八秒。图右给出"真路由接入"的五条判据清单，逐条打叉或打勾：接入上行必须是三层点对点或三十一位、分布层不得存在该 VLAN 的 SVI、不得运行 FHRP、STP 不参与任何转发、IGP 邻居必须是直连可达；并给出四条验证命令，例如 show spanning-tree vlan、show standby brief、show ip route 与 show ip eigrp neighbors。底部结论指出改成路由接入不需要换硬件，但需要把整条路径上的二层痕迹全部清掉，只清一半比不改更危险。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">"路由接入做了一半" —— 两种网关并存，收敛一点没变快</text>
+<text class="s" x="24" y="48">现象：接入层确实配了 SVI，但上行仍是 trunk，分布层的 SVI 与 HSRP 一个都没删</text>
+
+<!-- 左：半途拓扑 -->
+<rect x="24" y="62" width="520" height="252" rx="6" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="38" y="82" fill="#a32020">现状：两个网关 + 两套协议</text>
+
+<rect x="60" y="94" width="150" height="38" rx="4" fill="#fff" stroke="#a32020" stroke-width="1.4"/>
+<text class="k" x="135" y="110" text-anchor="middle">接入（新加 SVI）</text>
+<text class="r" x="135" y="124" text-anchor="middle">192.168.10.1 ← 网关 1</text>
+
+<rect x="330" y="94" width="170" height="38" rx="4" fill="#fff" stroke="#a32020" stroke-width="1.4"/>
+<text class="k" x="415" y="110" text-anchor="middle">分布（旧 SVI 未删）</text>
+<text class="r" x="415" y="124" text-anchor="middle">192.168.10.1 ← 网关 2 · HSRP</text>
+
+<line x1="210" y1="113" x2="330" y2="113" stroke="#a32020" stroke-width="2.4"/>
+<text class="r" x="216" y="106">仍是 L2 trunk（不是 /31）</text>
+<text class="r" x="216" y="132">STP 根桥在这台分布上</text>
+
+<rect x="60" y="164" width="110" height="28" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="115" y="182" text-anchor="middle">终端 1</text>
+<rect x="184" y="164" width="110" height="28" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="239" y="182" text-anchor="middle">终端 2</text>
+<line x1="115" y1="164" x2="115" y2="132" stroke="#8fa8d0" stroke-width="1.4"/>
+<line x1="239" y1="164" x2="239" y2="132" stroke="#8fa8d0" stroke-width="1.4"/>
+
+<rect x="60" y="208" width="440" height="24" rx="3" fill="#f3e3e3" stroke="#e8c4c4"/>
+<text class="r" x="280" y="224" text-anchor="middle">同一网段两个网关 → 一半终端走接入、一半走分布（随 ARP 应答而定）</text>
+<line x1="280" y1="232" x2="280" y2="246" stroke="#a32020" stroke-width="1.6"/>
+<rect x="60" y="246" width="440" height="24" rx="3" fill="#fff" stroke="#a32020" stroke-width="1.4"/>
+<text class="r" x="280" y="262" text-anchor="middle">排障时两台设备都要看，且收敛仍由 STP 决定：3–18 s 不变</text>
+
+<text class="b" x="38" y="292">用户感受：改造花了两个通宵，切换测试还是丢 8–15 秒</text>
+<text class="b" x="38" y="306">根因：二层的定时器还在路径上，三层的快收敛没有机会生效</text>
+
+<!-- 右：五条判据 -->
+<rect x="564" y="62" width="372" height="252" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="578" y="82" fill="#0f7f73">真路由接入的五条判据（缺一不可）</text>
+
+<text class="r" x="578" y="106">✗ ① 上行必须是三层链路</text>
+<text class="b" x="592" y="120">/31 或 /30 点对点，不要 switchport trunk</text>
+
+<text class="r" x="578" y="142">✗ ② 分布层不得有该 VLAN 的 SVI</text>
+<text class="b" x="592" y="156">no interface vlan 10 —— 这是最常被留下的尾巴</text>
+
+<text class="r" x="578" y="178">✗ ③ 不得运行 FHRP</text>
+<text class="b" x="592" y="192">没了 SVI，HSRP 组自然消失；仍要 show standby 复核</text>
+
+<text class="r" x="578" y="214">✗ ④ STP 不参与转发</text>
+<text class="b" x="592" y="228">接入到终端的边缘口可留 BPDU Guard，干线不再有阻塞口</text>
+
+<text class="r" x="578" y="250">✗ ⑤ IGP 邻居必须直连可达</text>
+<text class="b" x="592" y="264">EIGRP/OSPF 邻居跑在三层上联口，配 BFD 才有意义</text>
+
+<text class="c" x="578" y="294">四条复核命令：show spanning-tree vlan 10 / show standby brief / show ip route 192.168.10.0 / show ip eigrp neighbors</text>
+
+<!-- 底部 -->
+<rect x="24" y="330" width="912" height="44" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="k" x="38" y="348" fill="#b45309">改造只要软件配置，不需要换硬件 —— 但它是一次"全路径"改造，不是"接入层"改造</text>
+<text class="b" x="38" y="364">只改一半的后果比不改更糟：网关位置不确定、排障语言不统一、收敛时间没有变化，还多了一份"以为已经优化过"的错误信心</text>
+
+<text class="t" x="24" y="394">变更检查清单做法：把五条判据做成 Excel 一行一台交换机，逐台打勾，全部打勾才允许撤掉旧的网关地址</text>
+<text class="t" x="24" y="412">回退点设计：旧 SVI 保持 shutdown 而非删除，观察两周无异常后再彻底清理（保留配置快照）</text>
+<text class="t" x="24" y="430">提示：路由接入减少的是二层收敛，不减少设备数量 —— 端口密度与机柜约束依然按前文容量模型计算</text>
+</svg>

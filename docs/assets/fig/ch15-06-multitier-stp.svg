@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t156 d156">
+<title id="t156">接入模型一：多层 STP 的拓扑、阻塞端口位置与必须配置的五类保护</title>
+<desc id="d156">拓扑是两对分布交换机下面挂两台纯二层接入交换机。分布 A 是 STP 根桥同时是 HSRP Active，分布 B 是 Standby，两台之间有一条串联链路。每条上行链路中只有一条处于转发状态，另外三条被 STP 阻塞，因此每个 VLAN 只有一条活跃路径，链路利用率约 50%。右侧列出必须配置的保护：PortFast 加 BPDU Guard、Root Guard、Loop Guard、UDLD aggressive、Storm Control、DHCP Snooping 加 DAI，缺一项就会出现莫名的全网卡顿。底部给出该模型的定位：L2/L3 边界在分布层，收敛时间 10 到 30 秒（RSTP 优化后 2 到 5 秒），排障需要 STP 域全局视图、FHRP 状态与 MAC 表三样一起看。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">模型一：多层 STP —— 每个 VLAN 只有一条活跃路径，其余靠阻塞保命</text>
+<text class="s" x="24" y="48">L2/L3 边界在分布层：SVI 与 FHRP 网关都在上面那一对设备上</text>
+
+<rect x="80" y="80" width="210" height="58" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="185" y="100" text-anchor="middle">分布-A（L2+L3，FHRP）</text>
+<text class="c" x="185" y="118" text-anchor="middle">STP Root · HSRP Active</text>
+<text class="t" x="185" y="132" text-anchor="middle">SVI 网关 + VLAN 终结</text>
+<rect x="340" y="80" width="210" height="58" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="445" y="100" text-anchor="middle">分布-B（L2+L3，FHRP）</text>
+<text class="c" x="445" y="118" text-anchor="middle">HSRP Standby</text>
+<text class="t" x="445" y="132" text-anchor="middle">阻塞端口的另一端</text>
+<line x1="290" y1="109" x2="340" y2="109" stroke="#7f8fb0" stroke-width="2"/>
+<text class="t" x="300" y="102">串联</text>
+
+<rect x="100" y="196" width="180" height="42" rx="5" fill="#fff8ee" stroke="#e3c795"/>
+<text class="k" x="190" y="214" text-anchor="middle">接入-1F</text>
+<text class="t" x="190" y="229" text-anchor="middle">纯 L2 · STP 边缘</text>
+<rect x="330" y="196" width="180" height="42" rx="5" fill="#fff8ee" stroke="#e3c795"/>
+<text class="k" x="420" y="214" text-anchor="middle">接入-2F</text>
+<text class="t" x="420" y="229" text-anchor="middle">纯 L2 · STP 边缘</text>
+
+<line x1="150" y1="138" x2="160" y2="196" stroke="#2f6fed" stroke-width="2.2"/>
+<text class="c" x="108" y="172">转发</text>
+<line x1="240" y1="138" x2="380" y2="196" stroke="#a32020" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text class="r" x="266" y="172">阻塞</text>
+<line x1="390" y1="138" x2="230" y2="196" stroke="#a32020" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text class="r" x="342" y="176">阻塞</text>
+<line x1="460" y1="138" x2="450" y2="196" stroke="#2f6fed" stroke-width="2.2"/>
+<text class="c" x="470" y="172">转发</text>
+
+<rect x="112" y="266" width="60" height="30" rx="3" fill="#fff" stroke="#d9c49b"/>
+<text class="t" x="142" y="285" text-anchor="middle">PC</text>
+<rect x="182" y="266" width="60" height="30" rx="3" fill="#fff" stroke="#d9c49b"/>
+<text class="t" x="212" y="285" text-anchor="middle">PC</text>
+<rect x="342" y="266" width="60" height="30" rx="3" fill="#fff" stroke="#d9c49b"/>
+<text class="t" x="372" y="285" text-anchor="middle">PC</text>
+<rect x="412" y="266" width="60" height="30" rx="3" fill="#fff" stroke="#d9c49b"/>
+<text class="t" x="442" y="285" text-anchor="middle">PC</text>
+<line x1="142" y1="238" x2="142" y2="266" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="212" y1="238" x2="212" y2="266" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="372" y1="238" x2="372" y2="266" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="442" y1="238" x2="442" y2="266" stroke="#7f8fb0" stroke-width="1.2"/>
+<text class="t" x="112" y="316">access port（VLAN 10）</text>
+
+<text class="r" x="80" y="344">代价：每 VLAN 一条活跃路径，链路利用率 ~50%；</text>
+<text class="r" x="80" y="362">收敛 = STP 收敛 + FHRP 切换叠加（RSTP 优化后 2–5 s）</text>
+<text class="m" x="80" y="382">排障要同时看：STP 域全局视图 + FHRP 状态 + MAC 表</text>
+
+<!-- 右侧保护清单 -->
+<rect x="600" y="64" width="336" height="330" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="616" y="86" fill="#a32020">必须配置的保护（缺一项就"莫名卡顿"）</text>
+<rect x="616" y="98" width="304" height="24" rx="3" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="628" y="114">PortFast + BPDU Guard（接终端口）</text>
+<rect x="616" y="128" width="304" height="24" rx="3" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="628" y="144">Root Guard（接下游交换机的口）</text>
+<rect x="616" y="158" width="304" height="24" rx="3" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="628" y="174">Loop Guard（防单向链路导致 STP 失效）</text>
+<rect x="616" y="188" width="304" height="24" rx="3" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="628" y="204">UDLD aggressive（光纤单通检测）</text>
+<rect x="616" y="218" width="304" height="24" rx="3" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="628" y="234">Storm Control（广播/组播/未知单播分限）</text>
+<rect x="616" y="248" width="304" height="24" rx="3" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="628" y="264">DHCP Snooping + Dynamic ARP Inspection</text>
+
+<text class="lb" x="616" y="296">适用场景</text>
+<text class="b" x="616" y="314">存量改造、预算紧、终端密度低</text>
+<text class="b" x="616" y="332">跨配线间必须有大二层（老应用/心跳）</text>
+<text class="m" x="616" y="354">核心问题：STP 不表达"拓扑意图"——</text>
+<text class="m" x="616" y="372">它只会把环路剪成一棵树，剪在哪由优先级决定</text>
+
+<rect x="24" y="404" width="912" height="38" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="428">定位：它不是"落后方案"，而是"用 STP 的复杂度换取跨配线间的二层与零终端改造成本"——代价必须在设计文档里写明。</text>
+</svg>

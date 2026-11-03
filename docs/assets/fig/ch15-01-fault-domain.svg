@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 436" width="100%" role="img" aria-labelledby="t151 d151">
+<title id="t151">同一个园区两种画法：扁平大二层与功能块分区三层，故障域大小差一个数量级</title>
+<desc id="d151">左边是反模式：两台核心兼分布，下挂 12 台接入交换机，跨 3 栋楼共 2,000 台终端在同一个 VLAN 10 里，STP 域直径 5 跳。任何一台终端的 ARP 风暴、任何一次核心故障，都会波及全部 2,000 台终端，实测中断约 40 秒。右边是目标状态：独立核心层下挂 4 个功能块（用户、DC、WAN、管理），每块有自己的分布层、自己的 STP 域或 IGP 区域，一次故障最多影响一个块。底部指出园区设计的第一性问题应该问"一次故障最多影响多少终端"，而不是"用什么协议"。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .d{font:600 10px "Microsoft YaHei",sans-serif;fill:#fff}
+</style>
+<rect x="0" y="0" width="960" height="436" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">同一个园区，两种画法 —— 差别不在协议，在"一次故障能带走多少终端"</text>
+<text class="s" x="24" y="48">左：广播域 = 故障域 = 全网；右：故障域被分布层切成小块</text>
+
+<!-- 左：反模式 -->
+<rect x="24" y="64" width="440" height="292" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="40" y="86" fill="#a32020">反模式：1 个广播域覆盖 3 栋楼</text>
+
+<rect x="66" y="100" width="112" height="34" rx="4" fill="#fff" stroke="#d98c8c"/>
+<text class="k" x="122" y="121" text-anchor="middle">核心 A（兼分布）</text>
+<rect x="212" y="100" width="112" height="34" rx="4" fill="#fff" stroke="#d98c8c"/>
+<text class="k" x="268" y="121" text-anchor="middle">核心 B（兼分布）</text>
+<line x1="178" y1="117" x2="212" y2="117" stroke="#7f8fb0" stroke-width="1.6"/>
+
+<rect x="44" y="182" width="86" height="30" rx="4" fill="#fff" stroke="#d98c8c"/>
+<text class="b" x="87" y="201" text-anchor="middle">接入 1F</text>
+<rect x="148" y="182" width="86" height="30" rx="4" fill="#fff" stroke="#d98c8c"/>
+<text class="b" x="191" y="201" text-anchor="middle">接入 2F</text>
+<rect x="252" y="182" width="86" height="30" rx="4" fill="#fff" stroke="#d98c8c"/>
+<text class="b" x="295" y="201" text-anchor="middle">接入 3F</text>
+<rect x="356" y="182" width="86" height="30" rx="4" fill="#fff" stroke="#d98c8c"/>
+<text class="b" x="399" y="201" text-anchor="middle">接入 4F</text>
+
+<line x1="87" y1="134" x2="87" y2="182" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="122" y1="134" x2="191" y2="182" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="268" y1="134" x2="295" y2="182" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="268" y1="134" x2="399" y2="182" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="191" y1="134" x2="295" y2="182" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+<text class="r" x="214" y="166">STP 阻塞</text>
+
+<rect x="44" y="240" width="398" height="46" rx="4" fill="#fff" stroke="#f0c9c9"/>
+<text class="b" x="58" y="259">2,000 台终端 · 1 个 VLAN 10 · 跨 3 栋楼 12 台接入</text>
+<text class="r" x="58" y="277">STP 域直径 5 跳，任一端口变化全网重算</text>
+
+<text class="r" x="44" y="308">· 一台网卡故障持续发 ARP → 泛洪打满上行与 CPU</text>
+<text class="r" x="44" y="326">· 核心 A 掉电 → 根桥 + 180 个网关 + OSPF 同时变</text>
+<text class="m" x="44" y="344">· 实测：全网中断 40 s，部分服务器异常 10 min</text>
+
+<!-- 右：目标 -->
+<rect x="496" y="64" width="440" height="292" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="512" y="86" fill="#0f7f73">目标：核心独立，块各有分布层</text>
+
+<rect x="548" y="100" width="104" height="32" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="600" y="120" text-anchor="middle">核心 A</text>
+<rect x="700" y="100" width="104" height="32" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="752" y="120" text-anchor="middle">核心 B</text>
+<line x1="652" y1="116" x2="700" y2="116" stroke="#7f8fb0" stroke-width="1.6"/>
+<text class="c" x="512" y="120">只做高速互连</text>
+
+<rect x="512" y="160" width="96" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="560" y="178" text-anchor="middle">用户块</text>
+<rect x="620" y="160" width="96" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="668" y="178" text-anchor="middle">DC 块</text>
+<rect x="728" y="160" width="96" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="776" y="178" text-anchor="middle">WAN 块</text>
+<rect x="836" y="160" width="84" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="878" y="178" text-anchor="middle">管理块</text>
+
+<line x1="600" y1="132" x2="560" y2="160" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="600" y1="132" x2="668" y2="160" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="752" y1="132" x2="776" y2="160" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="752" y1="132" x2="878" y2="160" stroke="#7f8fb0" stroke-width="1.5"/>
+
+<rect x="524" y="216" width="72" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="560" y="233" text-anchor="middle">接入</text>
+<rect x="632" y="216" width="72" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="668" y="233" text-anchor="middle">服务器</text>
+<rect x="740" y="216" width="72" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="776" y="233" text-anchor="middle">边缘</text>
+<rect x="848" y="216" width="60" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="878" y="233" text-anchor="middle">网管</text>
+<line x1="560" y1="188" x2="560" y2="216" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="668" y1="188" x2="668" y2="216" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="776" y1="188" x2="776" y2="216" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="878" y1="188" x2="878" y2="216" stroke="#7f8fb0" stroke-width="1.4"/>
+
+<text class="c" x="512" y="272">· 每块独立 STP 域 / OSPF 区域 / 汇总边界</text>
+<text class="c" x="512" y="290">· 块数 &gt; 3 → 核心层必须独立（原书判据）</text>
+<text class="c" x="512" y="308">· 一次故障影响 ≤ 1 个块，半径可预测</text>
+<text class="m" x="512" y="330">代价：多一对设备、多一跳 —— 换的是可预测性</text>
+
+<rect x="24" y="374" width="912" height="46" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="k" x="40" y="394">第一性问题：一次故障最多能带走多少终端？</text>
+<text class="b" x="40" y="412">「用什么协议」是第 ③ 步才出现的答案 —— 先数功能块，再谈层，最后才谈协议</text>
+</svg>

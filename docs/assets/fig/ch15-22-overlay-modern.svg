@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t1522 d1522">
+<title id="t1522">现代替代方案：VXLAN 加 EVPN 的 spine-leaf overlay 拓扑，以及它相对四种传统隔离技术改变了什么</title>
+<desc id="d1522">拓扑是两台 spine 与四台 leaf，leaf 作为 VTEP 在 underlay 上用 OSPF 或 BGP 建立三层可达（每台设备一个 loopback），overlay 上用 EVPN 分发 VNI 与主机路由，VNI 4000 表示生产、VNI 5000 表示访客；border leaf 负责与数据中心防火墙和 WAN 做边界交互。图中标注：接入交换机不需要二层到核心、VLAN 只在本地有意义、新业务上线等于在模板里加一个 VNI。底部说明它改变了什么：隔离不再依赖每跳配置、二层延伸由 overlay 决定、故障域收窄到单台 leaf；并给出适用判断：新建园区且需要多租户、需要与云或 DC 拉平、或已有 SD-Access 路线图时才选它，否则传统三层加 VRF 更便宜。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">（延伸）现代替代：VXLAN + EVPN —— 把"二层延伸"和"隔离"都交给 overlay</text>
+<text class="s" x="24" y="48">它没有推翻前面的判据，只是把"每跳配置"换成了"控制面分发"</text>
+
+<rect x="300" y="68" width="160" height="40" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="380" y="86" text-anchor="middle">Spine-1</text>
+<text class="t" x="380" y="101" text-anchor="middle">underlay：OSPF/BGP</text>
+<rect x="500" y="68" width="160" height="40" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="580" y="86" text-anchor="middle">Spine-2</text>
+<text class="t" x="580" y="101" text-anchor="middle">ECMP，无状态</text>
+<line x1="460" y1="88" x2="500" y2="88" stroke="#7f8fb0" stroke-width="1.6"/>
+
+<rect x="60" y="150" width="150" height="52" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="135" y="168" text-anchor="middle">Leaf-1（VTEP）</text>
+<text class="t" x="135" y="184" text-anchor="middle">VNI 4000 / 5000</text>
+<rect x="240" y="150" width="150" height="52" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="315" y="168" text-anchor="middle">Leaf-2（VTEP）</text>
+<text class="t" x="315" y="184" text-anchor="middle">同一 VNI = 同一网段</text>
+<rect x="470" y="150" width="150" height="52" rx="4" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="545" y="168" text-anchor="middle">Leaf-3（VTEP）</text>
+<text class="t" x="545" y="184" text-anchor="middle">无线/AP 接入</text>
+<rect x="650" y="150" width="170" height="52" rx="4" fill="#fff8ee" stroke="#e3c795"/>
+<text class="k" x="735" y="168" text-anchor="middle">Border Leaf</text>
+<text class="t" x="735" y="184" text-anchor="middle">接防火墙 / WAN / DC</text>
+
+<line x1="135" y1="150" x2="340" y2="108" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="315" y1="150" x2="400" y2="108" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="545" y1="150" x2="560" y2="108" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="735" y1="150" x2="620" y2="108" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="135" y1="150" x2="560" y2="108" stroke="#c8d2e0" stroke-width="1.1"/>
+<line x1="735" y1="150" x2="400" y2="108" stroke="#c8d2e0" stroke-width="1.1"/>
+
+<rect x="80" y="228" width="110" height="30" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="135" y="247" text-anchor="middle">服务器/终端</text>
+<rect x="260" y="228" width="110" height="30" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="315" y="247" text-anchor="middle">服务器/终端</text>
+<rect x="490" y="228" width="110" height="30" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="545" y="247" text-anchor="middle">AP</text>
+<line x1="135" y1="202" x2="135" y2="228" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="315" y1="202" x2="315" y2="228" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="545" y1="202" x2="545" y2="228" stroke="#7f8fb0" stroke-width="1.2"/>
+<text class="c" x="60" y="280">VLAN 只在本地有意义：跨 leaf 的同一网段由 VXLAN 封装，与 STP 无关</text>
+<text class="c" x="60" y="298">新业务上线 = 模板里加一个 VNI，不需要逐台改中继与 SVI</text>
+<text class="r" x="60" y="316">代价：underlay 必须稳定（它是承载一切的 IP 网）、MTU 要全网 ≥ 1550、</text>
+<text class="r" x="60" y="332">控制面从"每台设备"变成"每台 VTEP + 控制器/EVPN 策略"</text>
+
+<rect x="24" y="352" width="912" height="40" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="372">它改变了什么：① 隔离不再靠每跳配置；② 二层延伸范围由 overlay 定义；③ 故障域收窄到单台 leaf；④ 与 DC、云使用同一套语言。</text>
+<text class="b" x="40" y="386">它没改变什么：功能块必须先划清、服务节点的回程必须先画、容量与收敛预算必须先算 —— 这三件事与封装无关。</text>
+
+<rect x="24" y="400" width="912" height="44" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="40" y="420">选它的时机：新建园区 + 明确的多租户/多园区平等接入需求 + 团队愿意接受控制器与自动化；或已有 SD-Access 路线图。</text>
+<text class="b" x="40" y="436">不选它的时机：只有 2–3 个功能块、无跨楼二层需求、团队以传统 CLI 运维为主 —— 此时三层 + VRF 更便宜也更稳。</text>
+</svg>

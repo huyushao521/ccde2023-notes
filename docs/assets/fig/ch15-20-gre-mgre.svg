@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1520 d1520">
+<title id="t1520">路径隔离技术二与三：GRE 点对点隧道的全互联矩阵，以及 mGRE（DMVPN）hub-and-spoke 如何把工程量从 n 平方降到 n</title>
+<desc id="d1520">左边是 GRE 点对点隧道：五个站点如果两两需要互访，就需要十条隧道，每台设备上要配四个 tunnel 接口，配置点数是二十处；新增第六个站点时要在五台设备上各加一条隧道，工程量随站点数平方增长。右边是 mGRE（DMVPN）hub-and-spoke：每个 spoke 只向 hub 建一条 multipoint GRE 隧道，五个站点共五条隧道、五处配置；新增站点只改 hub 与新站点两处。图上标出 hub 是单点，需要双 hub 与 NHRP 冗余。底部给出 MTU 计算：GRE 24 字节开销加 IPSec 传输模式 50 到 70 字节，1500 字节接口实际只剩 1400 左右，必须配置 TCP MSS clamp 为 1360，否则表现为 ping 通、大文件传输卡死。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">技术二/三：GRE 与 mGRE —— 同样是隧道，工程量差一个数量级</text>
+<text class="s" x="24" y="48">GRE 解决"隔离"，mGRE 解决"站点一多，隔离就配不完"</text>
+
+<!-- 左：GRE 全互联 -->
+<rect x="24" y="62" width="440" height="228" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="38" y="82" fill="#a32020">GRE 点对点：5 站点全互联 = 10 条隧道</text>
+<circle cx="245" cy="176" r="66" fill="#fff" stroke="#f0c9c9"/>
+<text class="t" x="245" y="172" text-anchor="middle">overlay</text>
+<text class="t" x="245" y="186" text-anchor="middle">全互联</text>
+<circle cx="150" cy="120" r="17" fill="#fff" stroke="#d98c8c"/>
+<text class="t" x="150" y="124" text-anchor="middle">S1</text>
+<circle cx="245" cy="104" r="17" fill="#fff" stroke="#d98c8c"/>
+<text class="t" x="245" y="108" text-anchor="middle">S2</text>
+<circle cx="340" cy="120" r="17" fill="#fff" stroke="#d98c8c"/>
+<text class="t" x="340" y="124" text-anchor="middle">S3</text>
+<circle cx="340" cy="220" r="17" fill="#fff" stroke="#d98c8c"/>
+<text class="t" x="340" y="224" text-anchor="middle">S4</text>
+<circle cx="150" cy="220" r="17" fill="#fff" stroke="#d98c8c"/>
+<text class="t" x="150" y="224" text-anchor="middle">S5</text>
+<g stroke="#a32020" stroke-width="1.2" opacity="0.75">
+  <line x1="150" y1="120" x2="245" y2="104"/>
+  <line x1="150" y1="120" x2="340" y2="120"/>
+  <line x1="150" y1="120" x2="340" y2="220"/>
+  <line x1="150" y1="120" x2="150" y2="220"/>
+  <line x1="245" y1="104" x2="340" y2="120"/>
+  <line x1="245" y1="104" x2="340" y2="220"/>
+  <line x1="245" y1="104" x2="150" y2="220"/>
+  <line x1="340" y1="120" x2="340" y2="220"/>
+  <line x1="340" y1="120" x2="150" y2="220"/>
+  <line x1="340" y1="220" x2="150" y2="220"/>
+</g>
+<text class="r" x="38" y="262">配置点：5 台 × 4 条 tunnel = 20 处</text>
+<text class="r" x="38" y="280">加第 6 个站点：要在 5 台设备上各加 1 条 → 5 处改动</text>
+
+<!-- 右：mGRE -->
+<rect x="496" y="62" width="440" height="228" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="510" y="82" fill="#0f7f73">mGRE（DMVPN）：5 站点 = 5 条隧道</text>
+<circle cx="716" cy="160" r="24" fill="#fff" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="t" x="716" y="158" text-anchor="middle">Hub</text>
+<text class="t" x="716" y="172" text-anchor="middle">NHRP</text>
+<circle cx="610" cy="104" r="16" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="610" y="108" text-anchor="middle">S1</text>
+<circle cx="716" cy="90" r="16" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="716" y="94" text-anchor="middle">S2</text>
+<circle cx="822" cy="104" r="16" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="822" y="108" text-anchor="middle">S3</text>
+<circle cx="610" cy="216" r="16" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="610" y="220" text-anchor="middle">S4</text>
+<circle cx="822" cy="216" r="16" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="822" y="220" text-anchor="middle">S5</text>
+<g stroke="#0f7f73" stroke-width="1.6">
+  <line x1="716" y1="136" x2="610" y2="104"/>
+  <line x1="716" y1="136" x2="716" y2="106"/>
+  <line x1="716" y1="136" x2="822" y2="104"/>
+  <line x1="716" y1="184" x2="610" y2="216"/>
+  <line x1="716" y1="184" x2="822" y2="216"/>
+</g>
+<line x1="610" y1="120" x2="822" y2="200" stroke="#8fc4bd" stroke-width="1.2" stroke-dasharray="4 4"/>
+<text class="c" x="640" y="164">spoke 间直连由 NHRP 解析</text>
+<text class="c" x="510" y="262">配置点：5 处（每站点 1 条 multipoint tunnel）</text>
+<text class="c" x="510" y="280">加第 6 个站点：只改 hub + 新站点 = 2 处</text>
+<text class="m" x="510" y="296">注意：hub 是单点，生产环境必须双 hub + 双云</text>
+
+<!-- MTU -->
+<rect x="24" y="302" width="912" height="98" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="38" y="322" fill="#b45309">共同的坑：MTU 与 MSS（GRE 版）</text>
+<rect x="40" y="330" width="120" height="18" rx="2" fill="#2f6fed"/>
+<text class="t" x="100" y="343" text-anchor="middle" fill="#fff">Payload 1400</text>
+<rect x="160" y="330" width="34" height="18" rx="2" fill="#b45309"/>
+<text class="t" x="177" y="343" text-anchor="middle" fill="#fff">GRE 24</text>
+<rect x="194" y="330" width="56" height="18" rx="2" fill="#0f7f73"/>
+<text class="t" x="222" y="343" text-anchor="middle" fill="#fff">IP 20</text>
+<text class="b" x="262" y="343">1500 − 24（GRE）− 20（外层 IP）= 1456；再叠加 IPSec 传输模式 50–70 B → 实际 ≤ 1400</text>
+<text class="r" x="40" y="366">症状：ping 通（小包）、SSH 通，但大文件、数据库同步、镜像拉取卡死或超时</text>
+<text class="b" x="40" y="384">对策：tunnel ip tcp adjust-mss 1360；或把隧道接口 MTU 设 1400 并在两端做 PMTUD 验证</text>
+
+<rect x="24" y="410" width="912" height="30" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="430">选型：站点 ≤ 4 且拓扑固定 → GRE 点对点够用；站点会增、需要动态 → mGRE；云与多租户 → 直接用 EVPN/VXLAN（第 16 章）。</text>
+</svg>

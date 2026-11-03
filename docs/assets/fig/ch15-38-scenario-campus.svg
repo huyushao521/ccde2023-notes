@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="100%" role="img" aria-labelledby="t1538 d1538">
+<title id="t1538">八栋楼大学校园情景：把跨楼二层收敛到语音漫游域与实验楼孤岛</title>
+<desc id="d1538">图上方对比改造前后的二层范围。改造前一个教学 VLAN 跨八栋楼约五千终端，一条环路影响全校。改造后跨楼二层只剩两块：语音漫游域承载约六百个语音终端跨八栋楼，实验楼孤岛因固定地址设备不能改而保留单楼二层。其余教学终端拆成每楼每层一个子网，共约四十个二十四位子网，全部改为路由接入、网关在接入层，OSPF 以核心为区域零、每栋楼一个区域。图下方是三阶段割接：第一阶段不停机、并行新建核心与每栋楼一对分布交换机；第二阶段每周割接一到两栋楼，单栋停机十到二十分钟、回退动作是把上行插回旧网；第三阶段旧网只剩少数楼时一次性下线。右侧列出停机小于三十分钟的四条实现要素：并行建网不原地改造、割接颗粒度为一栋楼、配置模板预生成、每楼预置验收脚本。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="470" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">情景二：8 栋楼、12,000 终端、一个 VLAN 跨全校</text>
+<text class="s" x="24" y="48">把"跨楼二层"从"全校园"收敛到"语音域 + 实验楼孤岛"，其余全部改路由接入</text>
+
+<!-- 改造前 -->
+<rect x="24" y="62" width="440" height="118" rx="5" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="38" y="82" fill="#a32020">改造前：教学 VLAN 跨 8 栋楼（约 5,000 终端）</text>
+<rect x="38" y="90" width="412" height="70" rx="4" fill="#f3e3e3" stroke="#e8c4c4"/>
+<text class="r" x="244" y="112" text-anchor="middle">一个广播域 = 8 栋楼 + 5,000 终端 + 一个 STP 域</text>
+<text class="r" x="244" y="130" text-anchor="middle">任一楼的环路/风暴 → 影响全校</text>
+<text class="r" x="244" y="148" text-anchor="middle">一次改造要停 3 小时（因为动了根桥与网关）</text>
+
+<!-- 改造后 -->
+<rect x="496" y="62" width="440" height="118" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="510" y="82" fill="#0f7f73">改造后：跨楼二层只剩两块</text>
+<rect x="510" y="90" width="196" height="52" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="m" x="608" y="108" text-anchor="middle">① 语音漫游域</text>
+<text class="b" x="608" y="124" text-anchor="middle">跨 8 栋楼，仅 ~600 语音终端</text>
+<rect x="716" y="90" width="206" height="52" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="m" x="819" y="108" text-anchor="middle">② 实验楼孤岛</text>
+<text class="b" x="819" y="124" text-anchor="middle">固定 IP/网关设备，单楼内 STP</text>
+<text class="c" x="510" y="162">其余：每楼每层一个子网（约 40 个 /24），路由接入，网关在接入层</text>
+
+<!-- 八栋楼 -->
+<text class="lb" x="24" y="206">OSPF：Area 0 在核心，每栋楼一个区域</text>
+<g>
+  <rect x="24" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="74" y="235" text-anchor="middle">1 号楼</text>
+  <rect x="132" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="182" y="235" text-anchor="middle">2 号楼</text>
+  <rect x="240" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="290" y="235" text-anchor="middle">3 号楼</text>
+  <rect x="348" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="398" y="235" text-anchor="middle">4 号楼</text>
+  <rect x="456" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#e3c795"/>
+  <text class="m" x="506" y="235" text-anchor="middle">实验楼（孤岛）</text>
+  <rect x="564" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="614" y="235" text-anchor="middle">5 号楼</text>
+  <rect x="672" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="722" y="235" text-anchor="middle">6 号楼</text>
+  <rect x="780" y="216" width="100" height="30" rx="4" fill="#fff" stroke="#8fa8d0"/>
+  <text class="b" x="830" y="235" text-anchor="middle">7/8 号楼</text>
+</g>
+<text class="t" x="24" y="264">每楼汇总成一条 /20 或 /21 注入 Area 0；实验楼孤岛用静态路由 + 重分发，并打 tag 防止回灌</text>
+
+<!-- 三阶段 -->
+<rect x="24" y="278" width="600" height="110" rx="5" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="38" y="296">三阶段割接：停机 ≤30 分钟靠"并行建网"，不靠"夜间抢工"</text>
+
+<rect x="38" y="306" width="180" height="72" rx="4" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="n" x="48" y="324" fill="#0f7f73">① 并行建新网</text>
+<text class="b" x="48" y="342">新核心 + 每楼一对分布</text>
+<text class="b" x="48" y="356">独立 OSPF 域，不停机</text>
+<text class="b" x="48" y="370">旧网继续跑业务</text>
+
+<rect x="228" y="306" width="180" height="72" rx="4" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="238" y="324" fill="#b45309">② 每周割 1–2 栋</text>
+<text class="b" x="238" y="342">楼内上行从旧网改到新网</text>
+<text class="b" x="238" y="356">单栋 10–20 min（午休）</text>
+<text class="b" x="238" y="370">影响面 ≤1,500 终端</text>
+
+<rect x="418" y="306" width="192" height="72" rx="4" fill="#eef4ff" stroke="#8fa8d0"/>
+<text class="n" x="428" y="324" fill="#1f4fc0">③ 旧网一次性下线</text>
+<text class="b" x="428" y="342">只剩少数楼时整体退出</text>
+<text class="b" x="428" y="356">安排在假期，窗口宽裕</text>
+<text class="b" x="428" y="370">保留配置快照与回退包</text>
+
+<!-- 停机保障 -->
+<rect x="636" y="278" width="300" height="110" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="648" y="296" fill="#0f7f73">停机 ≤30 min 的四条保障</text>
+<text class="b" x="648" y="314">① 回退动作 = 把上行插回旧网（秒级）</text>
+<text class="b" x="648" y="332">② 割接颗粒度 = 一栋楼（不是"全校"）</text>
+<text class="b" x="648" y="350">③ 配置模板预生成（VLAN/子网/DHCP/OSPF）</text>
+<text class="b" x="648" y="368">④ 每楼预置验收脚本（网关/DNS/DHCP/关联）</text>
+
+<!-- 底部 -->
+<rect x="24" y="398" width="912" height="40" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="k" x="38" y="416" fill="#b45309">为什么语音不直接上 L3 漫游？</text>
+<text class="b" x="38" y="432">1,800 个 AP 跨 3 代硬件，混插环境下 L3 漫游的失败率高于收益 —— 约束明确时，"小而可控的大二层"比"理论上更先进但落地不稳"更专业</text>
+
+<text class="t" x="24" y="456">这就是取舍表里"大二层 vs 按楼拆子网"那一行的真实答案：不是二选一，而是"按业务价值分层选"</text>
+</svg>

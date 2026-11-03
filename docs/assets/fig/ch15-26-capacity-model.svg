@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t1526 d1526">
+<title id="t1526">园区容量四段推算链：从终端数推导到机柜与电源</title>
+<desc id="d1526">图分上下两层。上层是四段推算链，依次为终端数、有线端口需求、接入交换机台数、机柜与电源约束，每段给出公式与一个实例输出：2,800 台终端乘 1.3 得到 3,640 个有线端口，除以 48 口乘 80% 利用率得 96 台，再乘 1.15 备用量得 110 台接入交换机，每机柜放 4 到 6 台因此需要 19 到 28 个配线间。下层是四个常被漏算的隐性成本卡片：PoE 电源预算、散热与 UPS、光模块与上行端口数、地址与 VLAN 数量。底部警示条指出配线间机柜常常比端口数更早成为瓶颈，设计时应先算机柜再算端口。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a26" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#2f6fed"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">容量从终端数往下推，不从设备型号往上凑</text>
+<text class="s" x="24" y="48">顺序颠倒是最常见的采购错误：先定型号，再找理由证明它够用</text>
+
+<!-- 四段推算链 -->
+<rect x="24" y="66" width="210" height="112" rx="6" fill="#fff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="lb" x="38" y="86">① 终端数</text>
+<text class="b" x="38" y="104">工位 1.0–1.3 台/人</text>
+<text class="b" x="38" y="119">会议室 0.2–0.5 台</text>
+<text class="b" x="38" y="134">IoT/摄像头：固定数</text>
+<line x1="38" y1="144" x2="220" y2="144" stroke="#e4eaf3"/>
+<text class="k" x="38" y="162">实例输出：2,800 台终端</text>
+
+<rect x="252" y="66" width="210" height="112" rx="6" fill="#fff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="lb" x="266" y="86">② 有线端口需求</text>
+<text class="b" x="266" y="104">⌈ 终端 × 1.3 ⌉</text>
+<text class="b" x="266" y="119">+ 打印/IoT/PoE 专口</text>
+<text class="b" x="266" y="134">+ 每配线间 10% 空口</text>
+<line x1="266" y1="144" x2="448" y2="144" stroke="#e4eaf3"/>
+<text class="k" x="266" y="162">实例输出：3,640 口</text>
+
+<rect x="480" y="66" width="210" height="112" rx="6" fill="#fff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="lb" x="494" y="86">③ 接入交换机台数</text>
+<text class="b" x="494" y="104">3,640 ÷ (48 × 80%) ≈ 96</text>
+<text class="b" x="494" y="119">× (1 + 15% 备用量)</text>
+<text class="b" x="494" y="134">向上取整到双数（双上行）</text>
+<line x1="494" y1="144" x2="676" y2="144" stroke="#e4eaf3"/>
+<text class="k" x="494" y="162">实例输出：110 台</text>
+
+<rect x="708" y="66" width="210" height="112" rx="6" fill="#f4fbfa" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="lb" x="722" y="86" fill="#0f7f73">④ 机柜与电源（真正的闸门）</text>
+<text class="b" x="722" y="104">每 IDF 机柜 4–6 台 1RU</text>
+<text class="b" x="722" y="119">每柜 ≤ 2 台分布交换机</text>
+<text class="b" x="722" y="134">受 PoE 电源与散热限制</text>
+<line x1="722" y1="144" x2="904" y2="144" stroke="#cfe8e3"/>
+<text class="c" x="722" y="162">实例输出：19–28 个 IDF</text>
+
+<line x1="234" y1="122" x2="252" y2="122" stroke="#2f6fed" stroke-width="1.8" marker-end="url(#a26)"/>
+<line x1="462" y1="122" x2="480" y2="122" stroke="#2f6fed" stroke-width="1.8" marker-end="url(#a26)"/>
+<line x1="690" y1="122" x2="708" y2="122" stroke="#2f6fed" stroke-width="1.8" marker-end="url(#a26)"/>
+
+<!-- 隐性成本四卡 -->
+<text class="lb" x="24" y="206" fill="#b45309">四类常被漏算的隐性成本 —— 它们和端口数同量级</text>
+
+<rect x="24" y="216" width="210" height="104" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="38" y="236">PoE 预算</text>
+<text class="b" x="38" y="254">af 15.4W / at 30W</text>
+<text class="b" x="38" y="269">bt 60W / 90W</text>
+<text class="b" x="38" y="284">48 口 20×at + 20×话机</text>
+<text class="m" x="38" y="303">= 740W，含余量 890W</text>
+
+<rect x="252" y="216" width="210" height="104" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="266" y="236">散热与 UPS</text>
+<text class="b" x="266" y="254">PoE 功率几乎全变热</text>
+<text class="b" x="266" y="269">机柜 ≥ 2–3 kW 需专项</text>
+<text class="b" x="266" y="284">UPS 按满载 + 30 min</text>
+<text class="m" x="266" y="303">漏算 → 夏季降频重启</text>
+
+<rect x="480" y="216" width="210" height="104" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="494" y="236">光模块与上行端口</text>
+<text class="b" x="494" y="254">每台 2 个上行 → 220 个</text>
+<text class="b" x="494" y="269">分布侧需对应 220 个口</text>
+<text class="b" x="494" y="284">一对分布最多 ~48 台接入</text>
+<text class="m" x="494" y="303">超了就要加分布对</text>
+
+<rect x="708" y="216" width="210" height="104" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="722" y="236">地址与 VLAN 数量</text>
+<text class="b" x="722" y="254">每接入交换机 3–6 个 VLAN</text>
+<text class="b" x="722" y="269">单 VLAN ≤ 200–500 终端</text>
+<text class="b" x="722" y="284">每 VRF 的 SVI = 校验点</text>
+<text class="m" x="722" y="303">110 台 × 4 = 440 个 SVI</text>
+
+<!-- 底部警示 -->
+<rect x="24" y="332" width="894" height="46" rx="5" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="k" x="38" y="352" fill="#a32020">配线间约束常比端口数更早成为瓶颈</text>
+<text class="b" x="38" y="368">一个 IDF 通常只能放 4–6 台 1RU 交换机 + 2 台分布交换机，且受 PoE 电源与散热双重限制 —— 设计顺序应当先算机柜，再算端口，最后选型号</text>
+
+<text class="t" x="24" y="400">反例：先选 48 口 POE+ 型号，再发现 110 台需要 28 个机柜，而楼里只有 12 个配线间 → 要么加机柜（土建），要么改小机箱（功能不足）</text>
+<text class="t" x="24" y="418">正例：先确认 12 个配线间 × 6 台 = 72 台上限，反推每台必须选 48 口且端口利用率提到 95%，或改用堆叠把多台合成一个逻辑机箱</text>
+</svg>

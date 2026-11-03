@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 430" width="100%" role="img" aria-labelledby="t154 d154">
+<title id="t154">二层模型（collapsed core）的适用边界，以及功能块数量增长后为什么必须加独立核心层</title>
+<desc id="d154">左边是 collapsed core 拓扑：一对交换机同时承担核心互连与分布策略，下挂三组接入交换机。图上标出真正的功能块不止用户楼栋，还包括无线块、数据中心块、WAN 块、DMZ 块、管理块，一共 6 个块全部压在这一对设备上，约 180 个 SVI 落在此处，一次电源故障就是全网中断。右边给出量化判据：块间全互联所需链路数为 n 乘 n 减 1 除以 2，n 等于 3 时 3 条、n 等于 5 时 10 条、n 等于 8 时 28 条；如果加一层核心，n 个块只需要 n 条上行。底部结论是功能块超过 3 个就该拆出核心层。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="430" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">Collapsed Core 能用多久 —— 取决于你数对"功能块"没有</text>
+<text class="s" x="24" y="48">用户楼栋只是块的一种，WAN / DC / DMZ / 管理各算一块</text>
+
+<!-- 左：collapsed core -->
+<rect x="24" y="64" width="420" height="268" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="86" fill="#0f7f73">Collapsed Core：核心 + 分布合一</text>
+
+<rect x="70" y="100" width="130" height="36" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="135" y="117" text-anchor="middle">CC-A</text>
+<text class="t" x="135" y="130" text-anchor="middle">核心+分布+网关</text>
+<rect x="250" y="100" width="130" height="36" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="315" y="117" text-anchor="middle">CC-B</text>
+<text class="t" x="315" y="130" text-anchor="middle">核心+分布+网关</text>
+<line x1="200" y1="118" x2="250" y2="118" stroke="#7f8fb0" stroke-width="1.8"/>
+
+<text class="t" x="40" y="158">压在这一对设备上的 6 个功能块：</text>
+<rect x="40" y="164" width="86" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="83" y="179" text-anchor="middle">用户块</text>
+<rect x="134" y="164" width="86" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="177" y="179" text-anchor="middle">无线块</text>
+<rect x="228" y="164" width="86" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="271" y="179" text-anchor="middle">DC 块</text>
+<rect x="322" y="164" width="86" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="365" y="179" text-anchor="middle">WAN 块</text>
+<rect x="40" y="192" width="86" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="83" y="207" text-anchor="middle">DMZ 块</text>
+<rect x="134" y="192" width="86" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="177" y="207" text-anchor="middle">管理块</text>
+<text class="r" x="228" y="207">≈ 180 个 SVI 全在这里</text>
+
+<rect x="52" y="230" width="96" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="100" y="248" text-anchor="middle">接入 A</text>
+<rect x="176" y="230" width="96" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="224" y="248" text-anchor="middle">接入 B</text>
+<rect x="300" y="230" width="96" height="28" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="348" y="248" text-anchor="middle">接入 C</text>
+<line x1="120" y1="136" x2="100" y2="230" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="160" y1="136" x2="224" y2="230" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="290" y1="136" x2="224" y2="230" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="330" y1="136" x2="348" y2="230" stroke="#7f8fb0" stroke-width="1.4"/>
+
+<text class="c" x="52" y="282">适用：小到中型园区，功能块最好 ≤ 3</text>
+<text class="r" x="52" y="300">6 个块 + 根桥与网关不同侧 → 一次掉电抖 40 s</text>
+<text class="m" x="52" y="318">不是"二层不能做"，是"块太多时它承担不起"</text>
+
+<!-- 右：量化判据 -->
+<rect x="468" y="64" width="468" height="268" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="484" y="86" fill="#b45309">判据：块间全互联链路数 = n(n−1)/2</text>
+<text class="b" x="484" y="104">块与块之间有任意互访需求时，要么全互联，要么加一层核心</text>
+
+<text class="b" x="484" y="134">n = 3 块</text>
+<rect x="560" y="124" width="30" height="14" rx="3" fill="#8aa9e8"/>
+<text class="k" x="598" y="135">3 条链路</text>
+<text class="b" x="484" y="160">n = 5 块</text>
+<rect x="560" y="150" width="100" height="14" rx="3" fill="#e8a33d"/>
+<text class="k" x="668" y="161">10 条链路</text>
+<text class="b" x="484" y="186">n = 8 块</text>
+<rect x="560" y="176" width="280" height="14" rx="3" fill="#a32020"/>
+<text class="k" x="848" y="187" fill="#a32020">28 条</text>
+
+<rect x="700" y="206" width="120" height="30" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="k" x="760" y="225" text-anchor="middle">核心层</text>
+<text class="c" x="836" y="212">n 条上行</text>
+<text class="c" x="836" y="228">= O(n)</text>
+
+<rect x="484" y="250" width="66" height="22" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="517" y="265" text-anchor="middle">用户块</text>
+<rect x="562" y="250" width="66" height="22" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="595" y="265" text-anchor="middle">DC 块</text>
+<rect x="640" y="250" width="66" height="22" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="673" y="265" text-anchor="middle">WAN 块</text>
+<rect x="718" y="250" width="66" height="22" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="751" y="265" text-anchor="middle">管理块</text>
+<rect x="796" y="250" width="66" height="22" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="t" x="829" y="265" text-anchor="middle">DMZ 块</text>
+<line x1="517" y1="236" x2="517" y2="250" stroke="#b9a37a" stroke-width="1.2"/>
+<line x1="595" y1="236" x2="595" y2="250" stroke="#b9a37a" stroke-width="1.2"/>
+<line x1="673" y1="236" x2="673" y2="250" stroke="#b9a37a" stroke-width="1.2"/>
+<line x1="751" y1="236" x2="751" y2="250" stroke="#b9a37a" stroke-width="1.2"/>
+<line x1="829" y1="236" x2="829" y2="250" stroke="#b9a37a" stroke-width="1.2"/>
+<text class="t" x="484" y="292">物理链路只增加 n 条，但控制面与变更面从"两两"变成"星形"</text>
+
+<rect x="24" y="348" width="912" height="64" rx="6" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="370">什么时候真的需要独立核心层：功能块 &gt; 3 且块间有任意互访；或块间互连数量显著增长（n=8 时 28 条）。</text>
+<text class="r" x="40" y="390">反模式：把"核心"当成必须有的一层硬加 —— 只有 2 个块时，核心层带来的是多一跳、多一对设备、多一个故障点。</text>
+<text class="b" x="40" y="406">补充：块数的分子里必须包含 WAN / DC / DMZ / 管理 / OT / 访客，只数用户楼栋是设计事故的常见起点。</text>
+</svg>

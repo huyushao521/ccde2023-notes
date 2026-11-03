@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t1517 d1517">
+<title id="t1517">网络虚拟化的两种方向：多对一（服务虚拟化）与一对多（网络虚拟化），以及各自的隔离边界</title>
+<desc id="d1517">左边是多对一模型：多个物理网络或多个接入域被合并进同一个逻辑/物理服务边界，典型如多个客户共用一对防火墙或一个服务节点；隔离靠 VRF 与策略，风险在于某台设备故障会同时影响全部客户。右边是一对多模型：一台物理设备或一套物理网络被切成多个逻辑虚拟网络（VRF、VXLAN 段、VRF-lite），典型如多租户园区；隔离靠每 VN 独立路由表与独立网关，风险在于配置漂移与命运共享。底部列出采用虚拟化的三个驱动因素：合规隔离、多租户与共享服务、并购与迁移；并给出两条设计原则：隔离强度要与业务等级匹配，以及每增加一层虚拟化都要同步增加一份配置一致性校验。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">虚拟化的两个方向：把多个合成一个，或把一个切成多个</text>
+<text class="s" x="24" y="48">方向不同，隔离边界、故障域与运维代价完全不同</text>
+
+<!-- 多对一 -->
+<rect x="24" y="62" width="440" height="252" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="38" y="82" fill="#b45309">多对一（服务虚拟化）：N 个域共用一个服务边界</text>
+<rect x="52" y="94" width="96" height="30" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="100" y="113" text-anchor="middle">客户 A</text>
+<rect x="164" y="94" width="96" height="30" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="212" y="113" text-anchor="middle">客户 B</text>
+<rect x="276" y="94" width="96" height="30" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="324" y="113" text-anchor="middle">客户 C</text>
+<rect x="388" y="94" width="60" height="30" rx="3" fill="#fbfcfe" stroke="#d9c49b"/>
+<text class="t" x="418" y="113" text-anchor="middle">…</text>
+
+<rect x="100" y="156" width="272" height="38" rx="4" fill="#fff" stroke="#b45309" stroke-width="1.6"/>
+<text class="k" x="236" y="174" text-anchor="middle">共享服务节点</text>
+<text class="t" x="236" y="188" text-anchor="middle">防火墙 / 负载均衡 / 代理 · 多上下文或 VRF-aware</text>
+<line x1="100" y1="124" x2="140" y2="156" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="212" y1="124" x2="236" y2="156" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="324" y1="124" x2="330" y2="156" stroke="#7f8fb0" stroke-width="1.4"/>
+
+<text class="c" x="38" y="216">收益：设备与许可数量下降，策略集中在一处</text>
+<text class="r" x="38" y="234">风险：一次服务节点故障 = 全部客户同时中断</text>
+<text class="b" x="38" y="252">隔离靠 VRF/上下文 + 策略；配置漂移靠模板</text>
+<text class="m" x="38" y="272">常见事故：默认路由泄漏，A 的流量从 B 的出口出去</text>
+<text class="b" x="38" y="292">适用：共享服务中心、分支机构集中出口、访客与 IoT</text>
+
+<!-- 一对多 -->
+<rect x="496" y="62" width="440" height="252" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="510" y="82" fill="#0f7f73">一对多（网络虚拟化）：1 套物理网络切成 N 个 VN</text>
+<rect x="520" y="94" width="392" height="44" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="716" y="112" text-anchor="middle">同一套物理设备（核心/分布/接入）</text>
+<text class="t" x="716" y="128" text-anchor="middle">每台设备上运行 N 份转发实例</text>
+
+<rect x="520" y="156" width="122" height="48" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="b" x="581" y="174" text-anchor="middle">VN-1（生产）</text>
+<text class="t" x="581" y="190" text-anchor="middle">VRF + 独立网关</text>
+<rect x="655" y="156" width="122" height="48" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="b" x="716" y="174" text-anchor="middle">VN-2（访客）</text>
+<text class="t" x="716" y="190" text-anchor="middle">只出公网</text>
+<rect x="790" y="156" width="122" height="48" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="b" x="851" y="174" text-anchor="middle">VN-3（OT）</text>
+<text class="t" x="851" y="190" text-anchor="middle">单向访问</text>
+<line x1="581" y1="138" x2="581" y2="156" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="716" y1="138" x2="716" y2="156" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="851" y1="138" x2="851" y2="156" stroke="#7f8fb0" stroke-width="1.3"/>
+
+<text class="c" x="510" y="228">收益：物理设备复用，隔离粒度可到"每业务一 VN"</text>
+<text class="r" x="510" y="246">风险：命运共享 —— 一块板卡故障放大成 N 个 VN 同时断</text>
+<text class="b" x="510" y="264">隔离靠独立路由表；泄漏点永远在服务节点与共享出口</text>
+<text class="m" x="510" y="282">运维：每加一个 VN，配置面与校验面同时 ×N</text>
+<text class="b" x="510" y="302">适用：多租户园区、并购整合、合规分区（PCI/生产/办公）</text>
+
+<text class="k" x="24" y="336">三个驱动因素（原书：采用虚拟化的理由）</text>
+<rect x="24" y="344" width="290" height="42" rx="4" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="38" y="362">① 合规与安全隔离</text>
+<text class="b" x="38" y="378">PCI / 生产网 / 研发网必须分开</text>
+<rect x="336" y="344" width="290" height="42" rx="4" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="350" y="362">② 多租户与共享服务</text>
+<text class="b" x="350" y="378">一套设施服务多个内部客户</text>
+<rect x="648" y="344" width="288" height="42" rx="4" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="662" y="362">③ 并购与迁移</text>
+<text class="b" x="662" y="378">地址重叠时只能靠 VRF 共存</text>
+
+<rect x="24" y="396" width="912" height="34" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="40" y="417">两条原则：隔离强度必须匹配业务等级（不是越多越好）；每增加一层虚拟化，必须同步增加一份配置一致性校验与一份回程路径图。</text>
+</svg>

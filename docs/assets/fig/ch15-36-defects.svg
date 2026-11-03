@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1536 d1536">
+<title id="t1536">园区设计二十条缺陷按五个类别归类及高发三条</title>
+<desc id="d1536">图把二十条设计缺陷按成因分成五类，从左到右依次是架构边界、二层与首跳、路由协议、虚拟化与隔离、服务链与物理，每类下列出对应的缺陷条目与后果。架构边界类包括二层模型承载超过三个功能块、核心层做高级服务、按两台设备做容量规划；二层与首跳类包括根桥与 FHRP 活跃侧不一致、只调定时器不解决上行失效、心跳与转发链路同路径、单 VLAN 跨楼超五百终端；路由协议类包括网关仍在分布层、上行全部用三十位掩码、接入不配 stub、多 ABR 同时汇总；虚拟化与隔离类包括端到端 VRF 靠人工一致、VRF 当防火墙、fusion 导入全部、虚拟防火墙不设限额；服务链与物理类包括服务链只设计去程、隧道不调 MSS、PoE 按最小值预算、漫游域与语音矛盾、未演练即宣称高可用。底部给出高发的三条与一张三问体检清单。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">20 条缺陷按成因分五类 —— 每一类都有一个"共同根因"</text>
+<text class="s" x="24" y="48">它们的共同点：都不是"配错了"，而是"设计时没画清边界"</text>
+
+<!-- 列 1 -->
+<rect x="24" y="62" width="175" height="192" rx="5" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="n" x="36" y="82" fill="#a32020">A 架构边界（3 条）</text>
+<rect x="36" y="90" width="151" height="1" fill="#e8c4c4"/>
+<text class="b" x="36" y="108">① 二层承载 &gt;3 个功能块</text>
+<text class="r" x="44" y="122">→ 一次核心故障全网中断</text>
+<text class="b" x="36" y="142">② 核心层做 ACL/NAT/服务</text>
+<text class="r" x="44" y="156">→ 变更风险全网化</text>
+<text class="b" x="36" y="176">⑩ 集群按"两台"做容量</text>
+<text class="r" x="44" y="190">→ 单台故障即过载</text>
+<text class="t" x="36" y="216">根因：没有先定"故障域"</text>
+<text class="t" x="36" y="232">就把设备塞进同一对盒子</text>
+
+<!-- 列 2 -->
+<rect x="207" y="62" width="175" height="192" rx="5" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="n" x="219" y="82" fill="#a32020">B 二层与首跳（4 条）</text>
+<rect x="219" y="90" width="151" height="1" fill="#e8c4c4"/>
+<text class="b" x="219" y="108">③ 根桥与 Active 不同侧</text>
+<text class="r" x="227" y="122">→ 串联链路被打满</text>
+<text class="b" x="219" y="142">④ 只调定时器不解决上行</text>
+<text class="r" x="227" y="156">→ 活着的死网关</text>
+<text class="b" x="219" y="176">⑨ keepalive 与 peer-link 同路</text>
+<text class="r" x="227" y="190">→ 双主 + 广播风暴</text>
+<text class="b" x="219" y="210">⑪ 单 VLAN 跨楼 &gt;500 台</text>
+<text class="r" x="227" y="224">→ ARP 风暴拖垮全楼</text>
+<text class="t" x="219" y="242">根因：二层没有"拓扑意图"</text>
+
+<!-- 列 3 -->
+<rect x="390" y="62" width="175" height="192" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="402" y="82" fill="#b45309">C 路由协议（4 条）</text>
+<rect x="402" y="90" width="151" height="1" fill="#e3c795"/>
+<text class="b" x="402" y="108">⑤ 改路由接入但网关不下移</text>
+<text class="m" x="410" y="122">→ 白折腾，STP 依赖照旧</text>
+<text class="b" x="402" y="142">⑥ 上行全用 /30</text>
+<text class="m" x="410" y="156">→ 地址耗尽 + 汇总困难</text>
+<text class="b" x="402" y="176">⑦ 接入不配 EIGRP stub</text>
+<text class="m" x="410" y="190">→ 查询泛洪 + SIA</text>
+<text class="b" x="402" y="210">⑧ 多 ABR 同时汇总</text>
+<text class="m" x="410" y="224">→ 故障后流量绕行</text>
+<text class="t" x="402" y="242">根因：把 IGP 当"能通就行"</text>
+
+<!-- 列 4 -->
+<rect x="573" y="62" width="175" height="192" rx="5" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="n" x="585" y="82" fill="#a32020">D 虚拟化与隔离（4 条）</text>
+<rect x="585" y="90" width="151" height="1" fill="#e8c4c4"/>
+<text class="b" x="585" y="108">⑫ 逐跳 VRF 靠人工一致</text>
+<text class="r" x="593" y="122">→ 概率性不通</text>
+<text class="b" x="585" y="142">⑬ VRF 当防火墙用</text>
+<text class="r" x="593" y="156">→ 合规失效、横向可达</text>
+<text class="b" x="585" y="176">⑭ fusion 导入 permit all</text>
+<text class="r" x="593" y="190">→ 隔离名存实亡</text>
+<text class="b" x="585" y="210">⑮ vFW 不设上下文限额</text>
+<text class="r" x="593" y="224">→ 一租户拖垮全部</text>
+<text class="t" x="585" y="242">根因：混淆"隔离"与"安全"</text>
+
+<!-- 列 5 -->
+<rect x="756" y="62" width="175" height="192" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="n" x="768" y="82" fill="#b45309">E 服务链与物理（5 条）</text>
+<rect x="768" y="90" width="151" height="1" fill="#e3c795"/>
+<text class="b" x="768" y="108">⑯ 服务链只设计去程</text>
+<text class="m" x="776" y="122">→ 大文件/长连接失败</text>
+<text class="b" x="768" y="140">⑰ 隧道不调 MSS</text>
+<text class="m" x="776" y="154">→ 大包黑洞</text>
+<text class="b" x="768" y="172">⑱ PoE 按 af 最小值</text>
+<text class="m" x="776" y="186">→ AP 反复重启</text>
+<text class="b" x="768" y="204">⑲ 漫游域与语音矛盾</text>
+<text class="m" x="776" y="218">→ 每次跨区掉 3 s</text>
+<text class="b" x="768" y="236">⑳ 未演练即宣称高可用</text>
+<text class="m" x="776" y="250">→ 真故障时顺序全错</text>
+
+<!-- 高发三条 -->
+<text class="lb" x="24" y="282" fill="#a32020">现场最高发的三条（按我被问到的频次排序）</text>
+<rect x="24" y="292" width="290" height="52" rx="4" fill="#fff" stroke="#e8c4c4"/>
+<text class="k" x="36" y="310">① 根桥 ≠ FHRP Active</text>
+<text class="r" x="36" y="328">排查只需两条命令，却极少有人定期核对</text>
+
+<rect x="322" y="292" width="300" height="52" rx="4" fill="#fff" stroke="#e8c4c4"/>
+<text class="k" x="334" y="310">② 服务链只画去程</text>
+<text class="r" x="334" y="328">图上永不对称，事故永远"偶发"</text>
+
+<rect x="630" y="292" width="300" height="52" rx="4" fill="#fff" stroke="#e8c4c4"/>
+<text class="k" x="642" y="310">③ 路由接入改了网关没下移</text>
+<text class="r" x="642" y="328">改造两晚，收敛一点没变</text>
+
+<!-- 三问体检 -->
+<rect x="24" y="358" width="912" height="58" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="38" y="376" fill="#0f7f73">交付前三问 —— 三个问题各自只需一个答案，不需要文档</text>
+<text class="b" x="38" y="394">① 拔掉任意一台设备，影响面是"一个配线间"还是"全网"？（决定故障域）</text>
+<text class="b" x="38" y="410">② 任意一条业务路径，去程与回程是否在图上画得出来且对称？（决定服务链）</text>
+
+<text class="t" x="24" y="436">③ 新增一栋楼，需要改几台设备的配置？如果答案是"全改"，说明没有按层次化设计（决定可扩展性）</text>
+<text class="t" x="24" y="452">这三问来自本章开头十五个反直觉认知中的第 1、13、15 条 —— 缺陷清单只是它们的投影</text>
+</svg>

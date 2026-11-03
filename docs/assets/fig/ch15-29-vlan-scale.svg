@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 450" width="100%" role="img" aria-labelledby="t1529 d1529">
+<title id="t1529">VLAN 与广播域规模约束：单配线间 VLAN 与跨楼大二层的对比</title>
+<desc id="d1529">图左是推荐的 VLAN 边界：每栋楼的每个配线间各自一个 VLAN，VLAN 终结在本配线间，广播与 ARP 只在本配线间内传播，单 VLAN 终端数控制在 200 到 500 之间。图右是反面做法：一个 VLAN 跨三栋楼两千台终端，广播和 ARP 请求被泛洪到所有链路，接入上行与分布串联链路被 ARP 占满，一次 ARP 风暴拖垮全楼。图下方列出四项资源上限表与利用率条：单 VLAN 终端 200 到 500、单设备 MAC 表利用率低于 50%、ARP 表低于 50%、DHCP scope 留 20% 余量，并给出地址池耗尽的典型现象。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="450" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">VLAN 的规模上限由四张表决定，不由"/24 有 254 个地址"决定</text>
+<text class="s" x="24" y="48">MAC 表、ARP 表、DHCP 租约、STP 域跨度 —— 任何一个先满，故障都会以"随机变慢"的形式出现</text>
+
+<!-- 左：正确 -->
+<rect x="24" y="62" width="444" height="228" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="82" fill="#0f7f73">推荐：VLAN 边界 = 配线间边界</text>
+
+<rect x="38" y="94" width="120" height="24" rx="3" fill="#fff" stroke="#b6dcd6"/>
+<text class="b" x="98" y="110" text-anchor="middle">1F 配线间 · VLAN 110</text>
+<rect x="170" y="94" width="120" height="24" rx="3" fill="#fff" stroke="#b6dcd6"/>
+<text class="b" x="230" y="110" text-anchor="middle">2F 配线间 · VLAN 120</text>
+<rect x="302" y="94" width="152" height="24" rx="3" fill="#fff" stroke="#b6dcd6"/>
+<text class="b" x="378" y="110" text-anchor="middle">3F 配线间 · VLAN 130</text>
+
+<rect x="38" y="140" width="120" height="28" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="98" y="158" text-anchor="middle">接入-1（网关在本地）</text>
+<rect x="170" y="140" width="120" height="28" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="230" y="158" text-anchor="middle">接入-2（网关在本地）</text>
+<rect x="302" y="140" width="152" height="28" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="378" y="158" text-anchor="middle">接入-3（网关在本地）</text>
+<line x1="98" y1="118" x2="98" y2="140" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="230" y1="118" x2="230" y2="140" stroke="#0f7f73" stroke-width="1.6"/>
+<line x1="378" y1="118" x2="378" y2="140" stroke="#0f7f73" stroke-width="1.6"/>
+
+<rect x="38" y="184" width="416" height="24" rx="3" fill="#fff" stroke="#dbe3ee" stroke-dasharray="4 3"/>
+<text class="c" x="246" y="200" text-anchor="middle">广播域到此为止：不跨配线间 → 不跨楼</text>
+
+<text class="b" x="38" y="232">单 VLAN 200–500 终端，ARP 峰值 &lt; 200 pps</text>
+<text class="b" x="38" y="250">一层楼的故障影响面 = 一层楼</text>
+<text class="c" x="38" y="272">代价：每配线间一个 /24，地址规划要按楼栋聚合</text>
+
+<!-- 右：反面 -->
+<rect x="492" y="62" width="444" height="228" rx="6" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="506" y="82" fill="#a32020">事故：1 个 VLAN 跨 3 栋楼 2,000 终端</text>
+
+<rect x="506" y="94" width="120" height="24" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="566" y="110" text-anchor="middle">A 楼 · 700 台</text>
+<rect x="638" y="94" width="120" height="24" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="698" y="110" text-anchor="middle">B 楼 · 700 台</text>
+<rect x="770" y="94" width="152" height="24" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="846" y="110" text-anchor="middle">C 楼 · 600 台</text>
+
+<rect x="506" y="126" width="416" height="22" rx="3" fill="#fff" stroke="#e8c4c4"/>
+<text class="r" x="714" y="141" text-anchor="middle">同一个 VLAN 200，同一个 /21 广播域</text>
+
+<rect x="506" y="156" width="416" height="26" rx="3" fill="#fff" stroke="#a32020" stroke-width="1.4"/>
+<text class="r" x="714" y="173" text-anchor="middle">ARP 广播泛洪到全部 3 栋楼的所有上行链路</text>
+<line x1="566" y1="182" x2="566" y2="196" stroke="#a32020" stroke-width="1.6"/>
+<line x1="698" y1="182" x2="698" y2="196" stroke="#a32020" stroke-width="1.6"/>
+<line x1="846" y1="182" x2="846" y2="196" stroke="#a32020" stroke-width="1.6"/>
+<rect x="506" y="196" width="416" height="24" rx="3" fill="#f3e3e3" stroke="#e8c4c4"/>
+<text class="r" x="714" y="212" text-anchor="middle">一次网关切换（2,000 台同时 ARP）→ 上行链路打满</text>
+
+<text class="b" x="506" y="240">现象：三个楼同时"卡"，但 CPU 不高、带宽不慢</text>
+<text class="b" x="506" y="258">原因：ARP 表更新 + 广播复制，占用的是控制面与队列</text>
+<text class="r" x="506" y="280">拆分代价：重新规划地址 + 网关下移 = 一次变更窗口</text>
+
+<!-- 地址池 -->
+<text class="lb" x="24" y="314" fill="#b45309">额外一条：地址池耗尽是"隐形 VLAN 上限"</text>
+<rect x="24" y="322" width="912" height="26" rx="3" fill="#e9eef8" stroke="#dbe3ee"/>
+<rect x="24" y="322" width="700" height="26" rx="3" fill="#8fa8d0"/>
+<rect x="724" y="322" width="60" height="26" fill="#e3c795"/>
+<rect x="784" y="322" width="152" height="26" rx="3" fill="#f3e3e3" stroke="#e8c4c4"/>
+<text class="k" x="36" y="339" fill="#fff">已用 200 个（/24 的 80%）</text>
+<text class="m" x="754" y="339" text-anchor="middle">余量</text>
+<text class="r" x="860" y="339" text-anchor="middle">DHCP 已耗尽区</text>
+<text class="b" x="24" y="366">每 VLAN 的 scope 必须留 20% 余量；终端换了 MAC 会占新地址，租约回收不及时 4–6 周就会撞顶</text>
+
+<text class="t" x="24" y="392">现场判据：show interfaces | include broadcast 与 show mac address-table count 一起看，广播占比 &gt; 1% 或 MAC 表 &gt; 50% 就该拆 VLAN</text>
+<text class="t" x="24" y="410">记住一句话：VLAN 不是"逻辑分组工具"，是"故障域的单位"。分组靠 VRF，分域靠 VLAN</text>
+<text class="t" x="24" y="428">（VLAN 1 不承载业务、管理 VLAN 单独、语音 VLAN 单独 —— 这三条属于基线，不属于设计）</text>
+</svg>

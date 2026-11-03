@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 456" width="100%" role="img" aria-labelledby="t1516 d1516">
+<title id="t1516">园区层次化地址规划：从 /16 园区到 /20 楼栋到 /24 配线间，以及上行链路与预留池的独立划分</title>
+<desc id="d1516">左侧是地址块划分树：园区总块 10.20.0.0/16 下分四个楼栋 /20（每楼 16 个 /24，对应 16 个配线间或业务），另有两类特殊池：设备互联专用池 10.255.0.0/16 使用 /31 或 /30 划分子块，以及管理/带外池 10.254.0.0/16。右侧列出地址按业务功能的分配切片（有线数据、无线、语音、IoT 与工控、访客、管理、服务器），每类保留至少 30% 余量，并说明 IPv6 规划为每楼 /56、每 VLAN /64。底部给出三条落地规则：地址按地理位置分配而不是按业务分配、设备互联不要从园区块里切、所有分配写进 IPAM 并对配置模板生成。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="456" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">地址规划：按"地理位置"分块，而不是按"业务部门"分块</text>
+<text class="s" x="24" y="48">部门会改名、会搬家、会合并；楼栋不会。分块方式决定了十年后能不能汇总</text>
+
+<!-- 树 -->
+<rect x="24" y="62" width="560" height="290" rx="6" fill="#fff" stroke="#dfe6ef"/>
+<rect x="240" y="74" width="150" height="34" rx="4" fill="#1f4fc0"/>
+<text class="k" x="315" y="96" text-anchor="middle" fill="#fff">园区 10.20.0.0/16</text>
+
+<rect x="40" y="140" width="120" height="34" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="100" y="155" text-anchor="middle">楼 A /20</text>
+<text class="t" x="100" y="168" text-anchor="middle">10.20.0.0/20</text>
+<rect x="176" y="140" width="120" height="34" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="236" y="155" text-anchor="middle">楼 B /20</text>
+<text class="t" x="236" y="168" text-anchor="middle">10.20.16.0/20</text>
+<rect x="312" y="140" width="120" height="34" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="372" y="155" text-anchor="middle">楼 C /20</text>
+<text class="t" x="372" y="168" text-anchor="middle">10.20.32.0/20</text>
+<rect x="448" y="140" width="120" height="34" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="508" y="155" text-anchor="middle">楼 D /20</text>
+<text class="t" x="508" y="168" text-anchor="middle">10.20.48.0/20</text>
+<line x1="315" y1="108" x2="315" y2="122" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="100" y1="122" x2="508" y2="122" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="100" y1="122" x2="100" y2="140" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="236" y1="122" x2="236" y2="140" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="372" y1="122" x2="372" y2="140" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="508" y1="122" x2="508" y2="140" stroke="#7f8fb0" stroke-width="1.5"/>
+
+<text class="b" x="40" y="198">每楼 16 个 /24 = 16 个配线间/业务切片，按楼层或功能区固定顺序：</text>
+<rect x="40" y="206" width="100" height="24" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="90" y="222" text-anchor="middle">数据 1F</text>
+<rect x="148" y="206" width="100" height="24" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="198" y="222" text-anchor="middle">数据 2F</text>
+<rect x="256" y="206" width="100" height="24" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="306" y="222" text-anchor="middle">无线</text>
+<rect x="364" y="206" width="100" height="24" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="414" y="222" text-anchor="middle">语音</text>
+<rect x="472" y="206" width="96" height="24" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="t" x="520" y="222" text-anchor="middle">IoT</text>
+
+<rect x="40" y="248" width="252" height="44" rx="4" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="k" x="54" y="266">设备互联专用池 10.255.0.0/16</text>
+<text class="b" x="54" y="282">/31 点对点，按"楼-配线间-序号"顺序切</text>
+<rect x="304" y="248" width="252" height="44" rx="4" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="k" x="318" y="266">管理 / 带外 10.254.0.0/16</text>
+<text class="b" x="318" y="282">Loopback、OOB、AP 管理地址</text>
+
+<text class="c" x="40" y="314">IPv6 同步规划：每楼 /56、每 VLAN /64，</text>
+<text class="c" x="40" y="330">保证 IPv6 也能按楼汇总（不要按业务切）</text>
+<text class="r" x="40" y="348">反例：按部门分块（10.20.8.0/22 给市场部）→ 部门一搬家，汇总就碎</text>
+
+<!-- 右侧 -->
+<rect x="600" y="62" width="336" height="290" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="614" y="82" fill="#0f7f73">每个 /24 内部再按功能切（30% 余量）</text>
+<rect x="614" y="92" width="308" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="626" y="107">有线数据 · DHCP 池</text>
+<rect x="614" y="118" width="308" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="626" y="133">无线客户端 · 与有线同 VLAN 或独立</text>
+<rect x="614" y="144" width="308" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="626" y="159">语音 · 独立 VLAN + QoS 标记</text>
+<rect x="614" y="170" width="308" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="626" y="185">IoT / 工控 · 与 IT 强隔离</text>
+<rect x="614" y="196" width="308" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="626" y="211">访客 · 直接进隔离区</text>
+<rect x="614" y="222" width="308" height="22" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="626" y="237">管理 / 打印 / 静态设备</text>
+
+<text class="k" x="614" y="266">落地三条规则</text>
+<text class="b" x="614" y="284">① 地址跟地理位置走，不跟组织架构走</text>
+<text class="b" x="614" y="302">② 设备互联池独立，不从园区块里挖</text>
+<text class="b" x="614" y="320">③ 全部进 IPAM，配置由模板生成</text>
+<text class="r" x="614" y="340">没进 IPAM 的地址 = 三年后的黑洞</text>
+
+<rect x="24" y="368" width="912" height="34" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="389">自检：拿出去年的地址表，问"如果明年并购一家公司并搬进楼 C"，需要改多少条汇总？答"一条都不用改"才算合格。</text>
+
+<rect x="24" y="408" width="912" height="34" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="40" y="429">最容易忘的一项：无线 AP 管理地址、摄像头、门禁、打印机这些"长尾设备"必须先定归属，否则它们会散落在业务子网里，成为隔离的死角。</text>
+</svg>

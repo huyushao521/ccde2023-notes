@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 462" width="100%" role="img" aria-labelledby="t1521 d1521">
+<title id="t1521">路径隔离技术四：园区内 MPLS VPN 的 CE-PE-P-PE-CE 拓扑与四种隔离技术的对照表</title>
+<desc id="d1521">拓扑是两台接入交换机充当 CE，两台分布交换机充当 PE 并维护每个 VRF 的独立路由表，核心设备只做标签转发（P），PE 之间通过 MP-BGP 交换 VPNv4 路由，可用 RR 承担控制面。隔离由协议保证：接入侧只需要把 VLAN 映射到 PE 上的 VRF，中转设备完全不需要知道业务 VLAN。底部是四种技术的对照表：端到端 VLAN 加 VRF（隔离靠配置、零封装开销、扩展差）、GRE 点对点（隔离靠隧道、24 字节开销、n 平方工程量）、mGRE（隔离加动态、需要 hub）、MPLS VPN（隔离靠协议、标签开销小、需要 PE 能力与 MP-BGP 运维）。结论是技术选择取决于隔离规模与运维能力，而不是先进程度。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .w{font:600 9px "Microsoft YaHei",sans-serif;fill:#fff}
+</style>
+<rect x="0" y="0" width="960" height="462" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">技术四：园区内 MPLS VPN —— 把隔离交给协议，而不是交给每一跳的配置</text>
+<text class="s" x="24" y="48">中转设备（P）完全不需要知道业务 VLAN，也不需要 VRF</text>
+
+<rect x="60" y="76" width="120" height="46" rx="4" fill="#fff8ee" stroke="#e3c795"/>
+<text class="k" x="120" y="94" text-anchor="middle">CE（接入）</text>
+<text class="t" x="120" y="110" text-anchor="middle">纯 L2，未改配置</text>
+<rect x="228" y="76" width="150" height="46" rx="4" fill="#f4fbfa" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="k" x="303" y="94" text-anchor="middle">PE（分布）</text>
+<text class="t" x="303" y="110" text-anchor="middle">每 VN 一个 VRF + RD/RT</text>
+<rect x="415" y="76" width="130" height="46" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="480" y="94" text-anchor="middle">P（核心）</text>
+<text class="t" x="480" y="110" text-anchor="middle">只做标签交换</text>
+<rect x="582" y="76" width="150" height="46" rx="4" fill="#f4fbfa" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="k" x="657" y="94" text-anchor="middle">PE（DC 侧分布）</text>
+<text class="t" x="657" y="110" text-anchor="middle">同样一份 VRF 视图</text>
+<rect x="770" y="76" width="120" height="46" rx="4" fill="#fff8ee" stroke="#e3c795"/>
+<text class="k" x="830" y="94" text-anchor="middle">CE（DC 接入）</text>
+<text class="t" x="830" y="110" text-anchor="middle">纯 L2</text>
+<line x1="180" y1="99" x2="228" y2="99" stroke="#7f8fb0" stroke-width="1.8"/>
+<line x1="378" y1="99" x2="415" y2="99" stroke="#7f8fb0" stroke-width="1.8"/>
+<line x1="545" y1="99" x2="582" y2="99" stroke="#7f8fb0" stroke-width="1.8"/>
+<line x1="732" y1="99" x2="770" y2="99" stroke="#7f8fb0" stroke-width="1.8"/>
+<text class="c" x="184" y="93">VLAN→VRF</text>
+<text class="c" x="548" y="93">标签</text>
+
+<rect x="415" y="140" width="130" height="30" rx="4" fill="#fff" stroke="#c8d2e0"/>
+<text class="t" x="480" y="159" text-anchor="middle">RR / MP-BGP</text>
+<line x1="480" y1="122" x2="480" y2="140" stroke="#c8d2e0" stroke-width="1.4" stroke-dasharray="4 3"/>
+
+<text class="c" x="60" y="196">· 隔离由协议保证：P 设备无状态、无业务配置，扩容只动 PE</text>
+<text class="c" x="60" y="214">· 开销：标签栈 4–8 B，远小于 GRE/VXLAN；MTU 压力最小</text>
+<text class="r" x="60" y="232">· 代价：需要 PE 能力（园区交换机要支持 VRF/MP-BGP）、运维门槛高</text>
+<text class="m" x="60" y="250">· 适用：园区与 WAN 已是一张 MPLS 网，或需要与运营商 VPN 对接</text>
+
+<!-- 对照表 -->
+<rect x="24" y="266" width="912" height="24" fill="#1f4fc0"/>
+<text class="w" x="38" y="283">技术</text>
+<text class="w" x="228" y="283">隔离靠什么</text>
+<text class="w" x="418" y="283">封装开销</text>
+<text class="w" x="560" y="283">工程量随规模</text>
+<text class="w" x="720" y="283">最大短板</text>
+
+<rect x="24" y="290" width="912" height="24" fill="#fff"/>
+<text class="b" x="38" y="307">VLAN + VRF</text>
+<text class="b" x="228" y="307">每跳配置</text>
+<text class="c" x="418" y="307">0</text>
+<text class="r" x="560" y="307">设备数 × VRF 数</text>
+<text class="r" x="720" y="307">漏一跳就概率性不通</text>
+
+<rect x="24" y="314" width="912" height="24" fill="#f7f9fd"/>
+<text class="b" x="38" y="331">GRE 点对点</text>
+<text class="b" x="228" y="331">隧道端点</text>
+<text class="r" x="418" y="331">24 B（+IPSec）</text>
+<text class="r" x="560" y="331">n(n−1)/2 隧道</text>
+<text class="r" x="720" y="331">站点一多就配不完</text>
+
+<rect x="24" y="338" width="912" height="24" fill="#fff"/>
+<text class="b" x="38" y="355">mGRE / DMVPN</text>
+<text class="b" x="228" y="355">隧道 + NHRP</text>
+<text class="r" x="418" y="355">24 B 起</text>
+<text class="c" x="560" y="355">O(n)，站点只加 1 处</text>
+<text class="r" x="720" y="355">hub 单点与 MTU/MSS</text>
+
+<rect x="24" y="362" width="912" height="24" fill="#f7f9fd"/>
+<text class="b" x="38" y="379">MPLS VPN</text>
+<text class="b" x="228" y="379">协议（VRF + 标签）</text>
+<text class="c" x="418" y="379">4–8 B</text>
+<text class="c" x="560" y="379">O(n)，只动 PE</text>
+<text class="m" x="720" y="379">设备与技能门槛</text>
+
+<rect x="24" y="396" width="912" height="54" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="416">选择逻辑：先看"要隔离的域会不会长"—— 不会长且设备少，用 VLAN + VRF 最省；会长且要跨 WAN，交给协议（MPLS VPN 或 EVPN）。</text>
+<text class="b" x="40" y="436">第二条判据：谁能运维。协议型隔离把复杂度从"每台设备"搬到"控制面"，团队没有 MP-BGP 能力时，VLAN + VRF 反而是更安全的答案。</text>
+</svg>

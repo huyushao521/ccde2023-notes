@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="100%" role="img" aria-labelledby="t153 d153">
+<title id="t153">园区三层模型：核心层、分布层、接入层的职责与拓扑，以及每一层不该做的事</title>
+<desc id="d153">三条件带从上到下分别是核心层、分布层、接入层。核心层两台交换机只做高速互连，不接终端、不做 ACL/QoS 精细策略、不做 NAT、不做服务插入。分布层是策略边界，传统上是 L2/L3 分界点，SVI 与 FHRP 网关落在这里，每个功能块一对分布交换机、独立故障域。接入层是安全第一跳，负责 PortFast、BPDU Guard、DAI、Storm Control 与 PoE；在路由接入模型下，网关下移到这一层。图右侧画出核心到用户块分布、DC/WAN 块分布的冗余交叉链路，以及分布到接入、接入到终端的连线。底部强调核心层不做策略的理由是可预测性，并指出只有 2 个块却硬加核心层属于反模式。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9.5px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9.5px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9.5px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="470" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">三层模型：不是"三层"三个字，是三组不重叠的职责</text>
+<text class="s" x="24" y="48">画图容易，难的是让每一层只做它该做的事 —— 尤其是核心层</text>
+
+<!-- 核心层 -->
+<rect x="24" y="64" width="912" height="62" rx="6" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="40" y="86">核心层 Core</text>
+<text class="b" x="40" y="104">高速互连多个功能分布块；块内任一故障后快速平稳恢复</text>
+<text class="r" x="40" y="120">不接终端 · 不做 ACL/NAT · 不做服务插入</text>
+<rect x="576" y="78" width="120" height="34" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="k" x="636" y="99" text-anchor="middle">核心-A</text>
+<rect x="736" y="78" width="120" height="34" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="k" x="796" y="99" text-anchor="middle">核心-B</text>
+<line x1="696" y1="95" x2="736" y2="95" stroke="#7f8fb0" stroke-width="1.8"/>
+<text class="t" x="576" y="124">两台做 ECMP，单链路断 &lt;1 s</text>
+
+<!-- 分布层 -->
+<rect x="24" y="140" width="912" height="96" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="40" y="162" fill="#0f7f73">分布层 Distribution</text>
+<text class="b" x="40" y="180">基于策略的连接：接入与核心之间的边界控制点</text>
+<text class="c" x="40" y="198">传统上是 L2/L3 分界点（SVI + HSRP/VRRP 在这里）</text>
+<text class="c" x="40" y="216">每个功能块一对，独立 STP 域 / OSPF 区域 / 汇总边界</text>
+<rect x="470" y="156" width="170" height="34" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="555" y="177" text-anchor="middle">分布-用户块（SVI+HSRP）</text>
+<rect x="680" y="156" width="180" height="34" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="770" y="177" text-anchor="middle">分布-DC/WAN 块</text>
+<text class="t" x="470" y="206">策略、ACL、QoS 的作用点</text>
+<text class="r" x="470" y="224">不做跨块重分发 · 不接终端</text>
+<line x1="636" y1="112" x2="555" y2="156" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="636" y1="112" x2="770" y2="156" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="796" y1="112" x2="555" y2="156" stroke="#7f8fb0" stroke-width="1.5"/>
+<line x1="796" y1="112" x2="770" y2="156" stroke="#7f8fb0" stroke-width="1.5"/>
+
+<!-- 接入层 -->
+<rect x="24" y="252" width="912" height="112" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="40" y="274" fill="#b45309">接入层 Access</text>
+<text class="b" x="40" y="292">用户与设备接入，安全边界的第一跳</text>
+<text class="m" x="40" y="310">PortFast + BPDU Guard / Root Guard / Loop Guard</text>
+<text class="m" x="40" y="328">DHCP Snooping + DAI + Storm Control + PoE</text>
+<text class="b" x="40" y="348">路由接入模型下，网关（SVI）下移到这一层</text>
+<rect x="470" y="266" width="100" height="30" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="520" y="285" text-anchor="middle">接入-3F</text>
+<rect x="582" y="266" width="100" height="30" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="632" y="285" text-anchor="middle">接入-4F</text>
+<rect x="694" y="266" width="100" height="30" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="744" y="285" text-anchor="middle">服务器接入</text>
+<rect x="806" y="266" width="100" height="30" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="856" y="285" text-anchor="middle">WAN 边缘</text>
+<line x1="555" y1="190" x2="520" y2="266" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="555" y1="190" x2="632" y2="266" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="770" y1="190" x2="744" y2="266" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="770" y1="190" x2="856" y2="266" stroke="#7f8fb0" stroke-width="1.4"/>
+<rect x="486" y="318" width="68" height="26" rx="3" fill="#fbfcfe" stroke="#d9c49b"/>
+<text class="t" x="520" y="335" text-anchor="middle">终端/AP</text>
+<rect x="710" y="318" width="68" height="26" rx="3" fill="#fbfcfe" stroke="#d9c49b"/>
+<text class="t" x="744" y="335" text-anchor="middle">服务器</text>
+<rect x="822" y="318" width="68" height="26" rx="3" fill="#fbfcfe" stroke="#d9c49b"/>
+<text class="t" x="856" y="335" text-anchor="middle">互联网</text>
+<line x1="520" y1="296" x2="520" y2="318" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="744" y1="296" x2="744" y2="318" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="856" y1="296" x2="856" y2="318" stroke="#7f8fb0" stroke-width="1.2"/>
+
+<rect x="24" y="380" width="912" height="34" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="401">核心层"不做策略"的理由不是教条，是可预测性：核心的变更窗口最短、影响面最大，一条 ACL 就等于全网风险。</text>
+
+<rect x="24" y="422" width="912" height="34" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="40" y="443">反模式：三层模型 + 只有 2 个功能块 = 多一跳、多一对设备、多一个故障点，收益为零（块数 &gt; 3 才是核心层的存在理由）。</text>
+</svg>

@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1528 d1528">
+<title id="t1528">园区带宽收敛比与出口定调的计算顺序</title>
+<desc id="d1528">图左是三层链路的收敛比拓扑：48 台终端以 1G 接入一台 48 口交换机，该交换机用 2 条 10G 上行到分布层，收敛比为 20 比 1；分布层用 2 条 40G 上行到核心，按 8 台接入计为 2.5 比 1；核心到出口只有 100M 合同带宽，此处不再有收敛概念，而是硬性上限。图右是各层建议收敛比与一个错误顺序对比：正确顺序是先算出口合同带宽与峰值，再算核心东西向，最后才定接入上行；错误顺序是先给接入配满 10G，结果出口 100M 把整条链路卡住。底部给出峰值重叠系数说明：收敛比之所以成立，是因为各接入交换机的峰值不同时出现。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a28" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#2f6fed"/>
+  </marker>
+  <marker id="a28r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#a32020"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">收敛比不是"省钱技巧"，是"峰值不同时"这个统计假设</text>
+<text class="s" x="24" y="48">一旦所有接入同时出现峰值（开机风暴、杀毒更新、备份窗口），收敛比就不成立</text>
+
+<!-- 左：拓扑 -->
+<rect x="24" y="62" width="586" height="300" rx="6" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="38" y="82">一条链路上每层的收敛比</text>
+
+<!-- 终端 -->
+<g>
+  <rect x="42" y="252" width="66" height="26" rx="3" fill="#f7f9fd" stroke="#c9d6ea"/>
+  <text class="b" x="75" y="269" text-anchor="middle">终端 1–16</text>
+  <rect x="118" y="252" width="66" height="26" rx="3" fill="#f7f9fd" stroke="#c9d6ea"/>
+  <text class="b" x="151" y="269" text-anchor="middle">终端 17–32</text>
+  <rect x="194" y="252" width="66" height="26" rx="3" fill="#f7f9fd" stroke="#c9d6ea"/>
+  <text class="b" x="227" y="269" text-anchor="middle">终端 33–48</text>
+</g>
+<!-- 接入 -->
+<rect x="42" y="196" width="218" height="34" rx="4" fill="#f7f9fd" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="151" y="210" text-anchor="middle">接入交换机</text>
+<text class="b" x="151" y="223" text-anchor="middle">48 × 1G 下行，端口利用率 100%</text>
+<line x1="75" y1="252" x2="75" y2="230" stroke="#8fa8d0" stroke-width="1.4"/>
+<line x1="151" y1="252" x2="151" y2="230" stroke="#8fa8d0" stroke-width="1.4"/>
+<line x1="227" y1="252" x2="227" y2="230" stroke="#8fa8d0" stroke-width="1.4"/>
+
+<!-- 分布 -->
+<rect x="298" y="188" width="126" height="42" rx="4" fill="#eef4ff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="361" y="205" text-anchor="middle">分布-A / B</text>
+<text class="b" x="361" y="221" text-anchor="middle">48×1G 下行口</text>
+<line x1="260" y1="212" x2="298" y2="212" stroke="#2f6fed" stroke-width="2"/>
+<line x1="260" y1="222" x2="298" y2="220" stroke="#2f6fed" stroke-width="2"/>
+<text class="m" x="266" y="190">2 × 10G = 20G</text>
+<text class="r" x="266" y="204">48G : 20G ≈ 2.4:1</text>
+
+<!-- 核心 -->
+<rect x="452" y="188" width="126" height="42" rx="4" fill="#eef4ff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="515" y="205" text-anchor="middle">核心</text>
+<text class="b" x="515" y="221" text-anchor="middle">东西向主通道</text>
+<line x1="424" y1="208" x2="452" y2="208" stroke="#2f6fed" stroke-width="2.4"/>
+<text class="m" x="428" y="200">2 × 40G</text>
+
+<!-- 出口 -->
+<rect x="452" y="104" width="126" height="40" rx="4" fill="#fffdf8" stroke="#b45309" stroke-width="1.6"/>
+<text class="k" x="515" y="121" text-anchor="middle" fill="#b45309">出口 / WAN</text>
+<text class="b" x="515" y="136" text-anchor="middle">合同 100 M</text>
+<line x1="515" y1="188" x2="515" y2="144" stroke="#b45309" stroke-width="2" marker-end="url(#a28)"/>
+<text class="r" x="524" y="170">唯一必须按</text>
+<text class="r" x="524" y="182">合同带宽设计的点</text>
+
+<!-- 右：顺序与建议值 -->
+<rect x="628" y="62" width="308" height="300" rx="6" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="642" y="82">建议收敛比（园区）</text>
+
+<rect x="642" y="92" width="280" height="24" rx="3" fill="#f7f9fd" stroke="#e4eaf3"/>
+<text class="b" x="650" y="108">接入 → 分布</text>
+<text class="k" x="914" y="108" text-anchor="end">20:1 ~ 48:1</text>
+<rect x="642" y="120" width="280" height="24" rx="3" fill="#f7f9fd" stroke="#e4eaf3"/>
+<text class="b" x="650" y="136">分布 → 核心</text>
+<text class="k" x="914" y="136" text-anchor="end">2:1 ~ 4:1</text>
+<rect x="642" y="148" width="280" height="24" rx="3" fill="#fffdf8" stroke="#e3c795"/>
+<text class="b" x="650" y="164">核心 → 出口</text>
+<text class="m" x="914" y="164" text-anchor="end">按合同带宽</text>
+
+<text class="lb" x="642" y="196" fill="#0f7f73">正确的计算顺序</text>
+<text class="c" x="642" y="214">① 出口：合同带宽 × 峰值利用率</text>
+<text class="c" x="642" y="230">② 核心：东西向 + 南北向汇聚</text>
+<text class="c" x="642" y="246">③ 接入：最后才选上行是 1G 还是 10G</text>
+
+<text class="lb" x="642" y="274" fill="#a32020">错误顺序的典型结果</text>
+<text class="r" x="642" y="292">接入配满 10G（预算花光）→</text>
+<text class="r" x="642" y="308">核心只留 1G → 出口 100M</text>
+<text class="r" x="642" y="324">→ 内网测速 9.4G，上外网 90M</text>
+<text class="r" x="642" y="340">→ 用户结论："网络很慢，但内网很快"</text>
+
+<!-- 底部说明 -->
+<rect x="24" y="374" width="912" height="42" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="38" y="392" fill="#0f7f73">收敛比成立的前提是"峰值不重叠"</text>
+<text class="b" x="38" y="408">防重叠的三个工程手段：广播/组播抑制与风暴控制（防止同时泛洪）、备份与更新走 QOS 限速窗口（错峰）、关键业务（语音/视频）单独队列并预留带宽（不被挤占）</text>
+
+<text class="t" x="24" y="436">经验值：园区接入到分布的峰值重叠系数约 0.15–0.25，即 8 台接入同时达到 20% 线速的概率远高于同时达到 100% —— 收敛比按 20:1 设计是安全的，按 48:1 设计需要风暴控制兜底</text>
+</svg>

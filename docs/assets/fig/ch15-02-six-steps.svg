@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" width="100%" role="img" aria-labelledby="t152 d152">
+<title id="t152">园区设计六步方法论：每步的输入、输出与过不去的坎</title>
+<desc id="d152">六列从左到右依次是划边界、定层次、定分界点、定路由、定虚拟化、定容量。划边界输出功能块清单，坎是谁的流量必须互访；定层次输出三层或二层模型，坎是块数大于 3 还做 collapsed core；定分界点输出接入模型，坎是是否有必须跨配线间的二层；定路由输出 IGP 与汇总表，坎是 stub 与汇总是否真配了、次优能否接受；定虚拟化输出 VRF 数量与隔离技术，坎是服务节点放哪、回程怎么走；定容量输出容量表与验收用例，坎是无线与 PoE 的隐形预算。底部指出顺序不能反：边界决定协议，协议不决定边界；并列出四种跳步的后果。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:600 8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="440" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">六步方法论：从"划边界"开始，到"定容量"结束 —— 协议排在第 ④ 步</text>
+<text class="s" x="24" y="48">每步都有必须当场解决的坎，跳过去不会消失，只会在 6–18 个月后爆发</text>
+
+<g>
+  <rect x="24" y="66" width="140" height="228" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+  <text class="lb" x="94" y="88" text-anchor="middle">① 划边界</text>
+  <text class="t" x="36" y="112">输入</text>
+  <text class="b" x="36" y="126">组织/业务清单</text>
+  <text class="b" x="36" y="140">合规 · 现有站点</text>
+  <text class="t" x="36" y="162">输出</text>
+  <text class="b" x="36" y="176">功能块清单</text>
+  <text class="b" x="36" y="190">终端数/带宽/等级</text>
+  <text class="t" x="36" y="212">坎</text>
+  <text class="r" x="36" y="226">谁的流量必须互访</text>
+  <text class="r" x="36" y="240">决定块间是否过</text>
+  <text class="r" x="36" y="254">策略设备</text>
+</g>
+<g>
+  <rect x="176" y="66" width="140" height="228" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+  <text class="lb" x="246" y="88" text-anchor="middle">② 定层次</text>
+  <text class="t" x="188" y="112">输入</text>
+  <text class="b" x="188" y="126">块数量 · 楼栋分布</text>
+  <text class="b" x="188" y="140">光纤与机柜资源</text>
+  <text class="t" x="188" y="162">输出</text>
+  <text class="b" x="188" y="176">三层 / 二层模型</text>
+  <text class="b" x="188" y="190">核心位置与形态</text>
+  <text class="t" x="188" y="212">坎</text>
+  <text class="r" x="188" y="226">块 &gt; 3 还做</text>
+  <text class="r" x="188" y="240">collapsed core</text>
+  <text class="r" x="188" y="254">= 给未来埋债</text>
+</g>
+<g>
+  <rect x="328" y="66" width="140" height="228" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+  <text class="lb" x="398" y="88" text-anchor="middle">③ 定分界点</text>
+  <text class="t" x="340" y="112">输入</text>
+  <text class="b" x="340" y="126">终端类型 · 无线占比</text>
+  <text class="b" x="340" y="140">跨楼 L2 需求</text>
+  <text class="t" x="340" y="162">输出</text>
+  <text class="b" x="340" y="176">接入模型三选一</text>
+  <text class="b" x="340" y="190">STP/路由/集群</text>
+  <text class="t" x="340" y="212">坎</text>
+  <text class="r" x="340" y="226">是否真有必须</text>
+  <text class="r" x="340" y="240">跨配线间的二层</text>
+  <text class="r" x="340" y="254">（唯一硬约束）</text>
+</g>
+<g>
+  <rect x="480" y="66" width="140" height="228" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+  <text class="lb" x="550" y="88" text-anchor="middle" fill="#0f7f73">④ 定路由</text>
+  <text class="t" x="492" y="112">输入</text>
+  <text class="b" x="492" y="126">团队技能 · 设备能力</text>
+  <text class="b" x="492" y="140">收敛预算</text>
+  <text class="t" x="492" y="162">输出</text>
+  <text class="b" x="492" y="176">IGP + 区域设计</text>
+  <text class="b" x="492" y="190">汇总表 + BFD 方案</text>
+  <text class="t" x="492" y="212">坎</text>
+  <text class="c" x="492" y="226">stub / 汇总是否</text>
+  <text class="c" x="492" y="240">真的配了；汇总</text>
+  <text class="c" x="492" y="254">次优能否接受</text>
+</g>
+<g>
+  <rect x="632" y="66" width="140" height="228" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+  <text class="lb" x="702" y="88" text-anchor="middle" fill="#0f7f73">⑤ 定虚拟化</text>
+  <text class="t" x="644" y="112">输入</text>
+  <text class="b" x="644" y="126">隔离需求（业务/</text>
+  <text class="b" x="644" y="140">租户/合规）</text>
+  <text class="t" x="644" y="162">输出</text>
+  <text class="b" x="644" y="176">VRF/VN 数量</text>
+  <text class="b" x="644" y="190">隔离技术 + 服务链</text>
+  <text class="t" x="644" y="212">坎</text>
+  <text class="c" x="644" y="226">服务节点放哪、</text>
+  <text class="c" x="644" y="240">回程走哪 —— 没</text>
+  <text class="c" x="644" y="254">画回程必出事</text>
+</g>
+<g>
+  <rect x="784" y="66" width="140" height="228" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+  <text class="lb" x="854" y="88" text-anchor="middle" fill="#b45309">⑥ 定容量</text>
+  <text class="t" x="796" y="112">输入</text>
+  <text class="b" x="796" y="126">终端密度 · 应用带宽</text>
+  <text class="b" x="796" y="140">PoE 预算 · 地址规划</text>
+  <text class="t" x="796" y="162">输出</text>
+  <text class="b" x="796" y="176">容量表 + 收敛预算</text>
+  <text class="b" x="796" y="190">验收用例表</text>
+  <text class="t" x="796" y="212">坎</text>
+  <text class="m" x="796" y="226">无线与 PoE 的</text>
+  <text class="m" x="796" y="240">隐形带宽/功率</text>
+  <text class="m" x="796" y="254">算过没有</text>
+</g>
+
+<rect x="24" y="306" width="900" height="34" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="327">顺序不能反：边界决定协议，协议不决定边界。先选 OSPF 再想"要不要 VRF"，结果一定是"进程一堆、策略无处落"。</text>
+
+<text class="k" x="24" y="366">跳步的代价（通常 6–18 个月后爆发）</text>
+<rect x="24" y="376" width="216" height="52" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="36" y="396">跳过①直接②</text>
+<text class="b" x="36" y="412">块按楼层分，安全边界</text>
+<text class="b" x="36" y="424">对不上，后期全靠 ACL 补</text>
+<rect x="252" y="376" width="216" height="52" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="264" y="396">跳过③直接④</text>
+<text class="b" x="264" y="412">网关与路由边界错位，</text>
+<text class="b" x="264" y="424">二层仍多块 STP</text>
+<rect x="480" y="376" width="216" height="52" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="492" y="396">跳过⑤直接买设备</text>
+<text class="b" x="492" y="412">用物理隔离满足合规，</text>
+<text class="b" x="492" y="424">机柜与许可翻倍</text>
+<rect x="708" y="376" width="216" height="52" rx="4" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="720" y="396">跳过⑥直接上线</text>
+<text class="b" x="720" y="412">PoE 不足、地址池耗尽、</text>
+<text class="b" x="720" y="424">收敛时间没人测过</text>
+</svg>

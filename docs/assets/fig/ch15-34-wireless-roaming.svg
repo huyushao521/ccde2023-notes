@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1534 d1534">
+<title id="t1534">无线跨控制器漫游：二层漫游与三层漫游的时延构成</title>
+<desc id="d1534">图上半是两层楼的无线拓扑：三楼两台 AP 归属控制器 A 与子网三十网段，四楼一台 AP 归属控制器 B 与子网四十网段；终端从三楼走到四楼时，既跨控制器又跨子网，构成三层漫游。图右对比两种漫游的时延构成：同子网同控制器的二层漫游只需重新关联与密钥更新，配合 802.11r 快速切换可控制在五十毫秒以内；跨控制器跨子网的三层漫游还要重新 DHCP 取址、重建 CAPWAP 数据隧道、更新上游路由与 ARP，累计约三秒，语音必然断话。图下方给出四条治理措施：语音与数据 SSID 分离、语音 SSID 用单一二层漫游域、启用 802.11r 与快速密钥、验收标准写死为漫游中断小于一百毫秒且丢包小于百分之一。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a34" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#2f6fed"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">无线把二层重新变成第一公民：漫游域就是广播域的另一种说法</text>
+<text class="s" x="24" y="48">案例十四的 3 秒掉话不是无线调优问题，是"楼与楼之间划了子网边界"的必然结果</text>
+
+<!-- 左：拓扑 -->
+<rect x="24" y="62" width="480" height="212" rx="6" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="38" y="82">跨楼层 = 跨控制器 + 跨子网</text>
+
+<!-- 4F -->
+<rect x="38" y="92" width="452" height="58" rx="4" fill="#f7f9fd" stroke="#dbe3ee"/>
+<text class="b" x="48" y="110">4F  子网 10.10.40.0/24 · WLC-B</text>
+<rect x="60" y="118" width="86" height="24" rx="3" fill="#fff" stroke="#8fa8d0"/>
+<text class="b" x="103" y="134" text-anchor="middle">AP-4A</text>
+<rect x="360" y="118" width="110" height="24" rx="3" fill="#eef4ff" stroke="#2f6fed"/>
+<text class="b" x="415" y="134" text-anchor="middle">控制器 B</text>
+<line x1="146" y1="130" x2="360" y2="130" stroke="#8fa8d0" stroke-width="1.4" stroke-dasharray="4 3"/>
+
+<!-- 3F -->
+<rect x="38" y="166" width="452" height="58" rx="4" fill="#f7f9fd" stroke="#dbe3ee"/>
+<text class="b" x="48" y="184">3F  子网 10.10.30.0/24 · WLC-A</text>
+<rect x="60" y="192" width="86" height="24" rx="3" fill="#fff" stroke="#8fa8d0"/>
+<text class="b" x="103" y="208" text-anchor="middle">AP-3A</text>
+<rect x="160" y="192" width="86" height="24" rx="3" fill="#fff" stroke="#8fa8d0"/>
+<text class="b" x="203" y="208" text-anchor="middle">AP-3B</text>
+<rect x="360" y="192" width="110" height="24" rx="3" fill="#eef4ff" stroke="#2f6fed"/>
+<text class="b" x="415" y="208" text-anchor="middle">控制器 A</text>
+<line x1="246" y1="204" x2="360" y2="204" stroke="#8fa8d0" stroke-width="1.4" stroke-dasharray="4 3"/>
+<line x1="188" y1="204" x2="160" y2="204" stroke="#8fa8d0" stroke-width="1.4"/>
+
+<!-- 终端移动 -->
+<line x1="103" y1="190" x2="103" y2="146" stroke="#a32020" stroke-width="2" marker-end="url(#a34)"/>
+<text class="r" x="112" y="170">终端上楼</text>
+<text class="t" x="38" y="244">控制器 A 与 B 之间若无 mobility 组，切换 = 重新认证 + 重新取址</text>
+<text class="t" x="38" y="262">若开了 mobility 组但子网不同，仍属 L3 漫游，DHCP 必须重来</text>
+
+<!-- 右：时延构成 -->
+<rect x="524" y="62" width="412" height="212" rx="6" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="538" y="82">两种漫游的时延构成（实测典型值）</text>
+
+<text class="k" x="538" y="104">L2 漫游（同子网同控制器组）</text>
+<rect x="538" y="110" width="384" height="18" rx="2" fill="#e9eef8"/>
+<rect x="538" y="110" width="30" height="18" rx="2" fill="#0f7f73"/>
+<rect x="568" y="110" width="14" height="18" fill="#8fc4bd"/>
+<text class="c" x="586" y="123">重新关联 15 ms + 密钥 20 ms + 更新表项 10 ms ≈ 45 ms</text>
+
+<text class="k" x="538" y="152">L3 漫游（跨子网，本案例）</text>
+<rect x="538" y="158" width="384" height="18" rx="2" fill="#f3e3e3"/>
+<rect x="538" y="158" width="46" height="18" rx="2" fill="#a32020"/>
+<rect x="584" y="158" width="60" height="18" fill="#d9a3a3"/>
+<rect x="644" y="158" width="70" height="18" fill="#e3c795"/>
+<rect x="714" y="158" width="208" height="18" rx="2" fill="#f6d9d9"/>
+<text class="r" x="538" y="190">重建 CAPWAP 隧道 0.5 s · 重新 DHCP 1.2 s · 上游 ARP/路由 0.6 s</text>
+<text class="r" x="538" y="204">· 完整 802.1X 认证 0.7 s ≈ 3 s → 语音必断</text>
+
+<line x1="538" y1="216" x2="922" y2="216" stroke="#eef2f8"/>
+<text class="c" x="538" y="236">目标：语音 SSID 漫游中断 &lt; 100 ms，丢包 &lt; 1%</text>
+<text class="b" x="538" y="252">手段：802.11r（FT）把密钥协商提前到漫游前完成</text>
+<text class="b" x="538" y="266">802.11k 提供邻居报告，减少扫描时间（省 100–300 ms）</text>
+
+<!-- 四条措施 -->
+<rect x="24" y="292" width="912" height="86" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="312" fill="#0f7f73">四条治理措施（前两条是架构层，后两条是调优层）</text>
+
+<rect x="38" y="322" width="216" height="46" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="48" y="340">① SSID 分离</text>
+<text class="b" x="48" y="356">语音/数据独立，策略可不同</text>
+
+<rect x="266" y="322" width="216" height="46" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="276" y="340">② 语音用单一 L2 漫游域</text>
+<text class="b" x="276" y="356">同子网 + 同控制器组，代价=大广播域</text>
+
+<rect x="494" y="322" width="216" height="46" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="504" y="340">③ 802.11r/k/v + 快速密钥</text>
+<text class="b" x="504" y="356">OKC / CCKM，用仪表测时延</text>
+
+<rect x="722" y="322" width="200" height="46" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="732" y="340">④ 验收标准写死</text>
+<text class="b" x="732" y="356">&lt;100 ms / &lt;1% 丢包</text>
+
+<text class="t" x="24" y="398">取舍：语音要"小漫游域"，安全与规模要"按楼拆子网" —— 两者冲突时，只有三种解：给语音单独一个跨楼子网、用 fabric 让网关随人走、或接受语音走微蜂窝/DAS</text>
+<text class="t" x="24" y="416">这也是"第 14 条反直觉认知"的落地：无线让二层重新变成第一公民，但它只需要"一个"二层域，不需要"整个园区一个"二层域</text>
+<text class="t" x="24" y="434">监控方法：持续采集 RRM 邻居报告与客户端漫游事件，统计 P95 漫游时延，而不是等用户投诉"换楼层掉线"</text>
+<text class="t" x="24" y="452">关联知识点：无线控制器冗余（N+1 / HA SSO）与漫游域不是一回事，前者保控制面，后者保会话连续性</text>
+</svg>

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t1513 d1513">
+<title id="t1513">EIGRP 查询范围的两种收敛结果：无 stub 无汇总时查询全网扩散，stub 加汇总后被切断</title>
+<desc id="d1513">左边是失败场景：核心与两对分布交换机，下挂四台接入交换机与大量边缘设备；接入交换机没有配置 stub，也没有做汇总，一台接入交换机上行抖动时，查询从分布层无限制向外扩散，几百台设备同时进入 Active 状态，收敛时间从秒级变成三分钟，甚至出现 SIA 卡死。右边是正确场景：接入交换机配置 stub，只回告 connected 与 summary，不回查询；分布层向核心只通告汇总路由；接口层面再加查询限域。结果是一台接入交换机的故障查询被挡在接入层，核心与邻区完全无感知，收敛回到 1 秒以内。底部给出三条规则：stub 放在网络边缘、汇总放在区域/块边界、查询限域作为兜底。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">EIGRP 的收敛问题只有一个根源：查询能跑多远</text>
+<text class="s" x="24" y="48">同一个拓扑，配不配 stub 与汇总，收敛时间差三个数量级</text>
+
+<!-- 左：查询泛洪 -->
+<rect x="24" y="62" width="440" height="260" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="38" y="82" fill="#a32020">没有 stub、没有汇总：查询全网扩散</text>
+<rect x="180" y="92" width="130" height="30" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="k" x="245" y="112" text-anchor="middle">核心 / WAN</text>
+<rect x="70" y="152" width="130" height="28" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="135" y="170" text-anchor="middle">分布-A</text>
+<rect x="290" y="152" width="130" height="28" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="355" y="170" text-anchor="middle">分布-B</text>
+<line x1="210" y1="122" x2="135" y2="152" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="280" y1="122" x2="355" y2="152" stroke="#7f8fb0" stroke-width="1.4"/>
+
+<rect x="48" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="91" y="221" text-anchor="middle">接入-1</text>
+<rect x="144" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="187" y="221" text-anchor="middle">接入-2</text>
+<rect x="270" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="313" y="221" text-anchor="middle">接入-3</text>
+<rect x="366" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="409" y="221" text-anchor="middle">接入-4</text>
+<line x1="110" y1="180" x2="91" y2="204" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="150" y1="180" x2="187" y2="204" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="330" y1="180" x2="313" y2="204" stroke="#7f8fb0" stroke-width="1.3"/>
+<line x1="370" y1="180" x2="409" y2="204" stroke="#7f8fb0" stroke-width="1.3"/>
+
+<path d="M91 230 L91 250 L313 250" fill="none" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+<path d="M409 230 L409 250 L187 250" fill="none" stroke="#a32020" stroke-width="1.6" stroke-dasharray="5 4"/>
+<text class="r" x="48" y="268">查询从一台接入扩散 → 全部邻接设备进 Active</text>
+<text class="r" x="48" y="286">实测：300 台设备同时闪红，收敛 3 min，偶发 SIA</text>
+<text class="b" x="48" y="304">根因：无 stub（不阻断查询）+ 无汇总（明细太多）</text>
+
+<!-- 右：切断 -->
+<rect x="496" y="62" width="440" height="260" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="510" y="82" fill="#0f7f73">stub + 汇总 + 查询限域：查询被挡在接入层</text>
+<rect x="652" y="92" width="130" height="30" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="k" x="717" y="112" text-anchor="middle">核心 / WAN</text>
+<text class="c" x="792" y="108">只收到 /16 汇总</text>
+<rect x="542" y="152" width="130" height="28" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="607" y="170" text-anchor="middle">分布-A（ABR）</text>
+<rect x="762" y="152" width="130" height="28" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="b" x="827" y="170" text-anchor="middle">分布-B（ABR）</text>
+<line x1="682" y1="122" x2="607" y2="152" stroke="#7f8fb0" stroke-width="1.4"/>
+<line x1="752" y1="122" x2="827" y2="152" stroke="#7f8fb0" stroke-width="1.4"/>
+
+<rect x="520" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="563" y="221" text-anchor="middle">接入-1</text>
+<rect x="616" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="659" y="221" text-anchor="middle">接入-2</text>
+<rect x="742" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="785" y="221" text-anchor="middle">接入-3</text>
+<rect x="838" y="204" width="86" height="26" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="b" x="881" y="221" text-anchor="middle">接入-4</text>
+<text class="c" x="530" y="248">stub</text>
+<text class="c" x="626" y="248">stub</text>
+<text class="c" x="752" y="248">stub</text>
+<text class="c" x="848" y="248">stub</text>
+<line x1="563" y1="230" x2="563" y2="238" stroke="#0f7f73" stroke-width="1.4"/>
+<line x1="659" y1="230" x2="659" y2="238" stroke="#0f7f73" stroke-width="1.4"/>
+<line x1="785" y1="230" x2="785" y2="238" stroke="#0f7f73" stroke-width="1.4"/>
+<line x1="881" y1="230" x2="881" y2="238" stroke="#0f7f73" stroke-width="1.4"/>
+
+<text class="c" x="510" y="270">stub 不回查询，只回 connected + summary</text>
+<text class="c" x="510" y="288">汇总在 ABR 做，核心只看到 1 条 /16</text>
+<text class="c" x="510" y="306">查询在接口级再限域一次（兜底）</text>
+
+<rect x="24" y="336" width="290" height="44" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="38" y="355">规则一：stub 放在网络边缘</text>
+<text class="b" x="38" y="371">凡是"只向上、不转发别处流量"的层</text>
+<rect x="336" y="336" width="290" height="44" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="350" y="355">规则二：汇总放在块边界</text>
+<text class="b" x="350" y="371">汇总 = 把明细换成"更少的条目"</text>
+<rect x="648" y="336" width="288" height="44" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="662" y="355">规则三：接口级限域兜底</text>
+<text class="b" x="662" y="371">不改设计，只加一层保险</text>
+
+<rect x="24" y="394" width="912" height="52" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="40" y="414">权衡：stub 与汇总都会带来"次优路径"—— 汇总后细分路段的选路只能靠 /16 判断，故障恢复后可能出现绕行。</text>
+<text class="b" x="40" y="432">判断标准：先把"收敛时间"写进设计文档（例如 &lt; 1 s），再决定汇总粒度；两者冲突时，靠近边界的汇总优先，核心侧保留少量明细。</text>
+</svg>

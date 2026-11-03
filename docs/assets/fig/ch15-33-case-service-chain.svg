@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1533 d1533">
+<title id="t1533">服务链只画了去程导致文件服务器能登录不能下载</title>
+<desc id="d1533">图上半分左右两条路径做一个对比。左侧是正确的双向服务链：用户网段经虚拟防火墙再到服务器网段，回程同样回到同一台防火墙，防火墙保持会话状态。右侧是实际部署：去程按设计穿过防火墙，但回程因为服务器网段在核心上有一条更短的路由，绕开防火墙直接回到用户网段，形成不对称。图下半用一个时间线说明症状出现的过程：TCP 三次握手由去程建立、防火墙记录了会话；文件服务器开始发送大块数据时，回程路径绕开防火墙，防火墙看到的是"没有对应会话的后续报文"，于是按状态检查丢弃，用户侧表现为登录成功但下载零字节。底部给出三条修复措施：把服务器网段的回程路由指向防火墙、在防火墙与服务器网段之间的接口上做反向路径检查、以及用统一的服务链编排把去程与回程绑定为同一个策略单元。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a33" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#0f7f73"/>
+  </marker>
+  <marker id="a33r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#a32020"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">服务链最常画错的一张图：只画了去程的箭头</text>
+<text class="s" x="24" y="48">状态化防火墙不关心"包从哪来"，它关心"这条会话的记录在哪台设备上"</text>
+
+<!-- 左：正确 -->
+<rect x="24" y="62" width="444" height="184" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="82" fill="#0f7f73">正确：去程与回程都穿同一台防火墙</text>
+
+<rect x="38" y="96" width="96" height="32" rx="4" fill="#fff" stroke="#8fa8d0"/>
+<text class="b" x="86" y="116" text-anchor="middle">用户 VRF</text>
+<rect x="186" y="96" width="110" height="32" rx="4" fill="#eef4ff" stroke="#2f6fed" stroke-width="1.4"/>
+<text class="b" x="241" y="116" text-anchor="middle">虚拟防火墙</text>
+<rect x="348" y="96" width="106" height="32" rx="4" fill="#fff" stroke="#8fa8d0"/>
+<text class="b" x="401" y="116" text-anchor="middle">服务器 VRF</text>
+
+<line x1="134" y1="106" x2="186" y2="106" stroke="#0f7f73" stroke-width="2" marker-end="url(#a33)"/>
+<line x1="296" y1="106" x2="348" y2="106" stroke="#0f7f73" stroke-width="2" marker-end="url(#a33)"/>
+<line x1="348" y1="120" x2="296" y2="120" stroke="#0f7f73" stroke-width="2" marker-end="url(#a33)"/>
+<line x1="186" y1="120" x2="134" y2="120" stroke="#0f7f73" stroke-width="2" marker-end="url(#a33)"/>
+
+<text class="c" x="38" y="160">会话表只在一处建立，两次穿越同一设备</text>
+<text class="c" x="38" y="176">回程能看到完整会话状态 → 状态检查通过</text>
+<text class="b" x="38" y="198">代价：所有东西向流量都要多跳一次，延迟 +0.3–1 ms</text>
+<text class="b" x="38" y="216">收益：策略只有一个生效点，审计只有一份日志</text>
+<text class="b" x="38" y="236">设计要点：服务器网段的默认路由必须指回防火墙</text>
+
+<!-- 右：事故 -->
+<rect x="492" y="62" width="444" height="184" rx="6" fill="#fdf6f6" stroke="#e8c4c4"/>
+<text class="lb" x="506" y="82" fill="#a32020">实际：回程抄了近路，绕开防火墙</text>
+
+<rect x="506" y="96" width="96" height="32" rx="4" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="554" y="116" text-anchor="middle">用户 VRF</text>
+<rect x="654" y="96" width="110" height="32" rx="4" fill="#f3e3e3" stroke="#a32020" stroke-width="1.4"/>
+<text class="b" x="709" y="116" text-anchor="middle">虚拟防火墙</text>
+<rect x="816" y="96" width="106" height="32" rx="4" fill="#fff" stroke="#e8c4c4"/>
+<text class="b" x="869" y="116" text-anchor="middle">服务器 VRF</text>
+
+<line x1="602" y1="104" x2="654" y2="104" stroke="#2f6fed" stroke-width="2" marker-end="url(#a33)"/>
+<line x1="764" y1="104" x2="816" y2="104" stroke="#2f6fed" stroke-width="2" marker-end="url(#a33)"/>
+<text class="lb" x="648" y="92">去程（有）</text>
+
+<path d="M816,126 C816,158 700,158 640,150 C580,142 540,138 506,130" fill="none" stroke="#a32020" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#a33r)"/>
+<text class="r" x="640" y="172">回程（绕行核心直连路由）</text>
+<text class="r" x="640" y="186">更短的度量 → 绕开防火墙</text>
+
+<text class="b" x="506" y="212">防火墙看到的回程报文：不属于任何已建会话</text>
+<text class="r" x="506" y="230">→ 按 out-of-state 丢弃（日志里只有 deny，没有"绕行"）</text>
+
+<!-- 时间线 -->
+<text class="lb" x="24" y="276" fill="#b45309">症状演进：为什么"登录成功"骗过了所有人</text>
+<line x1="40" y1="316" x2="920" y2="316" stroke="#dbe3ee" stroke-width="2"/>
+
+<circle cx="90" cy="316" r="5" fill="#0f7f73"/>
+<text class="k" x="90" y="304" text-anchor="middle">第 1 步</text>
+<text class="c" x="90" y="338" text-anchor="middle">三次握手</text>
+<text class="b" x="90" y="352" text-anchor="middle">去程建会话，成功</text>
+
+<circle cx="290" cy="316" r="5" fill="#0f7f73"/>
+<text class="k" x="290" y="304" text-anchor="middle">第 2 步</text>
+<text class="c" x="290" y="338" text-anchor="middle">认证与目录列表</text>
+<text class="b" x="290" y="352" text-anchor="middle">小包，回程量小仍能过</text>
+
+<circle cx="500" cy="316" r="5" fill="#b45309"/>
+<text class="k" x="500" y="304" text-anchor="middle">第 3 步</text>
+<text class="m" x="500" y="338" text-anchor="middle">开始下载文件</text>
+<text class="b" x="500" y="352" text-anchor="middle">服务器发大量分段</text>
+
+<circle cx="710" cy="316" r="5" fill="#a32020"/>
+<text class="k" x="710" y="304" text-anchor="middle">第 4 步</text>
+<text class="r" x="710" y="338" text-anchor="middle">回程全部绕行</text>
+<text class="b" x="710" y="352" text-anchor="middle">握手 ACK 丢失</text>
+
+<circle cx="878" cy="316" r="5" fill="#a32020"/>
+<text class="k" x="878" y="304" text-anchor="middle">结果</text>
+<text class="r" x="878" y="338" text-anchor="middle">进度 0%</text>
+<text class="b" x="878" y="352" text-anchor="middle">报"连接被重置"</text>
+
+<!-- 修复 -->
+<rect x="24" y="368" width="912" height="70" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="k" x="38" y="386" fill="#b45309">三条修复（第三条才是根治）</text>
+<text class="b" x="38" y="404">① 服务器网段默认路由指向防火墙（而不是核心），使回程强制对称</text>
+<text class="b" x="38" y="420">② 在防火墙内联接口做反向路径检查（uRPF）或严格状态同步，让绕行报文在入口就被识别，而不是静默丢弃</text>
+<text class="b" x="38" y="436">③ 服务链编排时把"去程策略 + 回程路由"作为同一个对象下发 —— 图上一个箭头不代表一条链</text>
+</svg>

@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 452" width="100%" role="img" aria-labelledby="t1510 d1510">
+<title id="t1510">接入模型选择决策树：第一个问题永远是"有没有必须跨配线间的二层"</title>
+<desc id="d1510">决策树从问题一开始：是否存在必须跨配线间的二层需求。如果是，直接落到多层 STP，但必须把 PortFast 与 BPDU Guard、Root Guard、Loop Guard、UDLD、Storm Control、DHCP Snooping 与 DAI 全部配齐。如果否，进入问题二：接入层是否需要三层能力且网络侧收敛要小于 1 秒。如果是，选路由接入，网关下移到接入交换机的 SVI。如果否，选交换机集群 vPC 或 MLAG，保留传统二层同时获得双活上行。底部三张卡片分别是三个附加判断：大二层需求常常来自无线漫游、IoT 与老应用心跳和虚拟机迁移；orphan 端口与整组升级窗口是集群的隐形代价；以及如何识别"假路由接入"——网关仍在分布层就说明白做。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .q{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="452" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">接入模型决策树：两个问题问完，答案就唯一了</text>
+<text class="s" x="24" y="48">顺序很重要 —— 先问"能不能不要二层"，再问"要不要更快"</text>
+
+<rect x="330" y="62" width="300" height="48" rx="6" fill="#eef3ff" stroke="#2f6fed"/>
+<text class="q" x="480" y="82" text-anchor="middle">问 1：有必须跨配线间的二层吗？</text>
+<text class="t" x="480" y="99" text-anchor="middle">老应用心跳 / 无线漫游 / 工控 / 虚拟机迁移</text>
+
+<line x1="480" y1="110" x2="480" y2="126" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="160" y1="126" x2="750" y2="126" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="160" y1="126" x2="160" y2="152" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="750" y1="126" x2="750" y2="152" stroke="#7f8fb0" stroke-width="1.6"/>
+<text class="c" x="86" y="144">是</text>
+<text class="r" x="762" y="144">否</text>
+
+<rect x="52" y="152" width="216" height="56" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="k" x="160" y="172" text-anchor="middle">多层 STP</text>
+<text class="r" x="160" y="188" text-anchor="middle">保护配置必须全部配齐</text>
+<text class="r" x="160" y="202" text-anchor="middle">否则"莫名全网卡顿"</text>
+<text class="b" x="52" y="228">适用于存量改造、预算紧、</text>
+<text class="b" x="52" y="244">终端密度低、无人愿意动</text>
+<text class="b" x="52" y="260">跨间二层结构的场景</text>
+
+<rect x="600" y="152" width="300" height="48" rx="6" fill="#eef3ff" stroke="#2f6fed"/>
+<text class="q" x="750" y="172" text-anchor="middle">问 2：接入层要三层 + 收敛 &lt;1 s？</text>
+<text class="t" x="750" y="189" text-anchor="middle">即"网关是否下移到接入交换机"</text>
+
+<line x1="750" y1="200" x2="750" y2="222" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="430" y1="222" x2="750" y2="222" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="750" y1="222" x2="750" y2="240" stroke="#7f8fb0" stroke-width="1.6"/>
+<line x1="430" y1="222" x2="430" y2="240" stroke="#7f8fb0" stroke-width="1.6"/>
+<text class="c" x="762" y="236">是</text>
+<text class="r" x="392" y="236">否</text>
+
+<rect x="600" y="240" width="300" height="56" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="750" y="260" text-anchor="middle">路由接入</text>
+<text class="c" x="750" y="276" text-anchor="middle">网关 = 接入交换机 SVI</text>
+<text class="c" x="750" y="290" text-anchor="middle">无 STP、无 FHRP、上行全活</text>
+<text class="b" x="600" y="314">代价：子网数量上升、无线漫游要</text>
+<text class="b" x="600" y="330">单独设计、IPAM 与模板是必需品</text>
+
+<rect x="290" y="240" width="280" height="56" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="k" x="430" y="260" text-anchor="middle">交换机集群（vPC / MLAG）</text>
+<text class="m" x="430" y="276" text-anchor="middle">保留传统 L2，换双活上行</text>
+<text class="m" x="430" y="290" text-anchor="middle">收敛 &lt;1.5 s，单管理面</text>
+<text class="b" x="290" y="314">代价：整组升级窗口、orphan 端口、</text>
+<text class="b" x="290" y="330">peer-link 与 keepalive 必须分离</text>
+
+<text class="k" x="24" y="362">三个附加判断（决定最终细节，不改变主干选择）</text>
+<rect x="24" y="370" width="290" height="72" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="q" x="38" y="390">① 二层需求到底来自哪里</text>
+<text class="b" x="38" y="408">无线漫游域、IoT/工控、老应用</text>
+<text class="b" x="38" y="424">心跳、虚拟机迁移。逐条验证</text>
+<text class="b" x="38" y="438">是否真的无法改成三层</text>
+<rect x="336" y="370" width="290" height="72" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="q" x="350" y="390" fill="#b45309">② 集群的隐形代价</text>
+<text class="b" x="350" y="408">单归设备只能做 orphan；整组</text>
+<text class="b" x="350" y="424">升级 = 一次中断；双主排查要</text>
+<text class="b" x="350" y="438">看两台设备的心跳路径</text>
+<rect x="648" y="370" width="288" height="72" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="q" x="662" y="390" fill="#a32020">③ 识别"假路由接入"</text>
+<text class="b" x="662" y="408">接入交换机配了 IP，但网关</text>
+<text class="b" x="662" y="424">仍在分布层 → STP 与 FHRP 都</text>
+<text class="b" x="662" y="438">还在，只是多了一跳</text>
+</svg>

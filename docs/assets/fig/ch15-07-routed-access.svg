@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 448" width="100%" role="img" aria-labelledby="t157 d157">
+<title id="t157">接入模型二：路由接入把网关下移到接入层，上行变成 /31 三层链路与 ECMP</title>
+<desc id="d157">拓扑是两台纯三层分布交换机，通过 /31 点对点链路同时连到两台三层接入交换机，四条上行全部转发、没有阻塞端口，网关 SVI 落在接入交换机上，终端所在的广播域就只有这一台接入交换机。右侧列出四类收益：一套路由工具、无 STP 与 FHRP 依赖、上行 ECMP 全活带宽利用率接近 100%、故障域等于单台接入交换机；四类限制：不支持跨多台接入扩展 VLAN、接入交换机需要三层能力、子网数量上升、无线漫游被切断。还标出三个隐蔽坑：/30 快速耗尽地址应改用 /31、汇总会把故障美化造成黑洞、终端写死网关的存量资产必须盘点。底部给出评审硬指标：接入层设备上不得出现跨设备的同一 VLAN。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10.5px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9.5px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="448" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">模型二：路由接入 —— 网关下移，STP 与 FHRP 同时消失</text>
+<text class="s" x="24" y="48">四条上行全部转发，带宽利用率接近 100%，环路风险归零</text>
+
+<rect x="90" y="76" width="190" height="52" rx="5" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="185" y="96" text-anchor="middle">分布-A（纯 L3）</text>
+<text class="t" x="185" y="112" text-anchor="middle">无 SVI、无 FHRP，只跑 IGP</text>
+<rect x="320" y="76" width="190" height="52" rx="5" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="415" y="96" text-anchor="middle">分布-B（纯 L3）</text>
+<text class="t" x="415" y="112" text-anchor="middle">ECMP 两条等价上行</text>
+
+<rect x="90" y="196" width="190" height="54" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="185" y="215" text-anchor="middle">接入-1F（L3）</text>
+<text class="c" x="185" y="231" text-anchor="middle">SVI 10.20.1.1 就是网关</text>
+<text class="t" x="185" y="244" text-anchor="middle">广播域到此为止</text>
+<rect x="320" y="196" width="190" height="54" rx="5" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="k" x="415" y="215" text-anchor="middle">接入-2F（L3）</text>
+<text class="c" x="415" y="231" text-anchor="middle">SVI 10.20.2.1 独立子网</text>
+<text class="t" x="415" y="244" text-anchor="middle">与 1F 之间是三层转发</text>
+
+<line x1="140" y1="128" x2="140" y2="196" stroke="#2f6fed" stroke-width="2.2"/>
+<line x1="230" y1="128" x2="230" y2="196" stroke="#2f6fed" stroke-width="2.2"/>
+<line x1="370" y1="128" x2="370" y2="196" stroke="#2f6fed" stroke-width="2.2"/>
+<line x1="460" y1="128" x2="460" y2="196" stroke="#2f6fed" stroke-width="2.2"/>
+<text class="c" x="120" y="166">/31</text>
+<text class="c" x="210" y="166">/31</text>
+<text class="c" x="350" y="166">/31</text>
+<text class="c" x="440" y="166">/31</text>
+<text class="c" x="490" y="160">四条全转发</text>
+<text class="c" x="490" y="176">BFD &lt;200 ms</text>
+
+<rect x="112" y="276" width="140" height="30" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="182" y="295" text-anchor="middle">终端（子网 10.20.1.0/24）</text>
+<rect x="342" y="276" width="140" height="30" rx="3" fill="#fff" stroke="#8fc4bd"/>
+<text class="t" x="412" y="295" text-anchor="middle">终端（子网 10.20.2.0/24）</text>
+<line x1="182" y1="250" x2="182" y2="276" stroke="#7f8fb0" stroke-width="1.2"/>
+<line x1="412" y1="250" x2="412" y2="276" stroke="#7f8fb0" stroke-width="1.2"/>
+
+<text class="c" x="90" y="332">收益：一套排障语言 · 无 STP/FHRP · 收敛由 IGP+BFD 决定（&lt;1 s）</text>
+<text class="c" x="90" y="350">故障域 = 单台接入交换机（通常 48 个端口）</text>
+<text class="r" x="90" y="374">代价：子网数量上升，必须靠 IPAM 与配置模板；无线需要单独设计漫游</text>
+<text class="r" x="90" y="392">硬指标：接入层设备上不得出现"跨设备的同一 VLAN"，否则等于白做</text>
+
+<!-- 右侧 -->
+<rect x="560" y="64" width="376" height="252" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="576" y="86" fill="#b45309">三个隐蔽坑（评审必问）</text>
+<text class="m" x="576" y="108">① 上行用 /30 会快速耗尽地址</text>
+<text class="b" x="590" y="124">16 个配线间 × 2 条上行 = 32 个 /30，一个 /24 就没了</text>
+<text class="b" x="590" y="140">对策：/31（RFC 3021）、未编号上行、或独立互联池</text>
+<text class="m" x="576" y="162">② 汇总把故障"美化"了</text>
+<text class="b" x="590" y="178">接入 /24 汇总成 /20，某台挂掉仍可达 → 流量打黑洞</text>
+<text class="b" x="590" y="194">对策：快速收敛 + BFD + 精确汇总粒度，三者配合</text>
+<text class="m" x="576" y="216">③ 写死网关的存量资产</text>
+<text class="b" x="590" y="232">打印机、工控、摄像头、旧话机：上网关变化必须盘点</text>
+<text class="b" x="590" y="248">对策：上线前扫描"默认网关指向旧网关"的终端清单</text>
+<text class="r" x="576" y="272">反例：接入交换机有 IP 但网关仍在分布层 = 假路由接入</text>
+<text class="r" x="576" y="292">STP 依然存在，只是路径多了一跳；收敛一秒没变快</text>
+
+<rect x="24" y="404" width="912" height="38" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="428">判断标准只有一条：网关在哪。网关在接入层才是路由接入；网关在分布层，无论接入交换机配了多少 IP，都还是多层 STP。</text>
+</svg>

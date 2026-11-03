@@ -9,6 +9,12 @@ Cisco Certified Design Expert (CCDE 400-007) Official Cert Guide 中文精读笔
 
 https://huyushao521.github.io/ccde2023-notes/
 
+## 仓库地址 · 欢迎 Star
+
+https://github.com/huyushao521/ccde2023-notes
+
+如果这份笔记对你有帮助，欢迎点个 **Star ★**，也欢迎提 Issue 指出错漏。
+
 ## 章节结构与进度
 
 | 部分 | 章节 | 主题 |

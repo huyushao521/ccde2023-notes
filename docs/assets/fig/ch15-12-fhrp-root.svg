@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" width="100%" role="img" aria-labelledby="t1512 d1512">
+<title id="t1512">STP 根桥与 FHRP Active 同侧与不同侧的两种拓扑，以及不同侧时串联链路被打满的机制</title>
+<desc id="d1512">左边是正确做法：分布 A 同时是 STP 根桥和 HSRP Active，分布 B 是 Standby；终端上行到 A 后直接就在 A 上做三层转发，路径只有一跳，两台设备之间的串联链路几乎空闲。右边是常见事故：分布 A 是 STP 根桥但只是 HSRP Standby，分布 B 是 HSRP Active 但不是根桥；终端流量第一跳先被 STP 送到 A，A 发现网关 MAC 在 B 上，于是二层转发跨过串联链路到 B，B 做完三层转发再回 A 出去，来回两次穿过串联链路。图中标注 8 台接入交换机每台 1G 上行时，串联链路峰值被打到 8G 而设计只有 2×10G，导致所有业务抖动。底部给出对齐方法与校验命令：根桥优先级与 HSRP 优先级按 VLAN 同一侧配置，用 show spanning-tree root 与 show standby brief 逐 VLAN 对齐检查。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="460" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">STP 根桥与 FHRP Active 必须同侧 —— 否则每个包都要横穿串联链路两次</text>
+<text class="s" x="24" y="48">这一条不写在设计文档里，几乎一定会在上线三个月内变成"高峰期全网抖动"</text>
+
+<!-- 正确：同侧 -->
+<rect x="24" y="62" width="440" height="266" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="82" fill="#0f7f73">正确：根桥 = Active（同一台）</text>
+<rect x="52" y="94" width="170" height="46" rx="4" fill="#fff" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="k" x="137" y="112" text-anchor="middle">分布-A</text>
+<text class="c" x="137" y="128" text-anchor="middle">STP Root + HSRP Active</text>
+<rect x="262" y="94" width="170" height="46" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="k" x="347" y="112" text-anchor="middle">分布-B</text>
+<text class="b" x="347" y="128" text-anchor="middle">非根 + HSRP Standby</text>
+<line x1="222" y1="117" x2="262" y2="117" stroke="#8fc4bd" stroke-width="2"/>
+<text class="t" x="226" y="110">串联（空闲）</text>
+
+<rect x="52" y="180" width="110" height="28" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="107" y="198" text-anchor="middle">接入-1</text>
+<rect x="180" y="180" width="110" height="28" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="235" y="198" text-anchor="middle">接入-2</text>
+<line x1="107" y1="140" x2="107" y2="180" stroke="#0f7f73" stroke-width="2.2"/>
+<line x1="235" y1="140" x2="235" y2="180" stroke="#0f7f73" stroke-width="2.2"/>
+<text class="c" x="140" y="166">上行 → 本机三层转发，一跳出网</text>
+
+<rect x="52" y="224" width="376" height="28" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="b" x="66" y="242">路径：终端 → 接入 → A（三层）→ 核心，串联链路零流量</text>
+<text class="c" x="52" y="274">故障时：A 挂 → STP 收敛 + HSRP 切换同时发生，路径仍只有一跳</text>
+<text class="c" x="52" y="292">排障：一台设备上就能看到完整的"入口—网关—出口"</text>
+<text class="b" x="52" y="310">这也是为什么老工程师强调"根桥跟着网关走"</text>
+
+<!-- 错误：不同侧 -->
+<rect x="496" y="62" width="440" height="266" rx="6" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="lb" x="510" y="82" fill="#a32020">事故：根桥在一台，Active 在另一台</text>
+<rect x="524" y="94" width="170" height="46" rx="4" fill="#fff" stroke="#0f7f73" stroke-width="1.6"/>
+<text class="k" x="609" y="112" text-anchor="middle">分布-A</text>
+<text class="c" x="609" y="128" text-anchor="middle">STP Root + HSRP Standby</text>
+<rect x="734" y="94" width="170" height="46" rx="4" fill="#fff" stroke="#d98c8c" stroke-width="1.6"/>
+<text class="k" x="819" y="112" text-anchor="middle">分布-B</text>
+<text class="r" x="819" y="128" text-anchor="middle">非根 + HSRP Active</text>
+<line x1="694" y1="117" x2="734" y2="117" stroke="#a32020" stroke-width="3"/>
+<text class="r" x="686" y="110">串联 2×10G</text>
+
+<rect x="524" y="180" width="110" height="28" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="579" y="198" text-anchor="middle">接入-1</text>
+<rect x="652" y="180" width="110" height="28" rx="3" fill="#fff" stroke="#e3c795"/>
+<text class="b" x="707" y="198" text-anchor="middle">接入-2</text>
+<line x1="579" y1="140" x2="579" y2="180" stroke="#0f7f73" stroke-width="2.2"/>
+<line x1="707" y1="140" x2="707" y2="180" stroke="#0f7f73" stroke-width="2.2"/>
+
+<path d="M579 208 L579 222 L819 222 L819 140" fill="none" stroke="#a32020" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text class="r" x="600" y="238">① 终端的网关 MAC 在 B 上：流量先到 A，再二层过桥到 B</text>
+<path d="M819 140 L819 246 L609 246 L609 140" fill="none" stroke="#e8a33d" stroke-width="1.8" stroke-dasharray="6 4"/>
+<text class="m" x="600" y="262">② B 三层转发后又回到 A 出核心：同一个包两次穿越串联链路</text>
+<text class="r" x="510" y="288">8 台接入 × 1G 上行 = 8G 峰值压在串联链路上</text>
+<text class="r" x="510" y="306">表现：高峰全业务抖动、串联链路 util 长期 &gt; 70%</text>
+
+<!-- 对齐方法 -->
+<rect x="24" y="344" width="912" height="42" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="364">对齐方法：按 VLAN 成对配置 —— 想让它当根的，STP 优先级调低且 HSRP 优先级调高；两台设备的"角色表"写进设计文档。</text>
+<text class="b" x="40" y="380">校验：show spanning-tree vlan N root 与 show standby brief 逐 VLAN 比对，Active 所在设备必须就是 Root 所在设备。</text>
+
+<rect x="24" y="396" width="912" height="52" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="40" y="416">延伸坑：STP 与 HSRP 的"切换时间"不同步 —— STP 收敛完但 HSRP 还没切换（或反之），会出现 2–10 s 的"通但走错路"。</text>
+<text class="b" x="40" y="434">对策：RSTP + HSRP 抢占延迟（preempt delay）大于 STP 收敛时间；或用路由接入直接消掉这一层复杂性。</text>
+</svg>

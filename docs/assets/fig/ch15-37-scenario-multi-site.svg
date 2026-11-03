@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" width="100%" role="img" aria-labelledby="t1537 d1537">
+<title id="t1537">四厂区合并情景：三层模型加路由接入与 VRF-Lite 的目标架构及四周滚动迁移</title>
+<desc id="d1537">图上半是四厂区合并后的目标架构：集团核心运行 OSPF 区域零，向下连接四个厂区分布块，每个厂区各自一个 OSPF 区域；厂区内部分成 IT 块与 OT 块，IT 块采用路由接入、每配线间一个子网，OT 块采用堆叠集群并经工业防火墙单向访问 MES。图中标注两个隔离域为 IT 与 OT 两个 VRF，OT 侧没有默认路由、仅 MES 前缀可达。图下半是四周滚动迁移甘特：第一周建 OSPF 区域并把分布层接入核心、业务路径不变；第二周新建 OT VRF 与防火墙边界、OT 设备逐台迁移；第三周办公区按配线间切换为路由接入；第四周拆除旧 STP 域、清理 VLAN 并做拔电演练，四周合计单次停机不超过三十分钟。右下角给出"为什么不上 fabric"的三行判据：策略随人走不需要、大规模自动化不需要、代价是六到十二个月学习成本。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .n{font:600 9.5px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<defs>
+  <marker id="a37" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#2f6fed"/>
+  </marker>
+</defs>
+<rect x="0" y="0" width="960" height="470" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">情景一：4 厂区合并，2 个隔离域，预算只够一个园区</text>
+<text class="s" x="24" y="48">决定方案的不是"哪个技术先进"，而是"预算 + 团队能力 + 停机约束"这三条硬边界</text>
+
+<!-- 集团核心 -->
+<rect x="300" y="62" width="360" height="34" rx="5" fill="#eef4ff" stroke="#2f6fed" stroke-width="1.6"/>
+<text class="k" x="480" y="84" text-anchor="middle">集团核心（Area 0，2 台）</text>
+
+<!-- 四厂区 -->
+<rect x="24" y="122" width="216" height="112" rx="5" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="36" y="140">厂区 A · Area 1</text>
+<rect x="36" y="148" width="192" height="26" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="b" x="132" y="165" text-anchor="middle">IT 块：路由接入（每 IDF 一子网）</text>
+<rect x="36" y="180" width="192" height="26" rx="3" fill="#fffdf8" stroke="#e3c795"/>
+<text class="m" x="132" y="197" text-anchor="middle">OT 块：堆叠集群 + 工业防火墙</text>
+<text class="t" x="36" y="222">VRF-IT / VRF-OT，OT 无默认路由</text>
+
+<rect x="248" y="122" width="216" height="112" rx="5" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="260" y="140">厂区 B · Area 2</text>
+<rect x="260" y="148" width="192" height="26" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="b" x="356" y="165" text-anchor="middle">IT 块：路由接入</text>
+<rect x="260" y="180" width="192" height="26" rx="3" fill="#fffdf8" stroke="#e3c795"/>
+<text class="m" x="356" y="197" text-anchor="middle">OT 块：堆叠集群</text>
+<text class="t" x="260" y="222">同样结构，模板化复制</text>
+
+<rect x="472" y="122" width="216" height="112" rx="5" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="484" y="140">厂区 C · Area 3</text>
+<rect x="484" y="148" width="192" height="26" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="b" x="580" y="165" text-anchor="middle">IT 块：路由接入</text>
+<rect x="484" y="180" width="192" height="26" rx="3" fill="#fffdf8" stroke="#e3c795"/>
+<text class="m" x="580" y="197" text-anchor="middle">OT 块：堆叠集群</text>
+<text class="t" x="484" y="222">汇总：每厂区一条 /16</text>
+
+<rect x="696" y="122" width="216" height="112" rx="5" fill="#fff" stroke="#dbe3ee"/>
+<text class="lb" x="708" y="140">厂区 D · Area 4</text>
+<rect x="708" y="148" width="192" height="26" rx="3" fill="#f4fbfa" stroke="#8fc4bd"/>
+<text class="b" x="804" y="165" text-anchor="middle">IT 块：路由接入</text>
+<rect x="708" y="180" width="192" height="26" rx="3" fill="#fffdf8" stroke="#e3c795"/>
+<text class="m" x="804" y="197" text-anchor="middle">MES 侧出口（OT 唯一可达）</text>
+<text class="t" x="708" y="222">白名单 + 工业协议识别</text>
+
+<line x1="132" y1="122" x2="360" y2="96" stroke="#2f6fed" stroke-width="1.6" marker-end="url(#a37)"/>
+<line x1="356" y1="122" x2="450" y2="96" stroke="#2f6fed" stroke-width="1.6" marker-end="url(#a37)"/>
+<line x1="580" y1="122" x2="510" y2="96" stroke="#2f6fed" stroke-width="1.6" marker-end="url(#a37)"/>
+<line x1="804" y1="122" x2="600" y2="96" stroke="#2f6fed" stroke-width="1.6" marker-end="url(#a37)"/>
+
+<!-- 甘特 -->
+<text class="lb" x="24" y="266" fill="#b45309">滚动迁移：每厂区 4 周，单次停机 ≤30 分钟</text>
+<line x1="24" y1="300" x2="632" y2="300" stroke="#dbe3ee"/>
+<line x1="24" y1="300" x2="24" y2="280" stroke="#dbe3ee"/>
+<line x1="170" y1="300" x2="170" y2="280" stroke="#dbe3ee"/>
+<line x1="316" y1="300" x2="316" y2="280" stroke="#dbe3ee"/>
+<line x1="462" y1="300" x2="462" y2="280" stroke="#dbe3ee"/>
+<line x1="608" y1="300" x2="608" y2="280" stroke="#dbe3ee"/>
+
+<rect x="26" y="286" width="140" height="12" rx="2" fill="#8fc4bd"/>
+<rect x="172" y="286" width="140" height="12" rx="2" fill="#e3c795"/>
+<rect x="318" y="286" width="140" height="12" rx="2" fill="#8fa8d0"/>
+<rect x="464" y="286" width="140" height="12" rx="2" fill="#b6dcd6"/>
+<text class="b" x="26" y="316">W1 建区域接入核心</text>
+<text class="b" x="26" y="330">业务路径不变 · 无停机</text>
+<text class="b" x="172" y="316">W2 建 OT VRF + 边界</text>
+<text class="b" x="172" y="330">逐台迁移 · 每台 ≤5 min</text>
+<text class="b" x="318" y="316">W3 办公区改路由接入</text>
+<text class="b" x="318" y="330">按 IDF 切 · 每次 20 min</text>
+<text class="b" x="464" y="316">W4 拆旧 STP + 验收</text>
+<text class="b" x="464" y="330">含拔电演练 · 无停机</text>
+
+<!-- 不上 fabric -->
+<rect x="652" y="252" width="284" height="96" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="k" x="664" y="270" fill="#0f7f73">为什么不上 fabric（结论：收益 ≤ 代价）</text>
+<text class="b" x="664" y="288">策略随人走？不需要 —— OT/IT 是固定物理边界</text>
+<text class="b" x="664" y="304">大规模自动化？不需要 —— 4 厂区约 120 台接入</text>
+<text class="b" x="664" y="320">代价：underlay + EVPN 排障 + 6–12 月培训</text>
+<text class="r" x="664" y="338">团队 5 人、无 MPLS/EVPN 经验 = 硬约束</text>
+
+<!-- 底部 -->
+<rect x="24" y="362" width="912" height="46" rx="5" fill="#fffdf8" stroke="#e3c795"/>
+<text class="k" x="38" y="380" fill="#b45309">最容易被追问的一点：OT 为什么不物理隔离单独布线？</text>
+<text class="b" x="38" y="396">因为车间到 MES 必须复用主干光纤，重新布线成本远超预算；而 VRF + 工业防火墙 + 白名单在合规上可通过 —— 前提是保留"OT 无默认路由、仅 MES 前缀可达"的验证证据</text>
+
+<text class="t" x="24" y="428">迁移顺序的设计原则：先建"能回退的新路径"，再动"业务所在的旧路径"；每一周的收尾动作都必须包含"回退方法"与"验证命令"两栏</text>
+<text class="t" x="24" y="446">场景通用套路：约束（预算/人力/停机）→ 功能块 → 接入模型 → 隔离域数量 → IGP 与边界 → 迁移批次；顺序反了就会先选技术再找理由</text>
+</svg>

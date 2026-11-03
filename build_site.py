@@ -15,6 +15,7 @@ ASSETS = OUT / "assets"
 
 SITE_TITLE = "CCDE 400-007 学习笔记"
 SITE_SUB = "Cisco Certified Design Expert · Official Cert Guide 中文精读"
+REPO_URL = "https://github.com/huyushao521/ccde2023-notes"
 
 # (分组标识, 中文名, 副标题, 起始章, 结束章)
 PART_DEFS = [
@@ -391,6 +392,10 @@ def page_shell(title: str, content: str, sidebar: str, *, toc: str = "",
     <input id="searchInput" type="search" placeholder="搜索章节 / 关键词…" autocomplete="off" aria-label="搜索">
     <div class="search-results" id="searchResults"></div>
   </div>
+  <a class="gh-link" href="https://github.com/huyushao521/ccde2023-notes" target="_blank" rel="noopener" title="GitHub 仓库 · 欢迎 Star">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+    <b>Star</b>
+  </a>
   <button class="theme-btn" id="themeBtn" aria-label="切换主题">◐</button>
 </header>
 
@@ -651,6 +656,20 @@ def main():
         f'<span><b>{fig_done}/{fig_all}</b> 章已配图</span></div>'
         f'<div class="hero-progress" title="精讲进度 {pct}%">'
         f'<span style="width:{pct}%"></span></div>'
+        '<div class="hero-cta">'
+        f'<a class="gh-cta" href="{REPO_URL}" target="_blank" rel="noopener">'
+        '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 '
+        '6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23'
+        '-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66'
+        '.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02'
+        '.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 '
+        '2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54'
+        '.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8'
+        '-8-8z"/></svg>'
+        '<span>GitHub 仓库</span><span class="star">★ Star</span>'
+        '</a>'
+        '<span class="gh-note">全部笔记与 400+ 张配图开源在这里，觉得有用点个 Star 支持一下</span>'
+        '</div>'
         "</div>"
     )
     home_content = (

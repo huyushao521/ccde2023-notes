@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 448" width="100%" role="img" aria-labelledby="t1515 d1515">
+<title id="t1515">路由设计必须与物理架构对齐：DC 在同一园区用同一 IGP，跨 WAN 才用 BGP 做边界</title>
+<desc id="d1515">上半部分是两个场景。左边：数据中心与园区在同一物理园区内，用户块经核心直接连到 DC 块，三层可达，因此使用同一 IGP（同一 OSPF 区域或同一 EIGRP AS），不需要 BGP，也不需要重分发。右边：数据中心跨 WAN 位于另一城市，园区核心经 WAN 连接到 DC 边缘，此时 BGP 作为园区与 DC 之间的边界协议，各自内部继续跑自己的 IGP，BGP 只出现在 AS 边界，园区内部不引入 BGP，也不需要双向重分发。下半部分列出把 BGP 塞进园区带来的三个后果：配置与排障复杂度上升、重分发环路风险、以及 NEED-TO-KNOW 的路由信息泄露；并给出判断表：同一园区同 IGP、跨 WAN 用 BGP、上云用 BGP 加地址不重叠。</desc>
+<style>
+  .h{font:600 13px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .s{font:10px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+  .lb{font:600 10px "Microsoft YaHei",sans-serif;fill:#1f4fc0}
+  .b{font:9px "Microsoft YaHei",sans-serif;fill:#4a5a72}
+  .k{font:600 9px "Microsoft YaHei",sans-serif;fill:#1a2233}
+  .r{font:9px "Microsoft YaHei",sans-serif;fill:#a32020}
+  .c{font:9px "Microsoft YaHei",sans-serif;fill:#0f7f73}
+  .m{font:9px "Microsoft YaHei",sans-serif;fill:#b45309}
+  .t{font:8.5px "Microsoft YaHei",sans-serif;fill:#7c8b9f}
+</style>
+<rect x="0" y="0" width="960" height="448" fill="#fbfcfe"/>
+
+<text class="h" x="24" y="30">路由设计与物理架构对齐：先看距离，再选协议</text>
+<text class="s" x="24" y="48">同一个问题（园区怎么到 DC），两个答案，取决于 DC 在不在同一个园区</text>
+
+<!-- 场景一 -->
+<rect x="24" y="62" width="440" height="212" rx="6" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="lb" x="38" y="82" fill="#0f7f73">场景一：DC 在同一园区 → 同一 IGP</text>
+<rect x="46" y="94" width="110" height="40" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="101" y="112" text-anchor="middle">用户块</text>
+<text class="t" x="101" y="126" text-anchor="middle">10.20.0.0/16</text>
+<rect x="184" y="94" width="110" height="40" rx="4" fill="#fff" stroke="#8aa9e8"/>
+<text class="k" x="239" y="112" text-anchor="middle">核心</text>
+<text class="t" x="239" y="126" text-anchor="middle">Area 0</text>
+<rect x="322" y="94" width="122" height="40" rx="4" fill="#fff" stroke="#8fc4bd"/>
+<text class="k" x="383" y="112" text-anchor="middle">DC 块</text>
+<text class="t" x="383" y="126" text-anchor="middle">10.30.0.0/16</text>
+<line x1="156" y1="114" x2="184" y2="114" stroke="#0f7f73" stroke-width="2"/>
+<line x1="294" y1="114" x2="322" y2="114" stroke="#0f7f73" stroke-width="2"/>
+<text class="c" x="158" y="108">/31</text>
+<text class="c" x="296" y="108">/31</text>
+<rect x="46" y="160" width="398" height="30" rx="4" fill="#fff" stroke="#b6dcd6"/>
+<text class="b" x="60" y="180">同一 OSPF 区域（或同一 EIGRP AS）：一条明细直达，无重分发</text>
+<text class="c" x="46" y="210">· 收敛由 IGP 统一决定，一个工具排障</text>
+<text class="c" x="46" y="228">· 汇总边界可以在核心或 DC 边缘任选</text>
+<text class="m" x="46" y="252">注意：DC 内若有防火墙/负载均衡，服务插入</text>
+<text class="m" x="46" y="266">要在同一 IGP 内规划，而不是靠静态路由</text>
+
+<!-- 场景二 -->
+<rect x="496" y="62" width="440" height="212" rx="6" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="lb" x="510" y="82" fill="#b45309">场景二：DC 跨 WAN → BGP 只做边界</text>
+<rect x="518" y="94" width="100" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="k" x="568" y="112" text-anchor="middle">园区</text>
+<text class="t" x="568" y="126" text-anchor="middle">AS 65001</text>
+<rect x="636" y="94" width="110" height="40" rx="4" fill="#f4f8ff" stroke="#8aa9e8"/>
+<text class="k" x="691" y="112" text-anchor="middle">WAN</text>
+<text class="t" x="691" y="126" text-anchor="middle">eBGP</text>
+<rect x="764" y="94" width="150" height="40" rx="4" fill="#fff" stroke="#e3c795"/>
+<text class="k" x="839" y="112" text-anchor="middle">DC 边缘</text>
+<text class="t" x="839" y="126" text-anchor="middle">AS 65002</text>
+<line x1="618" y1="114" x2="636" y2="114" stroke="#b45309" stroke-width="2"/>
+<line x1="746" y1="114" x2="764" y2="114" stroke="#b45309" stroke-width="2"/>
+<rect x="518" y="160" width="396" height="30" rx="4" fill="#fff" stroke="#f2ddb8"/>
+<text class="b" x="532" y="180">BGP 只出现在 AS 边界：园区内 EIGRP、DC 内 OSPF</text>
+<text class="c" x="518" y="210">· 两域独立演进，互不牵动对方 IGP</text>
+<text class="c" x="518" y="228">· 策略（过滤、社区、本地优先）落在边界上</text>
+<text class="m" x="518" y="252">注意：单边界会出现次优（DC 间流量绕园区），</text>
+<text class="m" x="518" y="266">需要双边界或 RR 设计，见第 9 章 VPN 部分</text>
+
+<!-- 底部 -->
+<text class="k" x="24" y="302">判断表</text>
+<rect x="24" y="310" width="290" height="58" rx="5" fill="#f4fbfa" stroke="#b6dcd6"/>
+<text class="c" x="38" y="330">同一园区 / 同一机房</text>
+<text class="b" x="38" y="348">同一 IGP，不引入 BGP</text>
+<text class="b" x="38" y="362">收敛与排障语言统一</text>
+<rect x="336" y="310" width="290" height="58" rx="5" fill="#fff8ee" stroke="#f2ddb8"/>
+<text class="m" x="350" y="330">跨 WAN / 跨城市</text>
+<text class="b" x="350" y="348">BGP 做边界，内部各自 IGP</text>
+<text class="b" x="350" y="362">不要双向重分发</text>
+<rect x="648" y="310" width="288" height="58" rx="5" fill="#f4f8ff" stroke="#c3d5f5"/>
+<text class="lb" x="662" y="330">上云 / 混合云</text>
+<text class="b" x="662" y="348">BGP + 地址不重叠（或 NAT 边界）</text>
+<text class="b" x="662" y="362">AS 号与地址先规划再开通</text>
+
+<rect x="24" y="380" width="912" height="30" rx="5" fill="#fff5f5" stroke="#f0c9c9"/>
+<text class="r" x="40" y="400">把 BGP 塞进园区内部的三个后果：配置量翻倍、双向重分发的环路与次优、NEED-TO-KNOW 的路由信息四处泄露。</text>
+<rect x="24" y="416" width="912" height="26" rx="5" fill="#eef3ff" stroke="#c3d5f5"/>
+<text class="k" x="40" y="434">自检问题：如果明天 DC 搬走，你的园区路由要改多少条？答案越少，说明边界画得越对。</text>
+</svg>
